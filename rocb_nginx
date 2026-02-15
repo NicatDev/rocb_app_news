@@ -5,7 +5,7 @@ server {
     location = /favicon.ico { access_log off; log_not_found off; }
     
     location /static/ {
-        alias /rocb_app_news/backend/static/;
+        alias /rocb_app_news/backend/staticfiles/;
     }
 
     location /media/ {
