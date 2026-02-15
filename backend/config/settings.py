@@ -167,6 +167,19 @@ SIMPLE_JWT = {
 }
 
 # CORS
+# CORS
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://46.62.155.59:307",
+    "http://46.62.155.59:308",
+]
+
+# CSRF Trusted Origins (Optional but recommended if using CSRF with these origins)
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:5173",
+    "http://46.62.155.59:307",
+    "http://46.62.155.59:308",
 ]
