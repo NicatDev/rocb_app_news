@@ -1,0 +1,7 @@
+/* Default styles removed to prevent conflicts with Ant Design */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f0f2f5;
+  /* Match Ant Design default background */
+}

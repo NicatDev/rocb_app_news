@@ -1,0 +1,127 @@
+.dashboardContainer {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    margin-bottom: 24px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    border-radius: 8px;
+}
+
+.footer {
+    display: none; // Hide global footer as we're moving to inline edits
+}
+
+.editableField {
+    margin-bottom: 24px;
+
+    @media (max-width: 768px) {
+        margin-bottom: 20px;
+    }
+
+    .label {
+        font-weight: 500;
+        color: #8c8c8c;
+        margin-bottom: 4px;
+        font-size: 14px;
+    }
+
+    .valueDisplay {
+        display: flex;
+        align-items: flex-start; // Align to top for multiline text
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+        min-height: 40px;
+
+        .value {
+            font-size: 16px;
+            color: #262626;
+            flex-grow: 1;
+            margin-right: 12px;
+            white-space: pre-wrap; // Preserve line breaks for text areas
+            word-break: break-word; // Prevent overflow on long words
+        }
+
+        .emptyValue {
+            color: #bfbfbf;
+            font-style: italic;
+        }
+
+        .editIcon {
+            color: #1890ff;
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            margin-top: 4px; // Align with text top
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+
+    .editForm {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        flex-direction: row;
+
+        @media (max-width: 576px) {
+            flex-direction: column;
+
+            .inputWrapper {
+                width: 100%;
+            }
+
+            .actionButtons {
+                width: 100%;
+                justify-content: flex-end;
+                padding-top: 8px;
+            }
+        }
+
+        .inputWrapper {
+            flex-grow: 1;
+        }
+
+        .actionButtons {
+            display: flex;
+            gap: 4px;
+            padding-top: 4px;
+            flex-shrink: 0;
+        }
+    }
+}
+
+.logoContainer {
+    text-align: center;
+
+    .currentLogo {
+        margin-bottom: 16px;
+        position: relative;
+        display: inline-block;
+
+        img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 4px;
+            border: 1px solid #f0f0f0;
+        }
+
+        .deleteBtn {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+    }
+
+    .uploadArea {
+        margin-top: 12px;
+    }
+}

@@ -1,0 +1,82 @@
+.detailContainer {
+    padding: 24px;
+    background-color: #fbfbfb; // Matches main layout
+    min-height: calc(100vh - 64px);
+
+    @media (max-width: 768px) {
+        padding: 16px;
+    }
+}
+
+.loadingContainer,
+.errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 16px;
+}
+
+.header {
+    margin-bottom: 24px;
+}
+
+.backButton {
+    margin-bottom: 16px;
+    color: #595959;
+
+    &:hover {
+        color: #1890ff;
+    }
+}
+
+.titleSection {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    @media (max-width: 576px) {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+.logo {
+    width: 64px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logoPlaceholder {
+    width: 64px;
+    height: 48px;
+    background-color: #e6f7ff;
+    border: 1px solid #91d5ff;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #1890ff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pageTitle {
+    margin: 0 !important;
+    color: #262626;
+
+    @media (max-width: 576px) {
+        font-size: 24px !important;
+    }
+}
+
+.tabs {
+    :global {
+        .ant-tabs-nav {
+            margin-bottom: 24px;
+        }
+    }
+}

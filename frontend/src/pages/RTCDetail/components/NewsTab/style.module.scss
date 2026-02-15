@@ -1,0 +1,121 @@
+.newsContainer {
+    padding: 24px 0;
+}
+
+.toolbar {
+    margin-bottom: 32px;
+}
+
+.searchBar {
+    max-width: 400px;
+    width: 100%;
+}
+
+.newsList {
+    margin-bottom: 32px;
+}
+
+.newsCard {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid #f0f0f0;
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    :global {
+        .ant-card-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 20px;
+        }
+    }
+}
+
+.imageContainer {
+    height: 200px;
+    overflow: hidden;
+    position: relative;
+    background-color: #f5f5f5;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    &:hover img {
+        transform: scale(1.05);
+    }
+}
+
+.placeholderImage {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f0f2f5 0%, #e6f7ff 100%);
+    color: #1890ff;
+    font-size: 48px;
+}
+
+.date {
+    font-size: 12px;
+    color: #8c8c8c;
+    margin-bottom: 8px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px !important;
+    line-height: 1.4;
+
+    a {
+        color: #262626;
+
+        &:hover {
+            color: #1890ff;
+        }
+    }
+}
+
+.excerpt {
+    color: #595959;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 16px !important;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.readMoreBtn {
+    align-self: flex-start;
+    padding: 0;
+    height: auto;
+    font-weight: 500;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.paginationContainer {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+}

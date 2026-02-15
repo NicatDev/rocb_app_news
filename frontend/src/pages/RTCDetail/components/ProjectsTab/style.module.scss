@@ -1,0 +1,77 @@
+.projectsContainer {
+    padding: 24px 0;
+}
+
+.toolbar {
+    margin-bottom: 32px;
+}
+
+.searchBar {
+    max-width: 500px;
+    width: 100%;
+
+    :global {
+        .ant-input-search-button {
+            background-color: #1890ff;
+            border-color: #1890ff;
+
+            &:hover {
+                background-color: #40a9ff;
+                border-color: #40a9ff;
+            }
+        }
+    }
+}
+
+.modalContent {
+    padding: 12px 0;
+}
+
+.modalHeader {
+    margin-bottom: 24px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 16px;
+}
+
+.modalTag {
+    font-size: 14px;
+    padding: 4px 10px;
+    margin-bottom: 12px;
+}
+
+.modalTitle {
+    margin: 0 !important;
+}
+
+.modalSection {
+    margin-bottom: 24px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.modalLabel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    color: #8c8c8c;
+}
+
+.modalPartners {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 0 !important;
+}
+
+.modalDescription {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #262626;
+    text-align: justify;
+    margin-bottom: 0 !important;
+}

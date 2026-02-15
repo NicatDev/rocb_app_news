@@ -1,0 +1,180 @@
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, Upload, Button, Select, DatePicker, InputNumber, Alert, message } from 'antd';
+import { UploadOutlined, FilePdfOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
+
+const { TextArea } = Input;
+const { Option } = Select;
+
+const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErrors }) => {
+    const [form] = Form.useForm();
+    const { t } = useTranslation();
+    const [fileList, setFileList] = useState([]);
+
+    useEffect(() => {
+        if (visible) {
+            if (initialValues) {
+                form.setFieldsValue({
+                    title: initialValues.title,
+                    topic: initialValues.topic,
+                    event_date: initialValues.event_date ? dayjs(initialValues.event_date) : null,
+                    summary: initialValues.summary,
+                    participant_count: initialValues.participant_count,
+                    status: initialValues.status
+                });
+                if (initialValues.report_file) {
+                    setFileList([{
+                        uid: '-1',
+                        name: 'report.pdf',
+                        status: 'done',
+                        url: initialValues.report_file,
+                    }]);
+                } else {
+                    setFileList([]);
+                }
+            } else {
+                form.resetFields();
+                setFileList([]);
+            }
+        }
+    }, [visible, initialValues, form]);
+
+    // Handle server-side validation errors
+    const FORM_FIELDS = ['title', 'topic', 'event_date', 'summary', 'participant_count', 'report_file'];
+    useEffect(() => {
+        if (serverErrors && typeof serverErrors === 'object') {
+            const fieldErrors = [];
+            const nonFieldMessages = [];
+
+            Object.entries(serverErrors).forEach(([key, value]) => {
+                const errMsg = Array.isArray(value) ? value.join(', ') : String(value);
+                if (FORM_FIELDS.includes(key)) {
+                    fieldErrors.push({ name: key, errors: Array.isArray(value) ? value : [String(value)] });
+                } else if (key === 'non_field_errors' || key === 'detail') {
+                    nonFieldMessages.push(errMsg);
+                } else {
+                    nonFieldMessages.push(`${key}: ${errMsg}`);
+                }
+            });
+
+            if (fieldErrors.length > 0) {
+                form.setFields(fieldErrors);
+            }
+            if (nonFieldMessages.length > 0) {
+                nonFieldMessages.forEach(msg => message.error(msg));
+            }
+        }
+    }, [serverErrors, form]);
+
+    const handleOk = () => {
+        form.validateFields().then(values => {
+            const formData = new FormData();
+            formData.append('title', values.title);
+            formData.append('topic', values.topic);
+            formData.append('event_date', values.event_date.format('YYYY-MM-DD'));
+
+            if (values.summary) {
+                formData.append('summary', values.summary);
+            }
+            if (values.participant_count) {
+                formData.append('participant_count', values.participant_count);
+            }
+
+            // Handle Report File
+            if (fileList.length > 0 && fileList[0].originFileObj) {
+                formData.append('report_file', fileList[0].originFileObj);
+            } else if (fileList.length === 0 && initialValues?.report_file) {
+                // Logic to handle file removal if needed by backend, currently assumes keep if not replaced.
+            }
+
+            onOk(formData);
+        }).catch(info => {
+            console.log('Validate Failed:', info);
+        });
+    };
+
+    const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+
+    return (
+        <Modal
+            title={initialValues ? t('edit_event') : t('create_event')}
+            open={visible}
+            onOk={handleOk}
+            onCancel={onCancel}
+            confirmLoading={loading}
+            width={800}
+        >
+            <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '10px' }}>
+                <Form
+                    form={form}
+                    layout="vertical"
+                    name="event_form"
+                >
+                    {initialValues && (
+                        <Alert
+                            message={`${t('current_status')}: ${initialValues.status}`}
+                            type="info"
+                            showIcon
+                            style={{ marginBottom: 16 }}
+                        />
+                    )}
+
+                    <Form.Item
+                        name="title"
+                        label={t('title')}
+                        rules={[{ required: true, message: t('please_enter_title') }]}
+                    >
+                        <Input placeholder={t('event_title_placeholder') || 'Enter event title'} />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="topic"
+                        label={t('topic')}
+                        rules={[{ required: true, message: t('please_enter_topic') || 'Please enter topic' }]}
+                    >
+                        <Input placeholder={t('event_topic_placeholder') || 'Enter event topic'} />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="event_date"
+                        label={t('event_date') || 'Event Date'}
+                        rules={[{ required: true, message: t('please_select_date') || 'Please select date' }]}
+                    >
+                        <DatePicker style={{ width: '100%' }} />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="summary"
+                        label={t('summary')}
+                    >
+                        <TextArea rows={4} placeholder={t('event_summary_placeholder') || 'Enter event summary'} />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="participant_count"
+                        label={t('participant_count') || 'Participant Count'}
+                    >
+                        <InputNumber style={{ width: '100%' }} min={0} placeholder={t('participant_count_placeholder') || 'Enter number of participants'} />
+                    </Form.Item>
+
+                    <Form.Item
+                        label={t('report_file') || 'Report File (PDF)'}
+                    >
+                        <Upload
+                            fileList={fileList}
+                            onChange={handleChange}
+                            beforeUpload={() => false}
+                            maxCount={1}
+                            accept=".pdf"
+                        >
+                            <Button icon={<UploadOutlined />}>{t('upload_report') || 'Upload Report'}</Button>
+                        </Upload>
+                    </Form.Item>
+                </Form>
+            </div>
+        </Modal>
+    );
+};
+
+export default EventModal;

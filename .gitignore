@@ -1,0 +1,33 @@
+# Python / Django
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+db.sqlite3
+db.sqlite3-journal
+*.log
+local_settings.py
+backend/media/
+backend/static/
+
+# Migrations (keep __init__.py)
+*/migrations/00*.py
+!*/migrations/__init__.py
+
+# Node / React
+node_modules/
+/frontend/node_modules
+/frontend/build
+/frontend/dist
+/frontend/.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+
+# IDEs
+.idea/
+.vscode/
+*.swp

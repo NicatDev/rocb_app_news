@@ -1,0 +1,169 @@
+// Breakpoints
+$mobile: 768px;
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 24px;
+    background: #ffffff;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+    @media (max-width: $mobile) {
+        padding: 0 16px;
+    }
+
+    .leftSection {
+        display: flex;
+        align-items: center;
+        flex: 0 0 200px; // Keep alignment consistent
+
+        @media (max-width: $mobile) {
+            flex: 0 0 auto;
+        }
+    }
+
+    .burgerBtn {
+        display: none;
+        font-size: 18px;
+        color: #1f1f1f;
+
+        @media (max-width: $mobile) {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+
+    a {
+        display: flex;
+        align-items: center;
+    }
+
+    .logoArea {
+        .logo {
+            height: 40px;
+            max-width: 120px;
+            object-fit: contain;
+
+            @media (max-width: $mobile) {
+                height: 32px;
+                max-width: 100px;
+            }
+        }
+    }
+
+    .navArea {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+
+        @media (max-width: $mobile) {
+            display: none;
+        }
+
+        .navMenu {
+            min-width: 400px;
+            justify-content: center;
+            background: transparent;
+            border-bottom: none;
+            color: #1f1f1f;
+            font-weight: 500;
+            font-size: 15px;
+            line-height: 64px;
+        }
+
+        :global(.ant-menu-item) {
+
+            &:hover::after,
+            &.ant-menu-item-selected::after {
+                border-bottom-width: 3px !important;
+            }
+        }
+    }
+
+    .userArea {
+        flex: 0 0 200px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+
+        @media (max-width: $mobile) {
+            flex: 0 0 auto;
+        }
+
+        .langBtn {
+            font-weight: 500;
+            color: #1f1f1f;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            line-height: 1;
+
+            :global(.anticon) {
+                vertical-align: middle;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            &:hover {
+                color: #1890ff;
+                background: rgba(0, 0, 0, 0.03);
+            }
+        }
+
+        .userTrigger {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            height: 32px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            color: #1f1f1f;
+
+            &:hover {
+                background: rgba(0, 0, 0, 0.03);
+                color: #1890ff;
+            }
+
+            .userName {
+                color: inherit; // Inherit hover color
+                font-weight: 500;
+                font-size: 14px;
+                max-width: 120px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: inline-block;
+                margin: 0 8px; // Spacing between avatar and name
+            }
+
+            .dropdownIcon {
+                font-size: 10px;
+                color: #8c8c8c;
+            }
+        }
+    }
+
+    // Utility classes for responsiveness
+    .desktopOnly {
+        @media (max-width: $mobile) {
+            display: none !important;
+        }
+    }
+}
+
+// Drawer override
+:global(.ant-drawer-content-wrapper) {
+    width: 250px !important;
+}
