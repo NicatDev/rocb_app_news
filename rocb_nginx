@@ -1,0 +1,31 @@
+server {
+    listen 307;
+    server_name 46.62.155.59;
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    
+    location /static/ {
+        alias /rocb_app_news/backend/static/;
+    }
+
+    location /media/ {
+        alias /rocb_app_news/backend/media/;
+    }
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+}
+
+server {
+    listen 308;
+    server_name 46.62.155.59;
+
+    root /rocb_app_news/frontend/dist;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
