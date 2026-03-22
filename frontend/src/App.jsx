@@ -44,8 +44,8 @@ function App() {
           {/* Protected Routes */}
           <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-          <Route path="/rtc-dashboard" element={<ProtectedRoute><RTCDashboard /></ProtectedRoute>} />
-          <Route path="/rtc-dashboard/:id" element={<ProtectedRoute><RTCDetail /></ProtectedRoute>} />
+          <Route path="/rtc-dashboard" element={<RTCDashboard />} />
+          <Route path="/rtc-dashboard/:id" element={<RTCDetail />} />
 
           {/* Admin Routes */}
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>

@@ -3,6 +3,7 @@ import { Layout } from 'antd';
 import Header from '../Header';
 import styles from './style.module.scss';
 import { Outlet } from 'react-router-dom';
+import AppBreadcrumb from '../../common/AppBreadcrumb';
 
 const { Content, Footer } = Layout;
 
@@ -11,6 +12,7 @@ const MainLayout = ({ children }) => {
         <Layout className={styles.mainLayout}>
             <Header />
             <Content className={styles.content}>
+                <AppBreadcrumb />
                 {children || <Outlet />}
             </Content>
             <Footer style={{ textAlign: 'center', background: 'transparent' }}>

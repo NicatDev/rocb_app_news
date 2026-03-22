@@ -30,15 +30,15 @@ const RTCDashboard = () => {
         }
     };
 
-    const handleCardClick = (id) => {
-        navigate(`/rtc-dashboard/${id}`);
+    const handleCardClick = (id, name) => {
+        navigate(`/rtc-dashboard/${id}`, { state: { rtcName: name } });
     };
 
     return (
         <div className={styles.dashboardContainer}>
             <div className={styles.pageHeader}>
                 <Title level={2} className={styles.title}>
-                    {t('rtc_network') || 'ROC-B Europe RTC Network'}
+                    {t('rtc_network') || 'ROCB Europe RTC Network'}
                 </Title>
                 <Text className={styles.subtitle}>
                     {t('rtc_overview') || 'Explore the Regional Training Centers and their activities'}
@@ -56,7 +56,7 @@ const RTCDashboard = () => {
                             <Card
                                 hoverable
                                 className={styles.rtcCard}
-                                onClick={() => handleCardClick(rtc.id)}
+                                onClick={() => handleCardClick(rtc.id, rtc.name)}
                             >
                                 <div className={styles.cardContent}>
                                     <div className={styles.cardHeader}>
@@ -87,10 +87,10 @@ const RTCDashboard = () => {
 
                                     <div className={styles.tagsContainer}>
                                         {rtc.specialization_areas && rtc.specialization_areas.split(',').slice(0, 3).map((area, index) => (
-                                            <Tag color="blue" key={index}>{area.trim()}</Tag>
+                                            <Tag className={styles.tag} color="blue" key={index}>{area.trim()}</Tag>
                                         ))}
                                         {rtc.specialization_areas && rtc.specialization_areas.split(',').length > 3 && (
-                                            <Tag>+{rtc.specialization_areas.split(',').length - 3}</Tag>
+                                            <Tag className={styles.tag} >+{rtc.specialization_areas.split(',').length - 3}</Tag>
                                         )}
                                     </div>
 

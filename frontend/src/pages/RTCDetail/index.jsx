@@ -75,28 +75,13 @@ const RTCDetail = () => {
                 >
                     {t('back_to_dashboard') || 'Back to Dashboard'}
                 </Button>
-                <div className={styles.titleSection}>
-                    {rtc.logo && !imageError ? (
-                        <img
-                            src={rtc.logo}
-                            alt={`${rtc.name} logo`}
-                            className={styles.logo}
-                            onError={() => setImageError(true)}
-                        />
-                    ) : (
-                        <div className={styles.logoPlaceholder}>
-                            <GlobalOutlined />
-                        </div>
-                    )}
-                    <Title level={2} className={styles.pageTitle}>{rtc.name}</Title>
-                </div>
+              
             </div>
 
             <Tabs
                 activeKey={activeTab}
                 onChange={setActiveTab}
-                className={styles.tabs}
-                type="card"
+                className={`${styles.tabs} ${styles.modernTabs}`}
             >
                 <TabPane
                     tab={<span><AppstoreOutlined /> {t('overview') || 'Overview'}</span>}
@@ -105,10 +90,10 @@ const RTCDetail = () => {
                     <OverviewTab rtc={rtc} />
                 </TabPane>
                 <TabPane
-                    tab={<span><FileTextOutlined /> {t('resources') || 'Resources'}</span>}
-                    key="resources"
+                    tab={<span><FileTextOutlined /> {t('news') || 'News'}</span>}
+                    key="news"
                 >
-                    <ResourcesTab rtc={rtc} isActive={activeTab === 'resources'} />
+                    <NewsTab rtc={rtc} isActive={activeTab === 'news'} />
                 </TabPane>
                 <TabPane
                     tab={<span><CalendarOutlined /> {t('events') || 'Events'}</span>}
@@ -129,10 +114,10 @@ const RTCDetail = () => {
                     <GalleryTab rtc={rtc} isActive={activeTab === 'gallery'} />
                 </TabPane>
                 <TabPane
-                    tab={<span><FileTextOutlined /> {t('news') || 'News'}</span>}
-                    key="news"
+                    tab={<span><FileTextOutlined /> {t('resources') || 'Resources'}</span>}
+                    key="resources"
                 >
-                    <NewsTab rtc={rtc} isActive={activeTab === 'news'} />
+                    <ResourcesTab rtc={rtc} isActive={activeTab === 'resources'} />
                 </TabPane>
             </Tabs>
         </div>

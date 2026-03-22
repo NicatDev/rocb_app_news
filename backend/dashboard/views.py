@@ -47,11 +47,20 @@ class RTCEventViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        # Custom date filtering logic can be added here if needed beyond exact match
-        # e.g., range filtering
+        
+        # Time filter: upcoming or past
+        time_filter = self.request.query_params.get('time_filter')
+        if time_filter == 'upcoming':
+            from django.utils import timezone
+            queryset = queryset.filter(event_date__gte=timezone.now().date()).order_by('event_date')
+        elif time_filter == 'past':
+            from django.utils import timezone
+            queryset = queryset.filter(event_date__lt=timezone.now().date()).order_by('-event_date')
+        
+        # Exact date filtering
         original_date = self.request.query_params.get('event_date')
         if original_date:
-             queryset = queryset.filter(event_date=original_date)
+            queryset = queryset.filter(event_date=original_date)
         
         return queryset
 

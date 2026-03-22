@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Input, Typography, Empty, Spin, Button, Avatar, Tag, Image, message } from 'antd';
 import {
-    SearchOutlined, GlobalOutlined, BankOutlined, ArrowUpOutlined,
+    SearchOutlined, GlobalOutlined, BankOutlined, LikeOutlined,
     CommentOutlined, PaperClipOutlined, SendOutlined, UserOutlined, PlusOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -230,7 +230,7 @@ const Feed = () => {
                         className={`${styles.actionBtn} ${post.is_upvoted ? styles.actionBtnActive : ''}`}
                         onClick={() => handleUpvote(post.id)}
                     >
-                        <ArrowUpOutlined />
+                        <LikeOutlined />
                         {post.upvote_count || 0}
                     </button>
                     <button

@@ -1,7 +1,7 @@
 import useDebounce from '../../../../hooks/useDebounce';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { List, Card, Button, Input, Tag, DatePicker, Typography, Empty, Row, Col, Modal } from 'antd';
+import { List, Card, Button, Input, Tag, DatePicker, Typography, Empty, Row, Col, Modal, Segmented } from 'antd';
 import { SearchOutlined, CalendarOutlined, PushpinOutlined, InfoCircleOutlined, DownloadOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
@@ -13,6 +13,7 @@ const { Search } = Input;
 
 const EventsTab = ({ rtc, isActive }) => {
     const { t } = useTranslation();
+    const [timeFilter, setTimeFilter] = useState('upcoming');
     const [searchText, setSearchText] = useState('');
     const debouncedSearchText = useDebounce(searchText, 500);
     const [filterDate, setFilterDate] = useState(null);
@@ -27,13 +28,14 @@ const EventsTab = ({ rtc, isActive }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState(null);
 
-    const fetchEvents = useCallback(async (page = 1, search = '', date = null) => {
+    const fetchEvents = useCallback(async (page = 1, search = '', date = null, tf = 'upcoming') => {
         setLoading(true);
         try {
             const params = {
                 rtc: rtc.id,
                 page: page,
                 search: search,
+                time_filter: tf,
                 event_date: date ? date.format('YYYY-MM-DD') : undefined
             };
             const data = await getRTCEvents(params);
@@ -51,14 +53,12 @@ const EventsTab = ({ rtc, isActive }) => {
         }
     }, [rtc.id]);
 
-    // Initial fetch and fetch on debounce/date change
+    // Initial fetch and fetch on debounce/date/timeFilter change
     useEffect(() => {
         if (isActive) {
-            // Only fetch if parameter changed or initial load needed
-            // We can rely on React's dependency array to trigger this
-            fetchEvents(1, debouncedSearchText, filterDate);
+            fetchEvents(1, debouncedSearchText, filterDate, timeFilter);
         }
-    }, [isActive, debouncedSearchText, filterDate, fetchEvents]);
+    }, [isActive, debouncedSearchText, filterDate, timeFilter, fetchEvents]);
 
     const handleSearch = (value) => {
         setSearchText(value);
@@ -67,11 +67,10 @@ const EventsTab = ({ rtc, isActive }) => {
 
     const handleDateChange = (date) => {
         setFilterDate(date);
-        fetchEvents(1, searchText, date);
     };
 
     const handleTableChange = (page) => {
-        fetchEvents(page, searchText, filterDate);
+        fetchEvents(page, searchText, filterDate, timeFilter);
     };
 
     const showEventDetails = (event) => {
@@ -84,11 +83,31 @@ const EventsTab = ({ rtc, isActive }) => {
         setSelectedEvent(null);
     };
 
+
     return (
         <div className={styles.eventsContainer}>
             <div className={styles.toolbar}>
-                <Row gutter={[16, 16]} align="middle" justify="end">
-                    <Col xs={24} sm={12} md={8}>
+                <Row gutter={[16, 16]} align="middle">
+                    <Col xs={24} md={6}>
+                        <Segmented
+                            value={timeFilter}
+                            onChange={setTimeFilter}
+                            block
+                            className={styles.timeToggle}
+                            options={[
+                                {
+                                    label: t('upcoming_events') || 'Upcoming',
+                                    value: 'upcoming',
+                                },
+                                {
+                                    label: t('past_events') || 'Past',
+                                    value: 'past',
+                                },
+                            ]}
+                        />
+                    </Col>
+                    <Col flex="auto" />
+                    <Col xs={24} sm={12} md={6}>
                         <DatePicker
                             onChange={handleDateChange}
                             style={{ width: '100%' }}
@@ -96,7 +115,7 @@ const EventsTab = ({ rtc, isActive }) => {
                             placeholder={t('select_date') || "Select Date"}
                         />
                     </Col>
-                    <Col xs={24} sm={12} md={8}>
+                    <Col xs={24} sm={12} md={6}>
                         <Search
                             placeholder={t('search_events') || "Search events..."}
                             allowClear

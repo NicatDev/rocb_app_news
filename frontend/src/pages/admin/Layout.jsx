@@ -15,6 +15,7 @@ import {
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../context/AuthContext';
+import AppBreadcrumb from '../../components/common/AppBreadcrumb';
 import styles from './style.module.scss';
 
 const { Header, Sider, Content } = Layout;
@@ -143,6 +144,7 @@ const AdminLayout = () => {
                    
                 </Header>
                 <Content className={styles.content}>
+                    <AppBreadcrumb />
                     <Outlet />
                 </Content>
             </Layout>

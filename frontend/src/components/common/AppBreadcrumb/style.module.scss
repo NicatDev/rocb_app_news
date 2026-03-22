@@ -1,0 +1,44 @@
+.breadcrumbWrapper {
+    padding: 16px 0 8px 0;
+    margin-bottom: 16px;
+    width: 100%;
+}
+
+.breadcrumb {
+    font-size: 14.5px;
+    
+    :global {
+        .ant-breadcrumb-separator {
+            color: #94a3b8 !important;
+            margin: 0 10px;
+            font-weight: 500;
+        }
+        
+        // Target the last item to appear differently (active page)
+        li:last-child {
+            .ant-breadcrumb-link a, .ant-breadcrumb-link {
+                color: #0f172a !important;
+                font-weight: 600;
+                pointer-events: none; // Disables clicking on the current page
+            }
+        }
+    }
+}
+
+.breadcrumbLink {
+    color: #64748b !important;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    
+    &:hover {
+        color: #1890ff !important;
+    }
+}
+
+.homeText {
+    @media (max-width: 576px) {
+        display: none; // Only show home icon on very small screens to save space
+    }
+}
