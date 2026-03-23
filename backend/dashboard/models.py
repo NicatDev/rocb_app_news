@@ -151,6 +151,13 @@ class RTCEvent(VisibilityMixin, models.Model):
     def __str__(self):
         return f"{self.title} ({self.event_date})"
 
+class RTCEventFile(models.Model):
+    event = models.ForeignKey(RTCEvent, on_delete=models.CASCADE, related_name='event_files')
+    file = models.FileField(upload_to='event_reports/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"File for {self.event.title}"
 
 class RTCProject(VisibilityMixin, models.Model):
     """

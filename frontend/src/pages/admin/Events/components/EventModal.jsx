@@ -107,11 +107,6 @@ const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErr
                 }
             });
 
-            // Debug: log what we're sending
-            console.log('fileList:', fileList);
-            console.log('FormData files count:', formData.getAll('files').length);
-            console.log('FormData files:', formData.getAll('files'));
-
             onOk(formData);
         }).catch(info => {
             console.log('Validate Failed:', info);

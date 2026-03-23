@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import RTCProfile, RTCResource, RTCEvent, RTCProject, GalleryImage, News
+from .models import RTCProfile, RTCResource, RTCEvent, RTCEventFile, RTCProject, GalleryImage, News
 
 class RTCResourceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -7,11 +7,19 @@ class RTCResourceSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['rtc']
 
+class RTCEventFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RTCEventFile
+        fields = ['id', 'file', 'uploaded_at']
+
 class RTCEventSerializer(serializers.ModelSerializer):
+    event_files = RTCEventFileSerializer(many=True, read_only=True)
+
     class Meta:
         model = RTCEvent
         fields = '__all__'
         read_only_fields = ['rtc']
+
 
 class RTCProjectSerializer(serializers.ModelSerializer):
     class Meta:

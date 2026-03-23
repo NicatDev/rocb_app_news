@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions, status, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from dashboard.models import RTCProfile, RTCResource, RTCEvent, RTCProject, GalleryImage, News
+from dashboard.models import RTCProfile, RTCResource, RTCEvent, RTCEventFile, RTCProject, GalleryImage, News
 from dashboard.serializers import (
     RTCProfileDetailSerializer, 
     RTCResourceSerializer, 
@@ -77,6 +77,50 @@ class EventsAdminViewSet(BaseRTCRelatedViewSet):
     model = RTCEvent
     search_fields = ['title', 'topic', 'summary']
     filterset_fields = ['status']
+
+    def _handle_files(self, instance, request):
+        """Handle file uploads and deletions for an event instance."""
+        # Handle deletions
+        deleted_files = request.data.getlist('deleted_files')
+        if deleted_files:
+            RTCEventFile.objects.filter(id__in=deleted_files, event=instance).delete()
+
+        # Handle new files
+        files = request.FILES.getlist('files')
+        for f in files:
+            RTCEventFile.objects.create(event=instance, file=f)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Save instance with RTC
+        rtc = RTCProfile.objects.filter(owner=request.user).first()
+        if rtc:
+            instance = serializer.save(rtc=rtc)
+        else:
+            instance = serializer.save()
+
+        # Handle files
+        self._handle_files(instance, request)
+
+        # Re-serialize to include event_files
+        output_serializer = self.get_serializer(instance)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+
+        # Handle files
+        self._handle_files(instance, request)
+
+        # Re-serialize to include updated event_files
+        output_serializer = self.get_serializer(instance)
+        return Response(output_serializer.data)
 
 class ResourcesAdminViewSet(BaseRTCRelatedViewSet):
     queryset = RTCResource.objects.all()
