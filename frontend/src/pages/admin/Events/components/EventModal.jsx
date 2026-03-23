@@ -113,7 +113,24 @@ const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErr
         });
     };
 
-    const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+    const handleBeforeUpload = (file) => {
+        setFileList(prev => {
+            // Check for duplicates before appending
+            const isDuplicate = prev.some(item => item.name === file.name && item.size === file.size);
+            if (isDuplicate) return prev;
+            return [...prev, {
+                uid: file.uid || file.name,
+                name: file.name,
+                status: 'done',
+                originFileObj: file,
+            }];
+        });
+        return false; // Prevent auto upload
+    };
+
+    const handleRemove = (file) => {
+        setFileList(prev => prev.filter(item => item.uid !== file.uid));
+    };
 
     return (
         <Modal
@@ -182,11 +199,14 @@ const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErr
                     >
                         <Upload
                             fileList={fileList}
-                            onChange={handleChange}
-                            beforeUpload={() => false}
-                            multiple={true}
+                            beforeUpload={handleBeforeUpload}
+                            onRemove={handleRemove}
+                            multiple={true} // Allow multiple selection if user wants
+                            maxCount={20}
                         >
-                            <Button icon={<UploadOutlined />}>{t('upload_files') || 'Upload Files'}</Button>
+                            <Button icon={<UploadOutlined />}>
+                                {fileList.length > 0 ? (t('add_another_file') || 'Add another file') : (t('add_file') || 'Add File')}
+                            </Button>
                         </Upload>
                     </Form.Item>
                 </Form>
