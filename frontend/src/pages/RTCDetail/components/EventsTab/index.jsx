@@ -257,23 +257,43 @@ const EventsTab = ({ rtc, isActive }) => {
                             </div>
                         )}
 
-                        {selectedEvent.report_file && (
-                            <div className={styles.modalRow}>
-                                <FileTextOutlined className={styles.modalIcon} />
+                        {(selectedEvent.report_file || (selectedEvent.event_files && selectedEvent.event_files.length > 0)) && (
+                            <div className={styles.modalRow} style={{ alignItems: 'flex-start' }}>
+                                <FileTextOutlined className={styles.modalIcon} style={{ marginTop: 4 }} />
                                 <div>
                                     <Text type="secondary" style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                        {t('report') || "REPORT"}
+                                        {t('files') || "FILES"}
                                     </Text>
-                                    <div style={{ marginTop: 4 }}>
-                                        <Button
-                                            type="primary"
-                                            ghost
-                                            icon={<DownloadOutlined />}
-                                            href={selectedEvent.report_file}
-                                            target="_blank"
-                                        >
-                                            {t('download_report') || "Download Report"}
-                                        </Button>
+                                    <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        {selectedEvent.report_file && (
+                                            <Button
+                                                type="primary"
+                                                ghost
+                                                icon={<DownloadOutlined />}
+                                                href={selectedEvent.report_file}
+                                                target="_blank"
+                                                style={{ textAlign: 'left', padding: '4px 16px', height: 'auto', minHeight: '32px', display: 'flex', alignItems: 'center' }}
+                                            >
+                                                <span style={{ display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '250px' }}>
+                                                    {selectedEvent.report_file.split('/').pop() || t('download_report') || "Download Report"}
+                                                </span>
+                                            </Button>
+                                        )}
+                                        {selectedEvent.event_files && selectedEvent.event_files.map(fileObj => (
+                                            <Button
+                                                key={fileObj.id}
+                                                type="primary"
+                                                ghost
+                                                icon={<DownloadOutlined />}
+                                                href={fileObj.file}
+                                                target="_blank"
+                                                style={{ textAlign: 'left', padding: '4px 16px', height: 'auto', minHeight: '32px', display: 'flex', alignItems: 'center' }}
+                                            >
+                                                <span style={{ display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '250px' }}>
+                                                    {fileObj.file.split('/').pop()}
+                                                </span>
+                                            </Button>
+                                        ))}
                                     </div>
                                 </div>
                             </div>

@@ -353,6 +353,131 @@
 }
 
 // =====================
+// Modern Sidebar
+// =====================
+.modernSidebar {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f0f0f0;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.rtcBrandSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #e8e8e8;
+}
+
+.rtcLogoWrapper {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    padding: 4px;
+    background: linear-gradient(135deg, #1890ff, #36cfc9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 16px rgba(24, 144, 255, 0.15);
+}
+
+.rtcBrandLogo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #fff;
+}
+
+.rtcLogoPlaceholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #1890ff;
+}
+
+.rtcBrandName {
+    margin: 0 !important;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    line-height: 1.3 !important;
+}
+
+.modernInfoList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modernInfoItem {
+    display: flex;
+    flex-direction: column;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #f8fafc;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    cursor: default;
+
+    &:hover {
+        background: #fff;
+        border-color: #bae7ff;
+        box-shadow: 0 4px 12px rgba(24, 144, 255, 0.08);
+        transform: translateX(4px);
+
+        .infoLabel {
+            color: #1890ff;
+        }
+    }
+}
+
+.infoLabel {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 4px;
+    transition: color 0.3s ease;
+}
+
+.infoValue {
+    display: block;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #0f172a;
+    word-break: break-word;
+
+    a {
+        color: #1890ff;
+        transition: color 0.3s ease;
+        text-decoration: none;
+
+        &:hover {
+            color: #096dd9;
+            text-decoration: underline;
+        }
+    }
+}
+
+// =====================
 // Responsive
 // =====================
 @media (max-width: 992px) {

@@ -130,35 +130,59 @@ const OverviewTab = ({ rtc }) => {
 
                 {/* Right Column: Contact, Location Map */}
                 <Col xs={24} lg={8}>
-                    <Card title={t('rtc_info') || 'RTC Information'} bordered={false} className={styles.sidebarCard}>
-                        <Descriptions column={1} layout="vertical" size="small">
-                            <Descriptions.Item label={t('host_country') || 'Host Country'}>
-                                {rtc.host_country}
-                            </Descriptions.Item>
-                            <Descriptions.Item label={t('established') || 'Established'}>
-                                {rtc.establishment_year}
-                            </Descriptions.Item>
-                            <Descriptions.Item label={t('director') || 'Director'}>
-                                {rtc.director_name}
-                            </Descriptions.Item>
-                            <Descriptions.Item label={t('website') || 'Website'}>
-                                {rtc.website ? (
-                                    <a href={rtc.website} target="_blank" rel="noopener noreferrer">
-                                        {new URL(rtc.website).hostname}
-                                    </a>
-                                ) : '-'}
-                            </Descriptions.Item>
-                            <Descriptions.Item label={t('contact_person') || 'Contact Person'}>
-                                {rtc.contact_person_name}
-                            </Descriptions.Item>
-                            <Descriptions.Item label={t('email') || 'Email'}>
-                                <Space><MailOutlined /> <a href={`mailto:${rtc.contact_person_email}`}>{rtc.contact_person_email}</a></Space>
-                            </Descriptions.Item>
-                            <Descriptions.Item label={t('phone') || 'Phone'}>
-                                <Space><PhoneOutlined /> {rtc.phone_number}</Space>
-                            </Descriptions.Item>
-                        </Descriptions>
-                    </Card>
+                    <div className={styles.modernSidebar}>
+                        <div className={styles.rtcBrandSection}>
+                            <div className={styles.rtcLogoWrapper}>
+                                {rtc.logo ? (
+                                    <img src={rtc.logo} alt={`${rtc.name} logo`} className={styles.rtcBrandLogo} />
+                                ) : (
+                                    <div className={styles.rtcLogoPlaceholder}>
+                                        <GlobalOutlined />
+                                    </div>
+                                )}
+                            </div>
+                            <Title level={3} className={styles.rtcBrandName}>{rtc.name}</Title>
+                        </div>
+
+                        <div className={styles.modernInfoList}>
+                            <div className={styles.modernInfoItem}>
+                                <Text className={styles.infoLabel}>{t('host_country') || 'Host Country'}</Text>
+                                <Text className={styles.infoValue}>{rtc.host_country || '-'}</Text>
+                            </div>
+                            <div className={styles.modernInfoItem}>
+                                <Text className={styles.infoLabel}>{t('established') || 'Established'}</Text>
+                                <Text className={styles.infoValue}>{rtc.establishment_year || '-'}</Text>
+                            </div>
+                            <div className={styles.modernInfoItem}>
+                                <Text className={styles.infoLabel}>{t('director') || 'Director'}</Text>
+                                <Text className={styles.infoValue}>{rtc.director_name || '-'}</Text>
+                            </div>
+                            <div className={styles.modernInfoItem}>
+                                <Text className={styles.infoLabel}>{t('contact_person') || 'Contact Person'}</Text>
+                                <Text className={styles.infoValue}>{rtc.contact_person_name || '-'}</Text>
+                            </div>
+                            <div className={styles.modernInfoItem}>
+                                <Text className={styles.infoLabel}>{t('email') || 'Email'}</Text>
+                                <Text className={styles.infoValue}>
+                                    {rtc.contact_person_email ? <a href={`mailto:${rtc.contact_person_email}`}>{rtc.contact_person_email}</a> : '-'}
+                                </Text>
+                            </div>
+                            <div className={styles.modernInfoItem}>
+                                <Text className={styles.infoLabel}>{t('phone') || 'Phone'}</Text>
+                                <Text className={styles.infoValue}>{rtc.phone_number || '-'}</Text>
+                            </div>
+                            <div className={styles.modernInfoItem}>
+                                <Text className={styles.infoLabel}>{t('website') || 'Website'}</Text>
+                                <Text className={styles.infoValue}>
+                                    {rtc.website ? (
+                                        <a href={rtc.website} target="_blank" rel="noopener noreferrer">
+                                            {new URL(rtc.website).hostname.replace('www.', '')}
+                                        </a>
+                                    ) : '-'}
+                                </Text>
+                            </div>
+                        </div>
+                    </div>
 
                     <Card title={t('location') || 'Location'} bordered={false} className={styles.sidebarCard}>
                         <Paragraph type="secondary" style={{ marginBottom: 16 }}>

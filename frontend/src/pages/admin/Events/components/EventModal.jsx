@@ -23,7 +23,15 @@ const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErr
                     participant_count: initialValues.participant_count,
                     status: initialValues.status
                 });
-                if (initialValues.report_file) {
+                
+                if (initialValues.event_files && initialValues.event_files.length > 0) {
+                    setFileList(initialValues.event_files.map(ef => ({
+                        uid: ef.id,
+                        name: ef.file.split('/').pop(),
+                        status: 'done',
+                        url: ef.file,
+                    })));
+                } else if (initialValues.report_file) {
                     setFileList([{
                         uid: '-1',
                         name: 'report.pdf',
@@ -41,7 +49,7 @@ const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErr
     }, [visible, initialValues, form]);
 
     // Handle server-side validation errors
-    const FORM_FIELDS = ['title', 'topic', 'event_date', 'summary', 'participant_count', 'report_file'];
+    const FORM_FIELDS = ['title', 'topic', 'event_date', 'summary', 'participant_count'];
     useEffect(() => {
         if (serverErrors && typeof serverErrors === 'object') {
             const fieldErrors = [];
@@ -81,12 +89,23 @@ const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErr
                 formData.append('participant_count', values.participant_count);
             }
 
-            // Handle Report File
-            if (fileList.length > 0 && fileList[0].originFileObj) {
-                formData.append('report_file', fileList[0].originFileObj);
-            } else if (fileList.length === 0 && initialValues?.report_file) {
-                // Logic to handle file removal if needed by backend, currently assumes keep if not replaced.
+            // Track deleted files
+            const deletedFiles = [];
+            if (initialValues?.event_files) {
+                initialValues.event_files.forEach(ef => {
+                    if (!fileList.find(f => f.uid === ef.id)) {
+                        deletedFiles.push(ef.id);
+                    }
+                });
             }
+            deletedFiles.forEach(id => formData.append('deleted_files', id));
+
+            // Append new files
+            fileList.forEach(file => {
+                if (file.originFileObj) {
+                    formData.append('files', file.originFileObj);
+                }
+            });
 
             onOk(formData);
         }).catch(info => {
@@ -159,16 +178,15 @@ const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErr
                     </Form.Item>
 
                     <Form.Item
-                        label={t('report_file') || 'Report File (PDF)'}
+                        label={t('event_files') || 'Event Files'}
                     >
                         <Upload
                             fileList={fileList}
                             onChange={handleChange}
                             beforeUpload={() => false}
-                            maxCount={1}
-                            accept=".pdf"
+                            multiple={true}
                         >
-                            <Button icon={<UploadOutlined />}>{t('upload_report') || 'Upload Report'}</Button>
+                            <Button icon={<UploadOutlined />}>{t('upload_files') || 'Upload Files'}</Button>
                         </Upload>
                     </Form.Item>
                 </Form>
