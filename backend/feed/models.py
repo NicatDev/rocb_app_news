@@ -21,6 +21,7 @@ class RTCPost(VisibilityMixin, models.Model):
     
     # Attachments [8] - "Ability to attach images or PDFs"
     image = models.ImageField(upload_to='news_images/', blank=True, null=True)
+    media = models.FileField(upload_to='post_media/', blank=True, null=True)
     attachment = models.FileField(upload_to='news_attachments/', blank=True, null=True)
     
     created_at = models.DateTimeField(auto_now_add=True) # [17] - Reverse chronological order

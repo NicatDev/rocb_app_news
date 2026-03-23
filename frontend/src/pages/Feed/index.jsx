@@ -210,6 +210,17 @@ const Feed = () => {
                     </div>
                 )}
 
+                {/* Media (Video/Audio) */}
+                {post.media && (
+                    <div className={styles.mediaWrapper}>
+                        <video
+                            src={post.media}
+                            controls
+                            className={styles.postMedia}
+                        />
+                    </div>
+                )}
+
                 {/* Attachment */}
                 {post.attachment && (
                     <div className={styles.attachmentWrapper}>

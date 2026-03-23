@@ -36,7 +36,7 @@ class RTCPostSerializer(serializers.ModelSerializer):
         model = RTCPost
         fields = [
             'id', 'rtc', 'rtc_name', 'is_global', 'author', 'author_info',
-            'title', 'description', 'content', 'image', 'attachment', 'status',
+            'title', 'description', 'content', 'image', 'media', 'attachment', 'status',
             'upvote_count', 'comment_count', 'is_upvoted', 'latest_comment',
             'created_at'
         ]

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, Upload, Select, message } from 'antd';
-import { UploadOutlined, PictureOutlined, PaperClipOutlined } from '@ant-design/icons';
+import { UploadOutlined, PictureOutlined, PaperClipOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { createPost, getMyRTCs } from '../../../api/feed';
 
@@ -13,6 +13,7 @@ const CreatePostModal = ({ visible, onCancel, onSuccess }) => {
     const [loading, setLoading] = useState(false);
     const [myRTCs, setMyRTCs] = useState([]);
     const [imageList, setImageList] = useState([]);
+    const [videoList, setVideoList] = useState([]);
     const [fileList, setFileList] = useState([]);
 
     useEffect(() => {
@@ -20,6 +21,7 @@ const CreatePostModal = ({ visible, onCancel, onSuccess }) => {
             fetchMyRTCs();
             form.resetFields();
             setImageList([]);
+            setVideoList([]);
             setFileList([]);
         }
     }, [visible]);
@@ -47,6 +49,9 @@ const CreatePostModal = ({ visible, onCancel, onSuccess }) => {
 
             if (imageList.length > 0 && imageList[0].originFileObj) {
                 formData.append('image', imageList[0].originFileObj);
+            }
+            if (videoList.length > 0 && videoList[0].originFileObj) {
+                formData.append('media', videoList[0].originFileObj);
             }
             if (fileList.length > 0 && fileList[0].originFileObj) {
                 formData.append('attachment', fileList[0].originFileObj);
@@ -142,6 +147,24 @@ const CreatePostModal = ({ visible, onCancel, onSuccess }) => {
                             <div>
                                 <PictureOutlined style={{ fontSize: 24 }} />
                                 <div style={{ marginTop: 8 }}>{t('upload_image') || 'Upload'}</div>
+                            </div>
+                        )}
+                    </Upload>
+                </Form.Item>
+
+                <Form.Item label={t('video_media') || 'Video / Media'}>
+                    <Upload
+                        accept="video/*,audio/*"
+                        maxCount={1}
+                        fileList={videoList}
+                        onChange={({ fileList }) => setVideoList(fileList)}
+                        beforeUpload={() => false}
+                        listType="picture-card"
+                    >
+                        {videoList.length < 1 && (
+                            <div>
+                                <VideoCameraOutlined style={{ fontSize: 24 }} />
+                                <div style={{ marginTop: 8 }}>{t('upload') || 'Upload'}</div>
                             </div>
                         )}
                     </Upload>
