@@ -107,19 +107,20 @@ const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErr
                 }
             });
 
+            // Debug: log what we're sending
+            console.log('fileList:', fileList);
+            console.log('FormData files count:', formData.getAll('files').length);
+            console.log('FormData files:', formData.getAll('files'));
+
             onOk(formData);
         }).catch(info => {
             console.log('Validate Failed:', info);
         });
     };
 
-    const handleChange = ({ fileList: newFileList }) => {
-        setFileList(newFileList);
-    };
-
-    const handleRemove = (file) => {
-        setFileList(prev => prev.filter(item => item.uid !== file.uid));
-        return true;
+    const handleChange = (info) => {
+        // Antd onChange gives us the updated fileList after add/remove
+        setFileList(info.fileList);
     };
 
     return (
@@ -185,14 +186,12 @@ const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErr
                     </Form.Item>
 
                     <Form.Item
-                        label={t('event_files') || 'Event Files'}
+                        label={t('event_files') || 'Tədbir Faylları'}
                     >
                         <Upload
                             fileList={fileList}
                             onChange={handleChange}
-                            onRemove={handleRemove}
                             beforeUpload={() => false}
-                            maxCount={20}
                         >
                             <Button icon={<UploadOutlined />}>
                                 {fileList.length > 0 ? (t('add_another_file') || 'Başqa Fayl Əlavə Et') : (t('add_file') || 'Fayl Əlavə Et')}
