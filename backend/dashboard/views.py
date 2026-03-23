@@ -8,8 +8,10 @@ from .serializers import (
     RTCEventSerializer,
     RTCProjectSerializer,
     GalleryImageSerializer,
-    NewsSerializer
+    NewsSerializer,
+    NewsIntegrationSerializer
 )
+from .filters import NewsFilter
 from rest_framework.permissions import AllowAny
 from rest_framework.pagination import PageNumberPagination
 
@@ -89,3 +91,14 @@ class NewsViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['rtc']
     search_fields = ['title', 'content']
+
+class NewsIntegrationViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = News.objects.filter(rtc__isnull=True, status='PUBLIC').order_by('-created_at')
+    serializer_class = NewsIntegrationSerializer
+    permission_classes = [AllowAny]
+    pagination_class = StandardResultsSetPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = NewsFilter
+    search_fields = ['title', 'content']
+    ordering_fields = ['created_at', 'title']
+

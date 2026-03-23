@@ -61,3 +61,7 @@ class RTCProfileDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = RTCProfile
         fields = '__all__'
+class NewsIntegrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = News
+        fields = ['id', 'title', 'slug', 'content', 'image', 'created_at', 'updated_at']
