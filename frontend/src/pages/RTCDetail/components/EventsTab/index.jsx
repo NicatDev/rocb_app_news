@@ -2,7 +2,7 @@ import useDebounce from '../../../../hooks/useDebounce';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { List, Card, Button, Input, Tag, DatePicker, Typography, Empty, Row, Col, Modal, Segmented } from 'antd';
-import { SearchOutlined, CalendarOutlined, PushpinOutlined, InfoCircleOutlined, DownloadOutlined, FileTextOutlined } from '@ant-design/icons';
+import { SearchOutlined, CalendarOutlined, PushpinOutlined, InfoCircleOutlined, DownloadOutlined, FileTextOutlined, TeamOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import styles from './style.module.scss';
@@ -164,34 +164,45 @@ const EventsTab = ({ rtc, isActive }) => {
                                 </div>
 
                                 <div className={styles.content}>
-                                    <div className={styles.header}>
-                                        {item?.topic && <Tag color="default">{item.topic}</Tag>}
-                                    </div>
+                                
 
-                                    <Title level={5} className={styles.eventTitle} ellipsis={{ rows: 2 }}>
+                                    <Title level={5} className={styles.eventTitle}>
                                         {item.title}
                                     </Title>
+    <div className={styles.header}>
+                                        {item?.topic && <Tag color="default" className={styles.responsiveTag}>{item.topic}</Tag>}
+                                    </div>
+                                    {item.summary && (
+                                        <Paragraph 
+                                            type="secondary" 
+                                            ellipsis={{ rows: 2 }} 
+                                            className={styles.eventSummary}
+                                        >
+                                            {item.summary}
+                                        </Paragraph>
+                                    )}
 
                                     <div className={styles.details}>
-                                        {item.location && (
-                                            <Text type="secondary" className={styles.detailItem}>
-                                                <PushpinOutlined /> {item.location}
-                                            </Text>
-                                        )}
                                         <Text type="secondary" className={styles.detailItem}>
                                             <CalendarOutlined /> {dayjs(item.event_date).format('YYYY-MM-DD')}
                                         </Text>
+                                        {item.participant_count > 0 && (
+                                            <Text type="secondary" className={styles.detailItem}>
+                                                <TeamOutlined /> {item.participant_count}
+                                            </Text>
+                                        )}
                                     </div>
 
-                                    <Button
-                                        type="primary"
-                                        ghost
-                                        block
-                                        style={{ marginTop: 16 }}
-                                        onClick={() => showEventDetails(item)}
-                                    >
-                                        {t('view_details') || "View Details"}
-                                    </Button>
+                                    <div className={styles.cardFooter}>
+                                        <Button
+                                            type="primary"
+                                            ghost
+                                            block
+                                            onClick={() => showEventDetails(item)}
+                                        >
+                                            {t('view_details') || "View Details"}
+                                        </Button>
+                                    </div>
                                 </div>
                             </Card>
                         </List.Item>
@@ -200,7 +211,7 @@ const EventsTab = ({ rtc, isActive }) => {
             />
 
             <Modal
-                title={selectedEvent?.title}
+                title={null}
                 open={isModalVisible}
                 onCancel={handleCloseModal}
                 footer={[
@@ -208,11 +219,23 @@ const EventsTab = ({ rtc, isActive }) => {
                         {t('close') || "Close"}
                     </Button>
                 ]}
+                centered
+                width={600}
+                bodyStyle={{ padding: '24px' }}
+                destroyOnClose
             >
                 {selectedEvent && (
-                    <div className={styles.modalContent}>
-                        <div style={{ marginBottom: 24 }}>
-                            <Tag color="cyan" style={{ fontSize: '14px', padding: '4px 10px' }}>
+                    <div className={styles.modalContent} style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}>
+                        <div style={{ marginBottom: 16, width: '100%', minWidth: 0 }}>
+                         
+                            <Title level={3} className={styles.modalTitle} style={{ marginTop: 0, marginBottom: 24 }}>
+                                {selectedEvent.title}
+                            </Title>
+                               <Tag 
+                                color="cyan" 
+                                className={styles.responsiveTag}
+                                style={{ marginBottom: 12, fontSize: '11px' }}
+                            >
                                 {selectedEvent.topic?.toUpperCase()}
                             </Tag>
                         </div>
@@ -220,10 +243,10 @@ const EventsTab = ({ rtc, isActive }) => {
                         <div className={styles.modalRow}>
                             <CalendarOutlined className={styles.modalIcon} />
                             <div>
-                                <Text type="secondary" style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                <Text type="secondary" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: 4 }}>
                                     {t('date') || "DATE"}
                                 </Text>
-                                <Paragraph style={{ margin: 0, fontSize: '16px' }}>
+                                <Paragraph style={{ margin: 0, fontSize: '16px', fontWeight: 500 }}>
                                     {dayjs(selectedEvent.event_date).format('DD MMMM YYYY')}
                                 </Paragraph>
                             </div>
@@ -231,12 +254,12 @@ const EventsTab = ({ rtc, isActive }) => {
 
                         {selectedEvent.participant_count && (
                             <div className={styles.modalRow}>
-                                <InfoCircleOutlined className={styles.modalIcon} />
+                                <TeamOutlined className={styles.modalIcon} />
                                 <div>
-                                    <Text type="secondary" style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                    <Text type="secondary" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: 4 }}>
                                         {t('participants') || "PARTICIPANTS"}
                                     </Text>
-                                    <Paragraph style={{ margin: 0, fontSize: '16px' }}>
+                                    <Paragraph style={{ margin: 0, fontSize: '16px', fontWeight: 500 }}>
                                         {selectedEvent.participant_count}
                                     </Paragraph>
                                 </div>
@@ -244,13 +267,13 @@ const EventsTab = ({ rtc, isActive }) => {
                         )}
 
                         {selectedEvent.summary && (
-                            <div className={styles.modalRow} style={{ alignItems: 'flex-start' }}>
-                                <InfoCircleOutlined className={styles.modalIcon} style={{ marginTop: 4 }} />
-                                <div>
-                                    <Text type="secondary" style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            <div className={styles.modalRow}>
+                                <InfoCircleOutlined className={styles.modalIcon} />
+                                <div style={{ width: '100%', minWidth: 0 }}>
+                                    <Text type="secondary" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: 4 }}>
                                         {t('summary') || "SUMMARY"}
                                     </Text>
-                                    <Paragraph style={{ margin: 0, fontSize: '15px', lineHeight: '1.6' }}>
+                                    <Paragraph style={{ margin: 0, fontSize: '15px', lineHeight: '1.7', color: '#4b5563' }}>
                                         {selectedEvent.summary}
                                     </Paragraph>
                                 </div>
@@ -258,13 +281,13 @@ const EventsTab = ({ rtc, isActive }) => {
                         )}
 
                         {(selectedEvent.report_file || (selectedEvent.event_files && selectedEvent.event_files.length > 0)) && (
-                            <div className={styles.modalRow} style={{ alignItems: 'flex-start' }}>
-                                <FileTextOutlined className={styles.modalIcon} style={{ marginTop: 4 }} />
-                                <div>
-                                    <Text type="secondary" style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            <div className={styles.modalRow}>
+                                <FileTextOutlined className={styles.modalIcon} />
+                                <div style={{ width: '100%', minWidth: 0 }}>
+                                    <Text type="secondary" style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: 4 }}>
                                         {t('files') || "FILES"}
                                     </Text>
-                                    <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
                                         {selectedEvent.report_file && (
                                             <Button
                                                 type="primary"
@@ -272,9 +295,9 @@ const EventsTab = ({ rtc, isActive }) => {
                                                 icon={<DownloadOutlined />}
                                                 href={selectedEvent.report_file}
                                                 target="_blank"
-                                                style={{ textAlign: 'left', padding: '4px 16px', height: 'auto', minHeight: '32px', display: 'flex', alignItems: 'center' }}
+                                                style={{ textAlign: 'left', padding: '8px 12px', height: 'auto', display: 'flex', alignItems: 'center', width: '100%', borderRadius: '8px' }}
                                             >
-                                                <span style={{ display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '250px' }}>
+                                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, fontSize: '13px' }}>
                                                     {selectedEvent.report_file.split('/').pop() || t('download_report') || "Download Report"}
                                                 </span>
                                             </Button>
@@ -287,9 +310,9 @@ const EventsTab = ({ rtc, isActive }) => {
                                                 icon={<DownloadOutlined />}
                                                 href={fileObj.file}
                                                 target="_blank"
-                                                style={{ textAlign: 'left', padding: '4px 16px', height: 'auto', minHeight: '32px', display: 'flex', alignItems: 'center' }}
+                                                style={{ textAlign: 'left', padding: '8px 12px', height: 'auto', display: 'flex', alignItems: 'center', width: '100%', borderRadius: '8px' }}
                                             >
-                                                <span style={{ display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '250px' }}>
+                                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, fontSize: '13px' }}>
                                                     {fileObj.file.split('/').pop()}
                                                 </span>
                                             </Button>

@@ -168,6 +168,7 @@ class RTCProject(VisibilityMixin, models.Model):
     description = models.TextField(verbose_name="Overview")
     timeframe = models.CharField(max_length=100, help_text="e.g., 2024-2026")
     partners = models.CharField(max_length=255, help_text="Partners Involved")
+    image = models.ImageField(upload_to='project_images/', blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

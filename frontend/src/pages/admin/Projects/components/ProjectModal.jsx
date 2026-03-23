@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Alert, message } from 'antd';
+import { Modal, Form, Input, Alert, message, Upload, Button } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 const { TextArea } = Input;
@@ -7,6 +8,7 @@ const { TextArea } = Input;
 const ProjectModal = ({ visible, onCancel, onOk, initialValues, loading, serverErrors }) => {
     const [form] = Form.useForm();
     const { t } = useTranslation();
+    const [fileList, setFileList] = useState([]);
 
     useEffect(() => {
         if (visible) {
@@ -17,14 +19,28 @@ const ProjectModal = ({ visible, onCancel, onOk, initialValues, loading, serverE
                     timeframe: initialValues.timeframe,
                     partners: initialValues.partners,
                 });
+                
+                if (initialValues.image) {
+                    setFileList([
+                        {
+                            uid: '-1',
+                            name: initialValues.image.split('/').pop(),
+                            status: 'done',
+                            url: initialValues.image,
+                        },
+                    ]);
+                } else {
+                    setFileList([]);
+                }
             } else {
                 form.resetFields();
+                setFileList([]);
             }
         }
     }, [visible, initialValues, form]);
 
     // Handle server-side validation errors
-    const FORM_FIELDS = ['name', 'description', 'timeframe', 'partners'];
+    const FORM_FIELDS = ['name', 'description', 'timeframe', 'partners', 'image'];
     useEffect(() => {
         if (serverErrors && typeof serverErrors === 'object') {
             const fieldErrors = [];
@@ -58,10 +74,25 @@ const ProjectModal = ({ visible, onCancel, onOk, initialValues, loading, serverE
             formData.append('timeframe', values.timeframe);
             formData.append('partners', values.partners);
 
+            if (fileList.length > 0) {
+                if (fileList[0].originFileObj) {
+                    formData.append('image', fileList[0].originFileObj);
+                }
+            } else if (initialValues?.image) {
+                // If the user removed the image, we should probably send something to clear it
+                // but usually if it's not present in FormData, DRF won't clear it unless explicitly handled.
+                // For simplicity, if fileList is empty but it had an image, we can assume deletion.
+                formData.append('image', ''); 
+            }
+
             onOk(formData);
         }).catch(info => {
             console.log('Validate Failed:', info);
         });
+    };
+
+    const handleFileChange = ({ fileList: newFileList }) => {
+        setFileList(newFileList);
     };
 
     return (
@@ -94,6 +125,20 @@ const ProjectModal = ({ visible, onCancel, onOk, initialValues, loading, serverE
                         rules={[{ required: true, message: t('please_enter_project_name') || 'Please enter project name' }]}
                     >
                         <Input placeholder={t('project_name_placeholder') || 'Enter project name'} />
+                    </Form.Item>
+
+                    <Form.Item
+                        label={t('project_image') || 'Project Image'}
+                    >
+                        <Upload
+                            listType="picture"
+                            fileList={fileList}
+                            onChange={handleFileChange}
+                            beforeUpload={() => false}
+                            maxCount={1}
+                        >
+                            <Button icon={<UploadOutlined />}>{t('upload_image') || "Upload Image"}</Button>
+                        </Upload>
                     </Form.Item>
 
                     <Form.Item

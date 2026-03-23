@@ -265,6 +265,7 @@ const Events = () => {
                 }}
                 onChange={handleTableChange}
                 className={styles.table}
+                scroll={{ x: 1000 }}
             />
 
             <EventModal

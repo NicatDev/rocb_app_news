@@ -143,6 +143,16 @@ const ProjectsTab = ({ rtc, isActive }) => {
                             </Title>
                         </div>
 
+                        {selectedProject.image && (
+                            <div className={styles.modalImageContainer}>
+                                <img 
+                                    src={selectedProject.image} 
+                                    alt={selectedProject.name} 
+                                    className={styles.modalImage} 
+                                />
+                            </div>
+                        )}
+
                         <div className={styles.modalSection}>
                             <Text type="secondary" className={styles.modalLabel}>
                                 <TeamOutlined /> {t('partners') || 'PARTNERS'}
