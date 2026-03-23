@@ -113,23 +113,13 @@ const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErr
         });
     };
 
-    const handleBeforeUpload = (file) => {
-        setFileList(prev => {
-            // Check for duplicates before appending
-            const isDuplicate = prev.some(item => item.name === file.name && item.size === file.size);
-            if (isDuplicate) return prev;
-            return [...prev, {
-                uid: file.uid || file.name,
-                name: file.name,
-                status: 'done',
-                originFileObj: file,
-            }];
-        });
-        return false; // Prevent auto upload
+    const handleChange = ({ fileList: newFileList }) => {
+        setFileList(newFileList);
     };
 
     const handleRemove = (file) => {
         setFileList(prev => prev.filter(item => item.uid !== file.uid));
+        return true;
     };
 
     return (
@@ -199,13 +189,13 @@ const EventModal = ({ visible, onCancel, onOk, initialValues, loading, serverErr
                     >
                         <Upload
                             fileList={fileList}
-                            beforeUpload={handleBeforeUpload}
+                            onChange={handleChange}
                             onRemove={handleRemove}
-                            multiple={true} // Allow multiple selection if user wants
+                            beforeUpload={() => false}
                             maxCount={20}
                         >
                             <Button icon={<UploadOutlined />}>
-                                {fileList.length > 0 ? (t('add_another_file') || 'Add another file') : (t('add_file') || 'Add File')}
+                                {fileList.length > 0 ? (t('add_another_file') || 'Başqa Fayl Əlavə Et') : (t('add_file') || 'Fayl Əlavə Et')}
                             </Button>
                         </Upload>
                     </Form.Item>
