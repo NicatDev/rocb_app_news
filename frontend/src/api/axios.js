@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://46.62.155.59:307/api/v1/',
+    baseURL: 'https://app.rocbeurope.org/api/v1/',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -28,7 +28,7 @@ api.interceptors.response.use(
             originalRequest._retry = true;
             try {
                 const refreshToken = localStorage.getItem('refresh_token');
-                const response = await axios.post('http://localhost:8000/api/v1/auth/login/refresh/', {
+                const response = await axios.post('https://app.rocbeurope.org/api/v1/auth/login/refresh/', {
                     refresh: refreshToken,
                 });
                 const { access } = response.data;
