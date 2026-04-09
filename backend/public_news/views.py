@@ -7,6 +7,12 @@ from dashboard.models import News
 from .serializers import PublicNewsSerializer
 
 
+class MainSiteGlobalNewsPagination(PageNumberPagination):
+    page_size = 8
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+
+
 class PublicNewsPagination(PageNumberPagination):
     page_size = 12
     page_size_query_param = 'page_size'
@@ -45,3 +51,26 @@ class PublicNewsViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return News.objects.filter(status='PUBLIC').select_related('rtc')
+
+
+class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    News for the main ROCB website (rocbeurope.org): only global, public items.
+    Global = rtc is null; status must be PUBLIC.
+    """
+    serializer_class = PublicNewsSerializer
+    permission_classes = [AllowAny]
+    pagination_class = MainSiteGlobalNewsPagination
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title', 'content']
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']
+    lookup_field = 'slug'
+    lookup_value_regex = r'[^/]+'
+
+    def get_queryset(self):
+        return (
+            News.objects.filter(status='PUBLIC', rtc__isnull=True)
+            .select_related('rtc')
+            .order_by('-created_at')
+        )
