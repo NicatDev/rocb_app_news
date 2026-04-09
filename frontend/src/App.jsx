@@ -41,9 +41,9 @@ function App() {
           <Route path="/news" element={<News />} />  {/* Alias */}
           <Route path="/news/:id" element={<NewsDetail />} />
 
-          {/* Protected Routes */}
+          {/* Login required: Feed + /admin (rtc_admin) only */}
           <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
-          <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/rtc-dashboard" element={<RTCDashboard />} />
           <Route path="/rtc-dashboard/:id" element={<RTCDetail />} />
 

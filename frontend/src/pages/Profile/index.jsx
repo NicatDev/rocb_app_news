@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, Avatar, Upload, Spin, Tag, message, Input } from 'antd';
+import { Link } from 'react-router-dom';
+import { Typography, Avatar, Upload, Spin, Tag, message, Input, Button } from 'antd';
 import {
     UserOutlined, MailOutlined, PhoneOutlined, BankOutlined,
     EditOutlined, CheckOutlined, CloseOutlined, CameraOutlined,
@@ -9,11 +10,13 @@ import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import styles from './style.module.scss';
 import { getProfile, updateProfile } from '../../api/profile';
+import { useAuth } from '../../context/AuthContext';
 
 const { Title, Text } = Typography;
 
 const Profile = () => {
     const { t } = useTranslation();
+    const { user, loading: authLoading } = useAuth();
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [editingField, setEditingField] = useState(null);
@@ -21,8 +24,11 @@ const Profile = () => {
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
+        if (!user) {
+            return;
+        }
         fetchProfile();
-    }, []);
+    }, [user]);
 
     const fetchProfile = async () => {
         try {
@@ -85,6 +91,25 @@ const Profile = () => {
         { key: 'company', label: t('company') || 'Company', icon: <BankOutlined /> },
         { key: 'field', label: t('industry') || 'Industry / Sector', icon: <FieldStringOutlined /> },
     ];
+
+    if (authLoading) {
+        return (
+            <div className={styles.loadingContainer}>
+                <Spin size="large" />
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className={styles.profileContainer} style={{ textAlign: 'center', padding: '48px 24px' }}>
+                <Title level={3}>{t('login_required') || 'Please log in to view your profile'}</Title>
+                <Link to="/login">
+                    <Button type="primary">{t('login') || 'Login'}</Button>
+                </Link>
+            </div>
+        );
+    }
 
     if (loading) {
         return (
