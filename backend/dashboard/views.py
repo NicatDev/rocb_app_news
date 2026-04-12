@@ -1,19 +1,28 @@
-from rest_framework import viewsets, filters
+from django.contrib.auth import get_user_model
+from django.db import transaction
+from django.utils.text import slugify
+from rest_framework import viewsets, filters, status
+from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import RTCProfile, RTCResource, RTCEvent, RTCProject, GalleryImage, News
 from .serializers import (
-    RTCProfileListSerializer, 
+    RTCProfileListSerializer,
     RTCProfileDetailSerializer,
     RTCResourceSerializer,
     RTCEventSerializer,
     RTCProjectSerializer,
     GalleryImageSerializer,
     NewsSerializer,
-    NewsIntegrationSerializer
+    NewsIntegrationSerializer,
+    RTCProfileBulkImportSerializer,
 )
 from .filters import NewsFilter
-from rest_framework.permissions import AllowAny
 from rest_framework.pagination import PageNumberPagination
+
+User = get_user_model()
+RTC_OWNER_DEFAULT_PASSWORD = "pass-123"
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 8
@@ -101,4 +110,80 @@ class NewsIntegrationViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = NewsFilter
     search_fields = ['title', 'content']
     ordering_fields = ['created_at', 'title']
+
+
+class RTCProfileBulkImportView(APIView):
+    """
+    POST JSON: { "rtc_profiles": [ { ... } ] }
+    Hər element üçün: rtc_<host_country_slug> istifadəçisi (pass: pass-123) və ona bağlı RTCProfile.
+    Yalnız admin.
+    """
+
+    permission_classes = [IsAdminUser]
+
+    def post(self, request, *args, **kwargs):
+        serializer = RTCProfileBulkImportSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        items = serializer.validated_data["rtc_profiles"]
+
+        results = []
+        errors = []
+
+        for index, item in enumerate(items):
+            username = f"rtc_{slugify(item['host_country'])}"
+            try:
+                with transaction.atomic():
+                    user, user_created = User.objects.get_or_create(
+                        username=username,
+                        defaults={
+                            "email": item["director_email"],
+                            "is_active": True,
+                        },
+                    )
+                    user.set_password(RTC_OWNER_DEFAULT_PASSWORD)
+                    if not user.email:
+                        user.email = item["director_email"]
+                    user.save()
+
+                    establishment = item.get("establishment_year")
+                    if establishment is None:
+                        establishment = 2000
+
+                    defaults = {
+                        "name": item["name"],
+                        "host_country": item["host_country"],
+                        "address": item["address"],
+                        "director_name": item["director_name"],
+                        "director_email": item["director_email"],
+                        "director_bio": item.get("director_bio"),
+                        "contact_person_name": item["contact_person_name"],
+                        "contact_person_email": item.get("contact_person_email"),
+                        "phone_number": item["phone_number"],
+                        "establishment_year": establishment,
+                        "mission_statement": item.get("mission_statement") or "",
+                        "overview_text": item.get("overview_text") or "",
+                        "specialization_areas": item.get("specialization_areas") or "",
+                    }
+
+                    profile, profile_created = RTCProfile.objects.update_or_create(
+                        owner=user,
+                        defaults=defaults,
+                    )
+
+                    results.append(
+                        {
+                            "index": index,
+                            "username": username,
+                            "user_created": user_created,
+                            "profile_id": str(profile.id),
+                            "profile_created": profile_created,
+                        }
+                    )
+            except Exception as exc:
+                errors.append({"index": index, "username": username, "error": str(exc)})
+
+        return Response(
+            {"results": results, "errors": errors},
+            status=status.HTTP_200_OK,
+        )
 

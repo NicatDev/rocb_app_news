@@ -52,7 +52,7 @@ class RTCProfile(VisibilityMixin, models.Model):
 
     # Contact Person [2]
     contact_person_name = models.CharField(_("Contact Person Name"), max_length=255)
-    contact_person_email = models.EmailField(_("Contact Person Email"))
+    contact_person_email = models.EmailField(_("Contact Person Email"), blank=True, null=True)
     phone_number = models.CharField(_("Primary Phone Number"), max_length=50)
 
     # Overview & Background [2, 3]

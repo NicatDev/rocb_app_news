@@ -1,6 +1,28 @@
 from rest_framework import serializers
 from .models import RTCProfile, RTCResource, RTCEvent, RTCEventFile, RTCProject, GalleryImage, News
 
+
+class RTCProfileImportItemSerializer(serializers.Serializer):
+    """Payload for bulk RTC profile import (matches external JSON shape)."""
+
+    name = serializers.CharField(max_length=255)
+    host_country = serializers.CharField(max_length=100)
+    address = serializers.CharField()
+    director_name = serializers.CharField(max_length=255)
+    director_email = serializers.EmailField()
+    director_bio = serializers.CharField(allow_null=True, required=False, allow_blank=True)
+    contact_person_name = serializers.CharField(max_length=255)
+    contact_person_email = serializers.EmailField(allow_null=True, required=False)
+    phone_number = serializers.CharField(max_length=50)
+    establishment_year = serializers.IntegerField(allow_null=True, required=False, min_value=1)
+    mission_statement = serializers.CharField(allow_null=True, required=False, allow_blank=True)
+    overview_text = serializers.CharField(allow_null=True, required=False, allow_blank=True)
+    specialization_areas = serializers.CharField(allow_null=True, required=False, allow_blank=True)
+
+
+class RTCProfileBulkImportSerializer(serializers.Serializer):
+    rtc_profiles = RTCProfileImportItemSerializer(many=True)
+
 class RTCResourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = RTCResource
