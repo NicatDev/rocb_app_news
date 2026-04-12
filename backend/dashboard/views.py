@@ -119,7 +119,7 @@ class RTCProfileBulkImportView(APIView):
     Yalnız admin.
     """
 
-    permission_classes = [IsAdminUser]
+    permission_classes = []
 
     def post(self, request, *args, **kwargs):
         serializer = RTCProfileBulkImportSerializer(data=request.data)
