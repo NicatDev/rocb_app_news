@@ -1,10 +1,10 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, generics
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as django_filters
-from dashboard.models import News
-from .serializers import PublicNewsSerializer
+from dashboard.models import News, RTCProfile
+from .serializers import PublicNewsSerializer, MainSiteRTCProfileSerializer
 
 
 class MainSiteGlobalNewsPagination(PageNumberPagination):
@@ -74,3 +74,17 @@ class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):
             .select_related('rtc')
             .order_by('-created_at')
         )
+
+
+class MainSiteRTCProfileListView(generics.ListAPIView):
+    """
+    Public RTC list for rocbeurope.org WCO Europe RTCs page.
+    GET /api/v1/public/main-site/rtc-profiles/
+    """
+
+    serializer_class = MainSiteRTCProfileSerializer
+    permission_classes = [AllowAny]
+    pagination_class = None
+
+    def get_queryset(self):
+        return RTCProfile.objects.filter(status='PUBLIC').order_by('name')

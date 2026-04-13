@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 from datetime import timedelta
 
@@ -188,4 +189,9 @@ CSRF_TRUSTED_ORIGINS = [
 # File Upload Settings (40MB)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 41943040
 FILE_UPLOAD_MAX_MEMORY_SIZE = 41943040
+
+# Absolute media URLs in public API JSON (main site / integrations)
+APP_PUBLIC_ORIGIN = os.environ.get('APP_PUBLIC_ORIGIN', 'https://app.rocbeurope.org')
+# Public RTC SPA (detail links from main site): /rtc-dashboard/<uuid>/
+RTC_PUBLIC_APP_BASE_URL = os.environ.get('RTC_PUBLIC_APP_BASE_URL', 'https://rtc.rocbeurope.org')
 
