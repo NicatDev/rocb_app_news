@@ -104,15 +104,22 @@ class NewsViewSet(viewsets.ReadOnlyModelViewSet):
     ordering = ['order', '-created_at']
 
     def get_queryset(self):
-        return (
-            News.objects.all()
-            .select_related('rtc')
+        base_qs = (
+            News.objects.select_related('rtc')
             .prefetch_related('extra_images')
             .order_by('order', '-created_at')
         )
+        # RTC detail tab calls list with ?rtc=<uuid>; include both PUBLIC and INTERNAL there.
+        rtc_id = self.request.query_params.get('rtc')
+        if self.action == 'list':
+            if rtc_id:
+                return base_qs.filter(rtc_id=rtc_id, status__in=['PUBLIC', 'INTERNAL'])
+            return base_qs.filter(status='PUBLIC')
+        # Detail endpoint remains readable for non-pending items.
+        return base_qs.exclude(status='PENDING')
 
 class NewsIntegrationViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = News.objects.filter(rtc__isnull=True, status='PUBLIC')
+    queryset = News.objects.filter(status='PUBLIC')
     serializer_class = NewsIntegrationSerializer
     permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
@@ -124,7 +131,7 @@ class NewsIntegrationViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return (
-            News.objects.filter(rtc__isnull=True, status='PUBLIC')
+            News.objects.filter(status='PUBLIC')
             .select_related('rtc')
             .prefetch_related('extra_images')
             .order_by('order', '-created_at')
