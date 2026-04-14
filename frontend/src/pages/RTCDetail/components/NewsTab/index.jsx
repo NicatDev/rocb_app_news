@@ -32,7 +32,8 @@ const NewsTab = ({ rtc, isActive }) => {
                 rtc: rtc.id,
                 page: page,
                 page_size: pagination.pageSize,
-                search: search
+                search: search,
+                ordering: 'order,-created_at',
             };
             const data = await getRTCNews(params);
             setNews(data.results);
@@ -65,6 +66,13 @@ const NewsTab = ({ rtc, isActive }) => {
 
     const navigateToDetail = (id) => {
         navigate(`/news/${id}`);
+    };
+
+    const excerptText = (item) => {
+        const s = (item.summary || '').trim();
+        if (s) return s;
+        const raw = item.content || '';
+        return raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     };
 
     return (
@@ -105,32 +113,28 @@ const NewsTab = ({ rtc, isActive }) => {
                         className={styles.newsList}
                         renderItem={item => (
                             <List.Item>
-                                <Card
-                                    hoverable
-                                    className={styles.newsCard}
-                                    cover={
-                                        <div className={styles.imageContainer} onClick={() => navigateToDetail(item.id)}>
-                                            {item.image ? (
-                                                <img src={item.image} alt={item.title} />
-                                            ) : (
-                                                <div className={styles.placeholderImage}>
-                                                    <PictureOutlined />
-                                                </div>
-                                            )}
-                                        </div>
-                                    }
-                                >
+                                <Card hoverable className={styles.newsCard}>
+                                    <Title level={4} className={styles.title} ellipsis={{ rows: 2 }}>
+                                        <a onClick={() => navigateToDetail(item.id)}>{item.title}</a>
+                                    </Title>
+
+                                    <div className={styles.imageContainer} onClick={() => navigateToDetail(item.id)}>
+                                        {item.image ? (
+                                            <img src={item.image} alt={item.title} />
+                                        ) : (
+                                            <div className={styles.placeholderImage}>
+                                                <PictureOutlined />
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <Text className={styles.date}>
                                         <CalendarOutlined style={{ marginRight: 6 }} />
                                         {dayjs(item.created_at).format('MMMM D, YYYY')}
                                     </Text>
 
-                                    <Title level={4} className={styles.title} ellipsis={{ rows: 2 }}>
-                                        <a onClick={() => navigateToDetail(item.id)}>{item.title}</a>
-                                    </Title>
-
                                     <Paragraph className={styles.excerpt}>
-                                        {item.content}
+                                        {excerptText(item)}
                                     </Paragraph>
 
                                     <Button

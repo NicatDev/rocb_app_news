@@ -45,12 +45,17 @@ class PublicNewsViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = PublicNewsPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = PublicNewsFilter
-    search_fields = ['title', 'content']
-    ordering_fields = ['created_at']
-    ordering = ['-created_at']
+    search_fields = ['title', 'summary', 'content']
+    ordering_fields = ['order', 'created_at']
+    ordering = ['order', '-created_at']
 
     def get_queryset(self):
-        return News.objects.filter(status='PUBLIC').select_related('rtc')
+        return (
+            News.objects.filter(status='PUBLIC')
+            .select_related('rtc')
+            .prefetch_related('extra_images')
+            .order_by('order', '-created_at')
+        )
 
 
 class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -62,9 +67,9 @@ class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     pagination_class = MainSiteGlobalNewsPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['title', 'content']
-    ordering_fields = ['created_at']
-    ordering = ['-created_at']
+    search_fields = ['title', 'summary', 'content']
+    ordering_fields = ['order', 'created_at']
+    ordering = ['order', '-created_at']
     lookup_field = 'slug'
     lookup_value_regex = r'[^/]+'
 
@@ -72,7 +77,8 @@ class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):
         return (
             News.objects.filter(status='PUBLIC', rtc__isnull=True)
             .select_related('rtc')
-            .order_by('-created_at')
+            .prefetch_related('extra_images')
+            .order_by('order', '-created_at')
         )
 
 

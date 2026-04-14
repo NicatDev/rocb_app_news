@@ -14,8 +14,16 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    load_dotenv = None
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+if load_dotenv:
+    load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -48,7 +56,7 @@ INSTALLED_APPS = [
 
     # Local apps
     'account',
-    'dashboard',
+    'dashboard.apps.DashboardConfig',
     'feed',
     'rtc_admin',
     'public_news',
@@ -194,4 +202,18 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 41943040
 APP_PUBLIC_ORIGIN = os.environ.get('APP_PUBLIC_ORIGIN', 'https://app.rocbeurope.org')
 # Public RTC SPA (detail links from main site): /rtc-dashboard/<uuid>/
 RTC_PUBLIC_APP_BASE_URL = os.environ.get('RTC_PUBLIC_APP_BASE_URL', 'https://rtc.rocbeurope.org')
+
+# --- Outgoing email (same SMTP as rocb_main) — set user + app password below ---
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = ""
+EMAIL_HOST_PASSWORD = ""
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER or "noreply@rocb-europe.org"
+
+ROCB_NOTIFY_STAFF_EMAILS = [
+    "info@rocb-europe.org",
+    "nicat254memmedov@gmail.com",
+]
 

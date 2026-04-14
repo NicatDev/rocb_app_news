@@ -1,31 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Upload, Button, Select, Image, Alert, message } from 'antd';
-import { UploadOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, Upload, Button, Image as AntImage, Alert, message } from 'antd';
+import { UploadOutlined, InfoCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 
 const { TextArea } = Input;
-const { Option } = Select;
 
 const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErrors }) => {
     const [form] = Form.useForm();
     const { t } = useTranslation();
     const [fileList, setFileList] = useState([]);
+    const [extraFileList, setExtraFileList] = useState([]);
+    const [hiddenExtraIds, setHiddenExtraIds] = useState([]);
 
     useEffect(() => {
         if (visible) {
+            setHiddenExtraIds([]);
+            setExtraFileList([]);
             if (initialValues) {
                 form.setFieldsValue({
                     title: initialValues.title,
+                    summary: initialValues.summary,
                     content: initialValues.content,
-                    status: initialValues.status
+                    status: initialValues.status,
                 });
                 if (initialValues.image) {
-                    setFileList([{
-                        uid: '-1',
-                        name: 'image.png',
-                        status: 'done',
-                        url: initialValues.image,
-                    }]);
+                    setFileList([
+                        {
+                            uid: '-1',
+                            name: 'image.png',
+                            status: 'done',
+                            url: initialValues.image,
+                        },
+                    ]);
                 } else {
                     setFileList([]);
                 }
@@ -36,8 +42,7 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
         }
     }, [visible, initialValues, form]);
 
-    // Handle server-side validation errors
-    const FORM_FIELDS = ['title', 'content', 'image'];
+    const FORM_FIELDS = ['title', 'summary', 'content', 'image'];
     useEffect(() => {
         if (serverErrors && typeof serverErrors === 'object') {
             const fieldErrors = [];
@@ -58,37 +63,41 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
                 form.setFields(fieldErrors);
             }
             if (nonFieldMessages.length > 0) {
-                nonFieldMessages.forEach(msg => message.error(msg));
+                nonFieldMessages.forEach((msg) => message.error(msg));
             }
         }
     }, [serverErrors, form]);
 
+    const visibleExtraImages =
+        initialValues?.extra_images?.filter((img) => img?.id && !hiddenExtraIds.includes(img.id)) || [];
+
     const handleOk = () => {
-        form.validateFields().then(values => {
-            const formData = new FormData();
-            formData.append('title', values.title);
-            formData.append('content', values.content);
+        form.validateFields()
+            .then((values) => {
+                const formData = new FormData();
+                formData.append('title', values.title);
+                formData.append('summary', values.summary ?? '');
+                formData.append('content', values.content);
 
-            // Handle Image
-            if (fileList.length > 0 && fileList[0].originFileObj) {
-                formData.append('image', fileList[0].originFileObj);
-            } else if (fileList.length === 0 && initialValues?.image) {
-                // If file list empty but we had an image, it means user removed it? 
-                // Or we need a way to signal deletion. For now, assuming if no new file, keep old unless explicitly deleted logic is added.
-                // If backend expects 'image' to be null to delete, we'd need a clear flag.
-                // For simple update: if no new file, don't send 'image' key, backend keeps current.
-            }
+                if (fileList.length > 0 && fileList[0].originFileObj) {
+                    formData.append('image', fileList[0].originFileObj);
+                }
 
-            // Status is read-only in edit, and not sent in create (defaults to pending)
-            // But if we want to change content without changing status, we don't need to send it if it's not editable.
+                const newExtraFiles = extraFileList.filter((f) => f.originFileObj).map((f) => f.originFileObj);
 
-            onOk(formData);
-        }).catch(info => {
-            console.log('Validate Failed:', info);
-        });
+                onOk({
+                    formData,
+                    newExtraFiles,
+                    removedExtraImageIds: [...hiddenExtraIds],
+                });
+            })
+            .catch((info) => {
+                console.log('Validate Failed:', info);
+            });
     };
 
-    const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
+    const handleMainImageChange = ({ fileList: newFileList }) => setFileList(newFileList);
+    const handleExtraChange = ({ fileList: newFileList }) => setExtraFileList(newFileList);
 
     return (
         <Modal
@@ -100,11 +109,7 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
             width={800}
         >
             <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '10px' }}>
-                <Form
-                    form={form}
-                    layout="vertical"
-                    name="news_form"
-                >
+                <Form form={form} layout="vertical" name="news_form">
                     {initialValues && (
                         <Alert
                             message={`${t('current_status')}: ${initialValues.status}`}
@@ -114,30 +119,24 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
                         />
                     )}
 
-                    <Form.Item
-                        name="title"
-                        label={t('title')}
-                        rules={[{ required: true, message: t('please_enter_title') }]}
-                    >
+                    <Form.Item name="title" label={t('title')} rules={[{ required: true, message: t('please_enter_title') }]}>
                         <Input placeholder={t('news_title_placeholder')} />
                     </Form.Item>
 
-                    <Form.Item
-                        name="content"
-                        label={t('content')}
-                        rules={[{ required: true, message: t('please_enter_content') }]}
-                    >
+                    <Form.Item name="summary" label={t('summary') || 'Summary'}>
+                        <TextArea rows={3} placeholder={t('news_summary_placeholder') || ''} />
+                    </Form.Item>
+
+                    <Form.Item name="content" label={t('content')} rules={[{ required: true, message: t('please_enter_content') }]}>
                         <TextArea rows={6} placeholder={t('news_content_placeholder')} />
                     </Form.Item>
 
-                    <Form.Item
-                        label={t('image')}
-                    >
+                    <Form.Item label={t('image')}>
                         <Upload
                             listType="picture-card"
                             fileList={fileList}
-                            onChange={handleChange}
-                            beforeUpload={() => false} // Prevent auto upload
+                            onChange={handleMainImageChange}
+                            beforeUpload={() => false}
                             maxCount={1}
                             onPreview={async (file) => {
                                 let src = file.url;
@@ -148,10 +147,10 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
                                         reader.onload = () => resolve(reader.result);
                                     });
                                 }
-                                const image = new Image();
-                                image.src = src;
+                                const imgEl = new window.Image();
+                                imgEl.src = src;
                                 const imgWindow = window.open(src);
-                                imgWindow?.document.write(image.outerHTML);
+                                imgWindow?.document.write(imgEl.outerHTML);
                             }}
                         >
                             {fileList.length < 1 && (
@@ -163,11 +162,52 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
                         </Upload>
                     </Form.Item>
 
-                    {/* 
-                       Hidden Status Field or just dont render it. 
-                       User said: "status onlyread olsun" (status should be read-only).
-                       "createde de status secmek olmasin" (create should not choose status).
-                    */}
+                    {visibleExtraImages.length > 0 && (
+                        <Form.Item label={t('existing_extra_images') || 'Existing gallery images'}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
+                                {visibleExtraImages.map((img) => (
+                                    <div key={img.id} style={{ position: 'relative', width: 96, height: 96 }}>
+                                        <AntImage src={img.image} alt="" width={96} height={96} style={{ objectFit: 'cover', borderRadius: 8 }} />
+                                        <Button
+                                            type="text"
+                                            danger
+                                            size="small"
+                                            icon={<CloseCircleOutlined />}
+                                            style={{ position: 'absolute', top: -8, right: -8 }}
+                                            onClick={() => setHiddenExtraIds((prev) => [...prev, img.id])}
+                                            aria-label={t('remove') || 'Remove'}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </Form.Item>
+                    )}
+
+                    <Form.Item label={t('extra_images') || 'Additional images'}>
+                        <Upload
+                            listType="picture-card"
+                            fileList={extraFileList}
+                            onChange={handleExtraChange}
+                            beforeUpload={() => false}
+                            multiple
+                            onPreview={async (file) => {
+                                let src = file.url;
+                                if (!src && file.originFileObj) {
+                                    src = await new Promise((resolve) => {
+                                        const reader = new FileReader();
+                                        reader.readAsDataURL(file.originFileObj);
+                                        reader.onload = () => resolve(reader.result);
+                                    });
+                                }
+                                if (src) window.open(src);
+                            }}
+                        >
+                            <div>
+                                <UploadOutlined />
+                                <div style={{ marginTop: 8 }}>{t('upload')}</div>
+                            </div>
+                        </Upload>
+                    </Form.Item>
                 </Form>
             </div>
         </Modal>

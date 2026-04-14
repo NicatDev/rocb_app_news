@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import RTCProfile, RTCResource, RTCEvent, RTCEventFile, RTCProject, GalleryImage, News
+from .models import RTCProfile, RTCResource, RTCEvent, RTCEventFile, RTCProject, GalleryImage, News, NewsImage
 
 
 class RTCProfileImportItemSerializer(serializers.Serializer):
@@ -55,10 +55,34 @@ class GalleryImageSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['rtc']
 
+
+class NewsImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NewsImage
+        fields = ['id', 'image', 'order']
+
+
 class NewsSerializer(serializers.ModelSerializer):
+    extra_images = NewsImageSerializer(many=True, read_only=True)
+    rtc_name = serializers.CharField(source='rtc.name', read_only=True, allow_null=True)
+
     class Meta:
         model = News
-        fields = '__all__'
+        fields = [
+            'id',
+            'rtc',
+            'rtc_name',
+            'title',
+            'slug',
+            'summary',
+            'content',
+            'image',
+            'extra_images',
+            'order',
+            'status',
+            'created_at',
+            'updated_at',
+        ]
         read_only_fields = ['rtc']
 
 class RTCProfileListSerializer(serializers.ModelSerializer):
@@ -84,6 +108,19 @@ class RTCProfileDetailSerializer(serializers.ModelSerializer):
         model = RTCProfile
         fields = '__all__'
 class NewsIntegrationSerializer(serializers.ModelSerializer):
+    extra_images = NewsImageSerializer(many=True, read_only=True)
+
     class Meta:
         model = News
-        fields = ['id', 'title', 'slug', 'content', 'image', 'created_at', 'updated_at']
+        fields = [
+            'id',
+            'title',
+            'slug',
+            'summary',
+            'content',
+            'image',
+            'extra_images',
+            'order',
+            'created_at',
+            'updated_at',
+        ]

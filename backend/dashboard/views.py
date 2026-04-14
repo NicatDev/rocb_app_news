@@ -93,23 +93,42 @@ class RTCGalleryViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_fields = ['rtc']
 
 class NewsViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = News.objects.all().order_by('-created_at')
+    queryset = News.objects.all()
     serializer_class = NewsSerializer
     permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['rtc']
-    search_fields = ['title', 'content']
+    search_fields = ['title', 'summary', 'content']
+    ordering_fields = ['order', 'created_at', 'title']
+    ordering = ['order', '-created_at']
+
+    def get_queryset(self):
+        return (
+            News.objects.all()
+            .select_related('rtc')
+            .prefetch_related('extra_images')
+            .order_by('order', '-created_at')
+        )
 
 class NewsIntegrationViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = News.objects.filter(rtc__isnull=True, status='PUBLIC').order_by('-created_at')
+    queryset = News.objects.filter(rtc__isnull=True, status='PUBLIC')
     serializer_class = NewsIntegrationSerializer
     permission_classes = [AllowAny]
     pagination_class = StandardResultsSetPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = NewsFilter
-    search_fields = ['title', 'content']
-    ordering_fields = ['created_at', 'title']
+    search_fields = ['title', 'summary', 'content']
+    ordering_fields = ['order', 'created_at', 'title']
+    ordering = ['order', '-created_at']
+
+    def get_queryset(self):
+        return (
+            News.objects.filter(rtc__isnull=True, status='PUBLIC')
+            .select_related('rtc')
+            .prefetch_related('extra_images')
+            .order_by('order', '-created_at')
+        )
 
 
 class RTCProfileBulkImportView(APIView):

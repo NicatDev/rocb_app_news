@@ -36,7 +36,7 @@ const News = () => {
             const params = {
                 page: currentPage,
                 page_size: pageSize,
-                ordering: '-created_at', // Newest first
+                ordering: 'order,-created_at',
             };
 
             if (searchText) {
@@ -120,16 +120,28 @@ const News = () => {
         });
     };
 
-    const handleModalOk = async (formData) => {
+    const handleModalOk = async ({ formData, newExtraFiles, removedExtraImageIds }) => {
         setModalLoading(true);
         setServerErrors(null);
         try {
+            let newsId = editingNews?.id;
             if (editingNews) {
                 await adminService.updateNews(editingNews.id, formData);
                 message.success(t('news_updated_success'));
             } else {
-                await adminService.createNews(formData);
+                const res = await adminService.createNews(formData);
+                newsId = res.data?.id;
                 message.success(t('news_created_success'));
+            }
+            if (newsId && removedExtraImageIds?.length) {
+                for (const imgId of removedExtraImageIds) {
+                    await adminService.deleteNewsExtraImage(newsId, imgId);
+                }
+            }
+            if (newsId && newExtraFiles?.length) {
+                const fd = new FormData();
+                newExtraFiles.forEach((f) => fd.append('images', f));
+                await adminService.appendNewsExtraImages(newsId, fd);
             }
             setModalVisible(false);
             fetchNews();

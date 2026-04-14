@@ -1,15 +1,31 @@
 from django.conf import settings
 from rest_framework import serializers
 from dashboard.models import News, RTCProfile
+from dashboard.serializers import NewsImageSerializer
 
 
 class PublicNewsSerializer(serializers.ModelSerializer):
     rtc_name = serializers.CharField(source='rtc.name', read_only=True, default=None)
     is_global = serializers.SerializerMethodField()
+    extra_images = NewsImageSerializer(many=True, read_only=True)
 
     class Meta:
         model = News
-        fields = ['id', 'title', 'slug', 'content', 'image', 'rtc', 'rtc_name', 'is_global', 'created_at', 'status']
+        fields = [
+            'id',
+            'title',
+            'slug',
+            'summary',
+            'content',
+            'image',
+            'rtc',
+            'rtc_name',
+            'is_global',
+            'extra_images',
+            'order',
+            'created_at',
+            'status',
+        ]
 
     def get_is_global(self, obj):
         return obj.rtc is None

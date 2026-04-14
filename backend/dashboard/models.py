@@ -189,9 +189,15 @@ class News(VisibilityMixin, models.Model):
     rtc = models.ForeignKey(RTCProfile, on_delete=models.CASCADE, related_name='news', null=True, blank=True)
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, blank=True)
+    summary = models.TextField(_('Summary'), blank=True, null=True)
     content = models.TextField()
     image = models.ImageField(upload_to='news_images/', blank=True, null=True)
-    
+    order = models.PositiveIntegerField(
+        _('Display order'),
+        default=1,
+        help_text=_('Lower numbers appear first when listing news.'),
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -208,3 +214,20 @@ class News(VisibilityMixin, models.Model):
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        ordering = ['order', '-created_at']
+
+
+class NewsImage(models.Model):
+    """Additional images attached to a news article (main cover remains on News.image)."""
+
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='extra_images')
+    image = models.ImageField(upload_to='news_images/extra/')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return f'{self.news_id} extra #{self.pk}'

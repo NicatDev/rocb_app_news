@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Typography, Spin, Button, Breadcrumb, Divider } from 'antd';
+import { Typography, Spin, Button, Breadcrumb, Divider, Row, Col } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeftOutlined, CalendarOutlined, GlobalOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -82,7 +82,7 @@ const NewsDetail = () => {
                     {news.rtc ? (
                         <Text className={styles.source}>
                             <GlobalOutlined style={{ marginRight: 6 }} />
-                            RTC {news.rtc} {/* Ideally, fetch RTC name or use expanded serializer */}
+                            RTC {news.rtc_name || news.rtc}
                         </Text>
                     ) : (
                         <Text className={styles.source}>
@@ -91,6 +91,10 @@ const NewsDetail = () => {
                         </Text>
                     )}
                 </div>
+
+                {news.summary && (
+                    <Paragraph className={styles.summary}>{news.summary}</Paragraph>
+                )}
 
                 {news.image && (
                     <div className={styles.featuredImage}>
@@ -105,6 +109,20 @@ const NewsDetail = () => {
                         </Paragraph>
                     ))}
                 </div>
+
+                {news.extra_images?.length > 0 && (
+                    <div className={styles.extraGallery}>
+                        <Row gutter={[16, 16]}>
+                            {news.extra_images.map((row) => (
+                                <Col xs={24} sm={12} key={row.id}>
+                                    <figure className={styles.extraFigure}>
+                                        <img src={row.image} alt="" />
+                                    </figure>
+                                </Col>
+                            ))}
+                        </Row>
+                    </div>
+                )}
             </article>
 
             <Divider />

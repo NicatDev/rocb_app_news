@@ -1,15 +1,19 @@
+from django.db.models import Max
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from dashboard.models import RTCProfile, RTCResource, RTCEvent, RTCEventFile, RTCProject, GalleryImage, News
+from rest_framework.parsers import MultiPartParser, FormParser
+from dashboard.models import RTCProfile, RTCResource, RTCEvent, RTCEventFile, RTCProject, GalleryImage, News, NewsImage
 from dashboard.serializers import (
-    RTCProfileDetailSerializer, 
-    RTCResourceSerializer, 
-    RTCEventSerializer, 
-    RTCProjectSerializer, 
-    GalleryImageSerializer, 
-    NewsSerializer
+    RTCProfileDetailSerializer,
+    RTCResourceSerializer,
+    RTCEventSerializer,
+    RTCProjectSerializer,
+    GalleryImageSerializer,
+    NewsSerializer,
+    NewsImageSerializer,
 )
 from .permissions import IsRTCOwner
 
@@ -55,21 +59,47 @@ class BaseRTCRelatedViewSet(viewsets.ModelViewSet):
         return self.model.objects.filter(rtc=rtc_profile).order_by('-created_at' if hasattr(self.model, 'created_at') else '-id')
 
     def perform_create(self, serializer):
-        # Automatically assign the RTC owned by the user
         rtc = RTCProfile.objects.filter(owner=self.request.user).first()
         if rtc:
             serializer.save(rtc=rtc)
         else:
-            # Handle case where user implies they are an owner but have no RTC
-            # This should ideally be caught by permissions or frontend logic
             serializer.save()
 
 class NewsAdminViewSet(BaseRTCRelatedViewSet):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
     model = News
-    search_fields = ['title', 'content']
+    search_fields = ['title', 'summary', 'content']
     filterset_fields = ['status']
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.prefetch_related('extra_images').order_by('order', '-created_at')
+
+    @action(
+        detail=True,
+        methods=['post'],
+        url_path='append-extra-images',
+        parser_classes=[MultiPartParser, FormParser],
+    )
+    def append_extra_images(self, request, pk=None):
+        news = self.get_object()
+        files = request.FILES.getlist('images')
+        if not files:
+            return Response({'detail': 'No images provided.'}, status=status.HTTP_400_BAD_REQUEST)
+        max_order = NewsImage.objects.filter(news=news).aggregate(m=Max('order'))['m'] or 0
+        created = []
+        for i, f in enumerate(files):
+            img = NewsImage.objects.create(news=news, image=f, order=max_order + i + 1)
+            created.append(img)
+        return Response(NewsImageSerializer(created, many=True).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['delete'], url_path=r'extra-images/(?P<image_id>\d+)')
+    def delete_extra_image(self, request, pk=None, image_id=None):
+        news = self.get_object()
+        img = get_object_or_404(NewsImage, id=image_id, news=news)
+        img.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class EventsAdminViewSet(BaseRTCRelatedViewSet):
     queryset = RTCEvent.objects.all()

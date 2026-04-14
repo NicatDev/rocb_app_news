@@ -19,6 +19,10 @@ const adminService = {
     createNews: (data) => axiosInstance.post('/admin/news/', data, getHeaders(data)),
     updateNews: (id, data) => axiosInstance.patch(`/admin/news/${id}/`, data, getHeaders(data)), // Using patch for partial updates
     deleteNews: (id) => axiosInstance.delete(`/admin/news/${id}/`),
+    appendNewsExtraImages: (id, data) =>
+        axiosInstance.post(`/admin/news/${id}/append-extra-images/`, data, getHeaders(data)),
+    deleteNewsExtraImage: (newsId, imageId) =>
+        axiosInstance.delete(`/admin/news/${newsId}/extra-images/${imageId}/`),
 
     // Events
     getEvents: (params) => axiosInstance.get('/admin/events/', { params }),

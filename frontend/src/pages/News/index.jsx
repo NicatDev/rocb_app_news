@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { List, Card, Input, Typography, Pagination, Empty, Spin, Button, Row, Col, Tag } from 'antd';
+import { List, Card, Input, Typography, Pagination, Empty, Spin, Button, Tag } from 'antd';
 import { SearchOutlined, CalendarOutlined, ArrowRightOutlined, PictureOutlined, GlobalOutlined, BankOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -31,7 +31,7 @@ const News = () => {
             const params = {
                 page: page,
                 page_size: pagination.pageSize,
-                ordering: '-created_at',
+                ordering: 'order,-created_at',
             };
 
             if (search) {
@@ -80,6 +80,13 @@ const News = () => {
 
     const navigateToDetail = (id) => {
         navigate(`/news/${id}`);
+    };
+
+    const excerptText = (item) => {
+        const s = (item.summary || '').trim();
+        if (s) return s;
+        const raw = item.content || '';
+        return raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     };
 
     return (
@@ -146,40 +153,36 @@ const News = () => {
                         className={styles.newsList}
                         renderItem={item => (
                             <List.Item>
-                                <Card
-                                    hoverable
-                                    className={styles.newsCard}
-                                    cover={
-                                        <div className={styles.imageContainer} onClick={() => navigateToDetail(item.id)}>
-                                            {item.image ? (
-                                                <img src={item.image} alt={item.title} />
-                                            ) : (
-                                                <div className={styles.placeholderImage}>
-                                                    <PictureOutlined />
-                                                </div>
-                                            )}
-                                            <div className={styles.sourceBadge}>
-                                                <Tag color={item.is_global ? '#6366f1' : '#0ea5e9'}>
-                                                    {item.is_global
-                                                        ? (t('global') || 'Global')
-                                                        : (item.rtc_name || t('rtc') || 'RTC')
-                                                    }
-                                                </Tag>
+                                <Card hoverable className={styles.newsCard}>
+                                    <Title level={4} className={styles.title} ellipsis={{ rows: 2 }}>
+                                        <a onClick={() => navigateToDetail(item.id)}>{item.title}</a>
+                                    </Title>
+
+                                    <div className={styles.imageContainer} onClick={() => navigateToDetail(item.id)}>
+                                        {item.image ? (
+                                            <img src={item.image} alt={item.title} />
+                                        ) : (
+                                            <div className={styles.placeholderImage}>
+                                                <PictureOutlined />
                                             </div>
+                                        )}
+                                        <div className={styles.sourceBadge}>
+                                            <Tag color={item.is_global ? '#6366f1' : '#0ea5e9'}>
+                                                {item.is_global
+                                                    ? (t('global') || 'Global')
+                                                    : (item.rtc_name || t('rtc') || 'RTC')
+                                                }
+                                            </Tag>
                                         </div>
-                                    }
-                                >
+                                    </div>
+
                                     <Text className={styles.date}>
                                         <CalendarOutlined style={{ marginRight: 6 }} />
                                         {dayjs(item.created_at).format('MMMM D, YYYY')}
                                     </Text>
 
-                                    <Title level={4} className={styles.title} ellipsis={{ rows: 2 }}>
-                                        <a onClick={() => navigateToDetail(item.id)}>{item.title}</a>
-                                    </Title>
-
                                     <Paragraph className={styles.excerpt}>
-                                        {item.content}
+                                        {excerptText(item)}
                                     </Paragraph>
 
                                     <Button
