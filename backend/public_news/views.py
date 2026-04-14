@@ -93,4 +93,4 @@ class MainSiteRTCProfileListView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        return RTCProfile.objects.filter(status='PUBLIC').order_by('name')
+        return RTCProfile.objects.filter(status='PUBLIC').order_by('order', 'name')

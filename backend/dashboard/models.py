@@ -64,6 +64,12 @@ class RTCProfile(VisibilityMixin, models.Model):
         help_text="Key training focus areas e.g., enforcement, valuation"
     ) # [3]
 
+    order = models.PositiveIntegerField(
+        _("Display order"),
+        default=2,
+        help_text=_("Lower numbers appear first when listing RTC profiles."),
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -86,6 +92,7 @@ class RTCProfile(VisibilityMixin, models.Model):
     class Meta:
         verbose_name = "RTC Profile"
         verbose_name_plural = "RTC Profiles"
+        ordering = ["order", "name"]
 
 
 # ---------------------------------------------------------

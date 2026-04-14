@@ -28,7 +28,7 @@ class NewsImageInline(admin.TabularInline):
 
 @admin.register(RTCProfile)
 class RTCProfileAdmin(admin.ModelAdmin):
-    list_display = ('name', 'host_country', 'director_name', 'status')
+    list_display = ('name', 'host_country', 'order', 'director_name', 'status')
     list_filter = ('host_country', 'status')
     search_fields = ('name', 'host_country', 'director_name')
     prepopulated_fields = {'slug': ('name',)}

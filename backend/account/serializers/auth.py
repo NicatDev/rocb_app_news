@@ -60,5 +60,5 @@ class ProfileSerializer(serializers.ModelSerializer):
         from django.db.models import Q
         rtcs = RTCProfile.objects.filter(
             Q(owner=obj) | Q(members=obj)
-        ).distinct().only('id', 'name')
+        ).distinct().order_by('order', 'name').only('id', 'name')
         return UserRTCSerializer(rtcs, many=True).data

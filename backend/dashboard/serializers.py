@@ -92,9 +92,9 @@ class RTCProfileListSerializer(serializers.ModelSerializer):
         model = RTCProfile
         # Only essential fields for the list view
         fields = [
-            'id', 'name', 'slug', 'host_country', 'logo', 
+            'id', 'name', 'slug', 'host_country', 'logo',
             'specialization_areas', 'mission_statement', 'overview_text', 'coordinates',
-            'owner_username'
+            'order', 'owner_username',
         ]
 
 class RTCProfileDetailSerializer(serializers.ModelSerializer):

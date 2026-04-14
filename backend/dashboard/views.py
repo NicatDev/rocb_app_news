@@ -30,7 +30,7 @@ class StandardResultsSetPagination(PageNumberPagination):
     max_page_size = 100
 
 class RTCProfileViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = RTCProfile.objects.all()
+    queryset = RTCProfile.objects.all().order_by('order', 'name')
     permission_classes = [AllowAny] # Publicly accessible for the dashboard list
 
     def get_serializer_class(self):

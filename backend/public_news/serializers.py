@@ -42,7 +42,7 @@ class MainSiteRTCProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = RTCProfile
-        fields = ['id', 'name', 'slug', 'host_country', 'logo', 'flag_url', 'detail_url']
+        fields = ['id', 'name', 'slug', 'host_country', 'logo', 'flag_url', 'detail_url', 'order']
 
     def _absolute_media_url(self, file_field) -> str | None:
         if not file_field:

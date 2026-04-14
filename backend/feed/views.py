@@ -71,7 +71,7 @@ class FeedPostViewSet(viewsets.ModelViewSet):
         """Return RTCs where the current user is owner or member."""
         rtcs = RTCProfile.objects.filter(
             Q(owner=request.user) | Q(members=request.user)
-        ).distinct().values('id', 'name')
+        ).distinct().order_by('order', 'name').values('id', 'name')
         return Response(list(rtcs))
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
