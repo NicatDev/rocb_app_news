@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, Input, Button, Card, Typography } from 'antd';
-import { UserOutlined, MailOutlined, LockOutlined, BankOutlined, PhoneOutlined, SolutionOutlined } from '@ant-design/icons';
+import { UserOutlined, MailOutlined, LockOutlined, BankOutlined, PhoneOutlined, SolutionOutlined, LeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
@@ -34,6 +34,16 @@ const Register = () => {
 
     return (
         <div className={styles.authContainer}>
+            <div className={styles.backToMain}>
+                <Button
+                    type="text"
+                    href="https://rtc.rocbeurope.org/"
+                    icon={<LeftOutlined />}
+                    className={styles.backButton}
+                >
+                    {t('back_to_main_site')}
+                </Button>
+            </div>
             <div className={styles.langSwitch}>
                 <Button type="text" onClick={() => changeLanguage('en')}>EN</Button>
                 <Button type="text" onClick={() => changeLanguage('ru')}>RU</Button>
