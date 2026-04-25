@@ -52,6 +52,8 @@ const NewsDetail = () => {
         );
     }
 
+    const displayDate = news.news_date || news.created_at;
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -77,7 +79,7 @@ const NewsDetail = () => {
                 <div className={styles.meta}>
                     <Text className={styles.date}>
                         <CalendarOutlined style={{ marginRight: 6 }} />
-                        {dayjs(news.created_at).format('MMMM D, YYYY')}
+                        {dayjs(displayDate).format('MMMM D, YYYY')}
                     </Text>
                     {news.rtc ? (
                         <Text className={styles.source}>

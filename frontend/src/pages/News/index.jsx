@@ -31,7 +31,7 @@ const News = () => {
             const params = {
                 page: page,
                 page_size: pagination.pageSize,
-                ordering: 'order,-created_at',
+                ordering: 'order,-news_date,-created_at',
             };
 
             if (search) {
@@ -88,6 +88,8 @@ const News = () => {
         const raw = item.content || '';
         return raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     };
+
+    const displayDate = (item) => item.news_date || item.created_at;
 
     return (
         <div className={styles.newsPageContainer}>
@@ -178,7 +180,7 @@ const News = () => {
 
                                     <Text className={styles.date}>
                                         <CalendarOutlined style={{ marginRight: 6 }} />
-                                        {dayjs(item.created_at).format('MMMM D, YYYY')}
+                                        {dayjs(displayDate(item)).format('MMMM D, YYYY')}
                                     </Text>
 
                                     <Paragraph className={styles.excerpt}>

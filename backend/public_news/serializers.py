@@ -23,6 +23,7 @@ class PublicNewsSerializer(serializers.ModelSerializer):
             'is_global',
             'extra_images',
             'order',
+            'news_date',
             'created_at',
             'status',
         ]

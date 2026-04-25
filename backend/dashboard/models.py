@@ -204,6 +204,7 @@ class News(VisibilityMixin, models.Model):
         default=1,
         help_text=_('Lower numbers appear first when listing news.'),
     )
+    news_date = models.DateField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -36,7 +36,7 @@ const News = () => {
             const params = {
                 page: currentPage,
                 page_size: pageSize,
-                ordering: 'order,-created_at',
+                ordering: 'order,-news_date,-created_at',
             };
 
             if (searchText) {
@@ -201,17 +201,26 @@ const News = () => {
             }
         },
         {
-            title: t('created_at'),
-            dataIndex: 'created_at',
-            key: 'created_at',
+            title: t('date'),
+            dataIndex: 'news_date',
+            key: 'news_date',
             width: 150,
-            render: (date) => new Date(date).toLocaleString('ru-RU', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            })
+            render: (_, record) => {
+                if (record.news_date) {
+                    return new Date(record.news_date).toLocaleDateString('ru-RU', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                    });
+                }
+                return new Date(record.created_at).toLocaleString('ru-RU', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            }
         },
         {
             title: t('actions'),

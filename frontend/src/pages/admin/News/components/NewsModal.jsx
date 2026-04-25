@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Upload, Button, Image as AntImage, Alert, message } from 'antd';
+import { Modal, Form, Input, Upload, Button, Image as AntImage, Alert, message, DatePicker } from 'antd';
 import { UploadOutlined, InfoCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import dayjs from 'dayjs';
 
 const { TextArea } = Input;
 
@@ -22,6 +23,7 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
                     summary: initialValues.summary,
                     content: initialValues.content,
                     status: initialValues.status,
+                    news_date: initialValues.news_date ? dayjs(initialValues.news_date) : null,
                 });
                 if (initialValues.image) {
                     setFileList([
@@ -42,7 +44,7 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
         }
     }, [visible, initialValues, form]);
 
-    const FORM_FIELDS = ['title', 'summary', 'content', 'image'];
+    const FORM_FIELDS = ['title', 'summary', 'content', 'image', 'news_date'];
     useEffect(() => {
         if (serverErrors && typeof serverErrors === 'object') {
             const fieldErrors = [];
@@ -78,6 +80,11 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
                 formData.append('title', values.title);
                 formData.append('summary', values.summary ?? '');
                 formData.append('content', values.content);
+                if (values.news_date) {
+                    formData.append('news_date', values.news_date.format('YYYY-MM-DD'));
+                } else {
+                    formData.append('news_date', '');
+                }
 
                 if (fileList.length > 0 && fileList[0].originFileObj) {
                     formData.append('image', fileList[0].originFileObj);
@@ -125,6 +132,10 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
 
                     <Form.Item name="summary" label={t('summary') || 'Summary'}>
                         <TextArea rows={3} placeholder={t('news_summary_placeholder') || ''} />
+                    </Form.Item>
+
+                    <Form.Item name="news_date" label={t('date') || 'Date'}>
+                        <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
                     </Form.Item>
 
                     <Form.Item name="content" label={t('content')} rules={[{ required: true, message: t('please_enter_content') }]}>

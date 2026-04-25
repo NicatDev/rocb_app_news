@@ -33,7 +33,7 @@ const NewsTab = ({ rtc, isActive }) => {
                 page: page,
                 page_size: pagination.pageSize,
                 search: search,
-                ordering: 'order,-created_at',
+                ordering: 'order,-news_date,-created_at',
             };
             const data = await getRTCNews(params);
             setNews(data.results);
@@ -74,6 +74,8 @@ const NewsTab = ({ rtc, isActive }) => {
         const raw = item.content || '';
         return raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
     };
+
+    const displayDate = (item) => item.news_date || item.created_at;
 
     return (
         <div className={styles.newsContainer}>
@@ -130,7 +132,7 @@ const NewsTab = ({ rtc, isActive }) => {
 
                                     <Text className={styles.date}>
                                         <CalendarOutlined style={{ marginRight: 6 }} />
-                                        {dayjs(item.created_at).format('MMMM D, YYYY')}
+                                        {dayjs(displayDate(item)).format('MMMM D, YYYY')}
                                     </Text>
 
                                     <Paragraph className={styles.excerpt}>

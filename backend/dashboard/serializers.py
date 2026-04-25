@@ -79,6 +79,7 @@ class NewsSerializer(serializers.ModelSerializer):
             'image',
             'extra_images',
             'order',
+            'news_date',
             'status',
             'created_at',
             'updated_at',
@@ -121,6 +122,7 @@ class NewsIntegrationSerializer(serializers.ModelSerializer):
             'image',
             'extra_images',
             'order',
+            'news_date',
             'created_at',
             'updated_at',
         ]

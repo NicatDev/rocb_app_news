@@ -100,7 +100,7 @@ class NewsViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['rtc']
     search_fields = ['title', 'summary', 'content']
-    ordering_fields = ['order', 'created_at', 'title']
+    ordering_fields = ['order', 'news_date', 'created_at', 'title']
     ordering = ['order', '-created_at']
 
     def get_queryset(self):
@@ -126,7 +126,7 @@ class NewsIntegrationViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = NewsFilter
     search_fields = ['title', 'summary', 'content']
-    ordering_fields = ['order', 'created_at', 'title']
+    ordering_fields = ['order', 'news_date', 'created_at', 'title']
     ordering = ['order', '-created_at']
 
     def get_queryset(self):

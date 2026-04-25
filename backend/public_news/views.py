@@ -46,7 +46,7 @@ class PublicNewsViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = PublicNewsFilter
     search_fields = ['title', 'summary', 'content']
-    ordering_fields = ['order', 'created_at']
+    ordering_fields = ['order', 'news_date', 'created_at']
     ordering = ['order', '-created_at']
 
     def get_queryset(self):
@@ -68,7 +68,7 @@ class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = MainSiteGlobalNewsPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'summary', 'content']
-    ordering_fields = ['order', 'created_at']
+    ordering_fields = ['order', 'news_date', 'created_at']
     ordering = ['order', '-created_at']
     lookup_field = 'slug'
     lookup_value_regex = r'[^/]+'
