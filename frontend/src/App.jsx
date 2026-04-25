@@ -39,7 +39,7 @@ function App() {
           {/* Public Route - Default */}
           <Route path="/" element={<News />} />
           <Route path="/news" element={<News />} />  {/* Alias */}
-          <Route path="/news/:id" element={<NewsDetail />} />
+          <Route path="/news/:slug" element={<NewsDetail />} />
 
           {/* Login required: Feed + /admin (rtc_admin) only */}
           <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />

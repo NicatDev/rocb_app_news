@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.db.models import DateTimeField
+from django.db.models.functions import Cast, Coalesce
 from django.utils.text import slugify
 from rest_framework import viewsets, filters, status
 from rest_framework.permissions import AllowAny, IsAdminUser
@@ -100,14 +102,22 @@ class NewsViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['rtc']
     search_fields = ['title', 'summary', 'content']
-    ordering_fields = ['order', 'news_date', 'created_at', 'title']
-    ordering = ['order', '-created_at']
+    ordering_fields = ['order', 'effective_published_at', 'news_date', 'created_at', 'title']
+    ordering = ['order', '-effective_published_at']
+    lookup_field = 'slug'
+    lookup_value_regex = r'[^/]+'
 
     def get_queryset(self):
         base_qs = (
             News.objects.select_related('rtc')
             .prefetch_related('extra_images')
-            .order_by('order', '-created_at')
+            .annotate(
+                effective_published_at=Coalesce(
+                    Cast('news_date', DateTimeField()),
+                    'created_at',
+                )
+            )
+            .order_by('order', '-effective_published_at')
         )
         # RTC detail tab calls list with ?rtc=<uuid>; include both PUBLIC and INTERNAL there.
         rtc_id = self.request.query_params.get('rtc')
@@ -126,15 +136,21 @@ class NewsIntegrationViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = NewsFilter
     search_fields = ['title', 'summary', 'content']
-    ordering_fields = ['order', 'news_date', 'created_at', 'title']
-    ordering = ['order', '-created_at']
+    ordering_fields = ['order', 'effective_published_at', 'news_date', 'created_at', 'title']
+    ordering = ['order', '-effective_published_at']
 
     def get_queryset(self):
         return (
             News.objects.filter(status='PUBLIC')
             .select_related('rtc')
             .prefetch_related('extra_images')
-            .order_by('order', '-created_at')
+            .annotate(
+                effective_published_at=Coalesce(
+                    Cast('news_date', DateTimeField()),
+                    'created_at',
+                )
+            )
+            .order_by('order', '-effective_published_at')
         )
 
 

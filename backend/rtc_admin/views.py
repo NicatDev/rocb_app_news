@@ -1,4 +1,6 @@
 from django.db.models import Max
+from django.db.models import DateTimeField
+from django.db.models.functions import Cast, Coalesce
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, status, filters
 from django_filters.rest_framework import DjangoFilterBackend
@@ -74,7 +76,16 @@ class NewsAdminViewSet(BaseRTCRelatedViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        return qs.prefetch_related('extra_images').order_by('order', '-created_at')
+        return (
+            qs.prefetch_related('extra_images')
+            .annotate(
+                effective_published_at=Coalesce(
+                    Cast('news_date', DateTimeField()),
+                    'created_at',
+                )
+            )
+            .order_by('order', '-effective_published_at')
+        )
 
     @action(
         detail=True,

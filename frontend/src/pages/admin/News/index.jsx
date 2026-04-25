@@ -36,7 +36,7 @@ const News = () => {
             const params = {
                 page: currentPage,
                 page_size: pageSize,
-                ordering: 'order,-news_date,-created_at',
+                ordering: 'order,-effective_published_at',
             };
 
             if (searchText) {

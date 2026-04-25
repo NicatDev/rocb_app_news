@@ -10,7 +10,7 @@ import { getNewsDetail } from '../../api/dashboard';
 const { Title, Paragraph, Text } = Typography;
 
 const NewsDetail = () => {
-    const { id } = useParams();
+    const { slug } = useParams();
     const navigate = useNavigate();
     const { t } = useTranslation();
     const [news, setNews] = useState(null);
@@ -19,7 +19,7 @@ const NewsDetail = () => {
     useEffect(() => {
         const fetchNewsDetail = async () => {
             try {
-                const data = await getNewsDetail(id);
+                const data = await getNewsDetail(slug);
                 setNews(data);
             } catch (error) {
                 console.error("Failed to fetch news detail", error);
@@ -28,10 +28,10 @@ const NewsDetail = () => {
             }
         };
 
-        if (id) {
+        if (slug) {
             fetchNewsDetail();
         }
-    }, [id]);
+    }, [slug]);
 
     if (loading) {
         return (

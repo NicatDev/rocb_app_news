@@ -1,4 +1,6 @@
 from rest_framework import viewsets, filters, generics
+from django.db.models import DateTimeField
+from django.db.models.functions import Cast, Coalesce
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
@@ -46,15 +48,21 @@ class PublicNewsViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_class = PublicNewsFilter
     search_fields = ['title', 'summary', 'content']
-    ordering_fields = ['order', 'news_date', 'created_at']
-    ordering = ['order', '-created_at']
+    ordering_fields = ['order', 'effective_published_at', 'news_date', 'created_at']
+    ordering = ['order', '-effective_published_at']
 
     def get_queryset(self):
         return (
             News.objects.filter(status='PUBLIC')
             .select_related('rtc')
             .prefetch_related('extra_images')
-            .order_by('order', '-created_at')
+            .annotate(
+                effective_published_at=Coalesce(
+                    Cast('news_date', DateTimeField()),
+                    'created_at',
+                )
+            )
+            .order_by('order', '-effective_published_at')
         )
 
 
@@ -68,8 +76,8 @@ class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = MainSiteGlobalNewsPagination
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'summary', 'content']
-    ordering_fields = ['order', 'news_date', 'created_at']
-    ordering = ['order', '-created_at']
+    ordering_fields = ['order', 'effective_published_at', 'news_date', 'created_at']
+    ordering = ['order', '-effective_published_at']
     lookup_field = 'slug'
     lookup_value_regex = r'[^/]+'
 
@@ -78,7 +86,13 @@ class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):
             News.objects.filter(status='PUBLIC', rtc__isnull=True)
             .select_related('rtc')
             .prefetch_related('extra_images')
-            .order_by('order', '-created_at')
+            .annotate(
+                effective_published_at=Coalesce(
+                    Cast('news_date', DateTimeField()),
+                    'created_at',
+                )
+            )
+            .order_by('order', '-effective_published_at')
         )
 
 

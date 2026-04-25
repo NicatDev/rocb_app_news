@@ -11,6 +11,15 @@ import useDebounce from '../../../../hooks/useDebounce';
 const { Title, Paragraph, Text } = Typography;
 const { Search } = Input;
 
+const slugifyText = (value = '') =>
+    value
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+
 const NewsTab = ({ rtc, isActive }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -33,7 +42,7 @@ const NewsTab = ({ rtc, isActive }) => {
                 page: page,
                 page_size: pagination.pageSize,
                 search: search,
-                ordering: 'order,-news_date,-created_at',
+                ordering: 'order,-effective_published_at',
             };
             const data = await getRTCNews(params);
             setNews(data.results);
@@ -64,8 +73,9 @@ const NewsTab = ({ rtc, isActive }) => {
         fetchNews(page, debouncedSearchText);
     };
 
-    const navigateToDetail = (id) => {
-        navigate(`/news/${id}`);
+    const navigateToDetail = (item) => {
+        const pathKey = item.slug || slugifyText(item.title) || item.id;
+        navigate(`/news/${pathKey}`);
     };
 
     const excerptText = (item) => {
@@ -117,10 +127,10 @@ const NewsTab = ({ rtc, isActive }) => {
                             <List.Item>
                                 <Card hoverable className={styles.newsCard}>
                                     <Title level={4} className={styles.title} ellipsis={{ rows: 2 }}>
-                                        <a onClick={() => navigateToDetail(item.id)}>{item.title}</a>
+                                        <a onClick={() => navigateToDetail(item)}>{item.title}</a>
                                     </Title>
 
-                                    <div className={styles.imageContainer} onClick={() => navigateToDetail(item.id)}>
+                                    <div className={styles.imageContainer} onClick={() => navigateToDetail(item)}>
                                         {item.image ? (
                                             <img src={item.image} alt={item.title} />
                                         ) : (
@@ -142,7 +152,7 @@ const NewsTab = ({ rtc, isActive }) => {
                                     <Button
                                         type="link"
                                         className={styles.readMoreBtn}
-                                        onClick={() => navigateToDetail(item.id)}
+                                        onClick={() => navigateToDetail(item)}
                                     >
                                         {t('read_more') || "Read More"} <ArrowRightOutlined />
                                     </Button>
