@@ -31,7 +31,7 @@ class NewsSectionInline(admin.TabularInline):
     model = NewsSection
     fk_name = 'news'
     extra = 1
-    fields = ('order', 'parent', 'title', 'content')
+    fields = ('order',  'title', 'content')
 
 
 @admin.register(RTCProfile)
