@@ -100,6 +100,31 @@
     }
 }
 
+.sections {
+    margin-top: 8px;
+}
+
+.sectionTitle {
+    margin-bottom: 0.75rem !important;
+    font-size: 1.35rem !important;
+    line-height: 1.35 !important;
+    font-weight: 600 !important;
+}
+
+.sectionBody {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #262626;
+
+    :global(p) {
+        margin-bottom: 1rem;
+    }
+
+    :global(p:last-child) {
+        margin-bottom: 0;
+    }
+}
+
 .footer {
     display: flex;
     justify-content: center;

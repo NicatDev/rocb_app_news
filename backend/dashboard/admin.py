@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import RTCProfile, RTCResource, RTCEvent, RTCProject, GalleryImage, News, NewsImage
+from .models import RTCProfile, RTCResource, RTCEvent, RTCProject, GalleryImage, News, NewsImage, NewsSection
 
 class RTCResourceInline(admin.StackedInline):
     model = RTCResource
@@ -25,6 +25,14 @@ class NewsInline(admin.StackedInline):
 class NewsImageInline(admin.TabularInline):
     model = NewsImage
     extra = 1
+
+
+class NewsSectionInline(admin.TabularInline):
+    model = NewsSection
+    fk_name = 'news'
+    extra = 1
+    fields = ('order', 'parent', 'title', 'content')
+    raw_id_fields = ('parent',)
 
 @admin.register(RTCProfile)
 class RTCProfileAdmin(admin.ModelAdmin):
@@ -60,4 +68,4 @@ class NewsAdmin(admin.ModelAdmin):
     list_filter = ('rtc', 'status')
     search_fields = ('title', 'summary', 'content')
     prepopulated_fields = {'slug': ('title',)}
-    inlines = [NewsImageInline]
+    inlines = [NewsSectionInline, NewsImageInline]

@@ -1,5 +1,35 @@
+from collections import defaultdict
+from typing import List
+
 from rest_framework import serializers
 from .models import RTCProfile, RTCResource, RTCEvent, RTCEventFile, RTCProject, GalleryImage, News, NewsImage
+
+
+def serialize_news_sections_ordered(news) -> List[dict]:
+    """Depth-first order: roots first (by order, id), then each subtree."""
+    qs = list(news.sections.all().order_by('order', 'id'))
+    by_parent = defaultdict(list)
+    for s in qs:
+        by_parent[s.parent_id].append(s)
+    for rows in by_parent.values():
+        rows.sort(key=lambda x: (x.order, x.id))
+    out: List[dict] = []
+
+    def walk(parent_id, depth: int) -> None:
+        for s in by_parent.get(parent_id, []):
+            out.append(
+                {
+                    'id': s.id,
+                    'title': s.title,
+                    'content': s.content,
+                    'depth': depth,
+                    'parent': s.parent_id,
+                }
+            )
+            walk(s.id, depth + 1)
+
+    walk(None, 0)
+    return out
 
 
 class RTCProfileImportItemSerializer(serializers.Serializer):
@@ -65,6 +95,7 @@ class NewsImageSerializer(serializers.ModelSerializer):
 class NewsSerializer(serializers.ModelSerializer):
     extra_images = NewsImageSerializer(many=True, read_only=True)
     rtc_name = serializers.CharField(source='rtc.name', read_only=True, allow_null=True)
+    sections = serializers.SerializerMethodField()
 
     class Meta:
         model = News
@@ -78,6 +109,7 @@ class NewsSerializer(serializers.ModelSerializer):
             'content',
             'image',
             'extra_images',
+            'sections',
             'order',
             'news_date',
             'status',
@@ -85,6 +117,9 @@ class NewsSerializer(serializers.ModelSerializer):
             'updated_at',
         ]
         read_only_fields = ['rtc']
+
+    def get_sections(self, obj):
+        return serialize_news_sections_ordered(obj)
 
 class RTCProfileListSerializer(serializers.ModelSerializer):
     owner_username = serializers.CharField(source='owner.username', read_only=True)
@@ -110,6 +145,7 @@ class RTCProfileDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 class NewsIntegrationSerializer(serializers.ModelSerializer):
     extra_images = NewsImageSerializer(many=True, read_only=True)
+    sections = serializers.SerializerMethodField()
 
     class Meta:
         model = News
@@ -121,8 +157,12 @@ class NewsIntegrationSerializer(serializers.ModelSerializer):
             'content',
             'image',
             'extra_images',
+            'sections',
             'order',
             'news_date',
             'created_at',
             'updated_at',
         ]
+
+    def get_sections(self, obj):
+        return serialize_news_sections_ordered(obj)

@@ -1,13 +1,14 @@
 from django.conf import settings
 from rest_framework import serializers
 from dashboard.models import News, RTCProfile
-from dashboard.serializers import NewsImageSerializer
+from dashboard.serializers import NewsImageSerializer, serialize_news_sections_ordered
 
 
 class PublicNewsSerializer(serializers.ModelSerializer):
     rtc_name = serializers.CharField(source='rtc.name', read_only=True, default=None)
     is_global = serializers.SerializerMethodField()
     extra_images = NewsImageSerializer(many=True, read_only=True)
+    sections = serializers.SerializerMethodField()
 
     class Meta:
         model = News
@@ -22,6 +23,7 @@ class PublicNewsSerializer(serializers.ModelSerializer):
             'rtc_name',
             'is_global',
             'extra_images',
+            'sections',
             'order',
             'news_date',
             'created_at',
@@ -30,6 +32,9 @@ class PublicNewsSerializer(serializers.ModelSerializer):
 
     def get_is_global(self, obj):
         return obj.rtc is None
+
+    def get_sections(self, obj):
+        return serialize_news_sections_ordered(obj)
 
 
 class MainSiteRTCProfileSerializer(serializers.ModelSerializer):

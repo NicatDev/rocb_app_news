@@ -125,6 +125,29 @@ const NewsDetail = () => {
                         </Row>
                     </div>
                 )}
+
+                {news.sections?.length > 0 && (
+                    <div className={styles.sections}>
+                        {news.sections.map((section) => (
+                            <div
+                                key={section.id}
+                                className={styles.sectionBlock}
+                                style={{
+                                    marginTop: '1.75rem',
+                                    marginLeft: section.depth ? `calc(${section.depth} * 1rem)` : undefined,
+                                }}
+                            >
+                                <Title level={3} className={styles.sectionTitle}>
+                                    {section.title}
+                                </Title>
+                                <div
+                                    className={styles.sectionBody}
+                                    dangerouslySetInnerHTML={{ __html: section.content || '' }}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </article>
 
             <Divider />

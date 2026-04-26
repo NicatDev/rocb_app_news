@@ -110,7 +110,7 @@ class NewsViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         base_qs = (
             News.objects.select_related('rtc')
-            .prefetch_related('extra_images')
+            .prefetch_related('extra_images', 'sections')
             .annotate(
                 effective_published_at=Coalesce(
                     Cast('news_date', DateTimeField()),
@@ -143,7 +143,7 @@ class NewsIntegrationViewSet(viewsets.ReadOnlyModelViewSet):
         return (
             News.objects.filter(status='PUBLIC')
             .select_related('rtc')
-            .prefetch_related('extra_images')
+            .prefetch_related('extra_images', 'sections')
             .annotate(
                 effective_published_at=Coalesce(
                     Cast('news_date', DateTimeField()),

@@ -227,6 +227,31 @@ class News(VisibilityMixin, models.Model):
         ordering = ['order', '-created_at']
 
 
+class NewsSection(models.Model):
+    """Optional titled blocks under a news article; parent allows nested sub-sections."""
+
+    news = models.ForeignKey(News, on_delete=models.CASCADE, related_name='sections')
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='children',
+    )
+    title = models.CharField(max_length=255)
+    content = models.TextField(blank=True)
+    order = models.PositiveIntegerField(
+        default=0,
+        help_text='Order among siblings (same parent).',
+    )
+
+    class Meta:
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return self.title
+
+
 class NewsImage(models.Model):
     """Additional images attached to a news article (main cover remains on News.image)."""
 

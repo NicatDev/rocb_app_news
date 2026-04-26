@@ -55,7 +55,7 @@ class PublicNewsViewSet(viewsets.ReadOnlyModelViewSet):
         return (
             News.objects.filter(status='PUBLIC')
             .select_related('rtc')
-            .prefetch_related('extra_images')
+            .prefetch_related('extra_images', 'sections')
             .annotate(
                 effective_published_at=Coalesce(
                     Cast('news_date', DateTimeField()),
@@ -85,7 +85,7 @@ class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):
         return (
             News.objects.filter(status='PUBLIC', rtc__isnull=True)
             .select_related('rtc')
-            .prefetch_related('extra_images')
+            .prefetch_related('extra_images', 'sections')
             .annotate(
                 effective_published_at=Coalesce(
                     Cast('news_date', DateTimeField()),
