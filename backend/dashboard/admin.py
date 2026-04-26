@@ -32,7 +32,7 @@ class NewsSectionInline(admin.TabularInline):
     fk_name = 'news'
     extra = 1
     fields = ('order', 'parent', 'title', 'content')
-    raw_id_fields = ('parent',)
+
 
 @admin.register(RTCProfile)
 class RTCProfileAdmin(admin.ModelAdmin):
