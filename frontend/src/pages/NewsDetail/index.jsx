@@ -112,20 +112,6 @@ const NewsDetail = () => {
                     ))}
                 </div>
 
-                {news.extra_images?.length > 0 && (
-                    <div className={styles.extraGallery}>
-                        <Row gutter={[16, 16]}>
-                            {news.extra_images.map((row) => (
-                                <Col xs={24} sm={12} key={row.id}>
-                                    <figure className={styles.extraFigure}>
-                                        <img src={row.image} alt="" />
-                                    </figure>
-                                </Col>
-                            ))}
-                        </Row>
-                    </div>
-                )}
-
                 {news.sections?.length > 0 && (
                     <div className={styles.sections}>
                         {news.sections.map((section) => (
@@ -140,12 +126,31 @@ const NewsDetail = () => {
                                 <Title level={3} className={styles.sectionTitle}>
                                     {section.title}
                                 </Title>
+                                {section.image ? (
+                                    <div className={styles.sectionImage}>
+                                        <img src={section.image} alt={section.title || ''} />
+                                    </div>
+                                ) : null}
                                 <div
                                     className={styles.sectionBody}
                                     dangerouslySetInnerHTML={{ __html: section.content || '' }}
                                 />
                             </div>
                         ))}
+                    </div>
+                )}
+
+                {news.extra_images?.length > 0 && (
+                    <div className={styles.extraGallery}>
+                        <Row gutter={[16, 16]}>
+                            {news.extra_images.map((row) => (
+                                <Col xs={24} sm={12} key={row.id}>
+                                    <figure className={styles.extraFigure}>
+                                        <img src={row.image} alt="" />
+                                    </figure>
+                                </Col>
+                            ))}
+                        </Row>
                     </div>
                 )}
             </article>

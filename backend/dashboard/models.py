@@ -240,6 +240,7 @@ class NewsSection(models.Model):
     )
     title = models.CharField(max_length=255)
     content = models.TextField(blank=True)
+    image = models.ImageField(upload_to='news_images/sections/', blank=True, null=True)
     order = models.PositiveIntegerField(
         default=0,
         help_text='Order among siblings (same parent).',

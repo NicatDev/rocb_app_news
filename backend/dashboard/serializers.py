@@ -1,8 +1,21 @@
 from collections import defaultdict
-from typing import List
+from typing import List, Optional
 
+from django.conf import settings
 from rest_framework import serializers
 from .models import RTCProfile, RTCResource, RTCEvent, RTCEventFile, RTCProject, GalleryImage, News, NewsImage
+
+
+def _absolute_section_image_url(file_field) -> Optional[str]:
+    if not file_field:
+        return None
+    url = file_field.url
+    u = str(url)
+    if u.startswith('http://') or u.startswith('https://'):
+        return u
+    base = getattr(settings, 'APP_PUBLIC_ORIGIN', '').rstrip('/')
+    path = u if u.startswith('/') else f'/{u}'
+    return f'{base}{path}' if base else path
 
 
 def serialize_news_sections_ordered(news) -> List[dict]:
@@ -22,6 +35,7 @@ def serialize_news_sections_ordered(news) -> List[dict]:
                     'id': s.id,
                     'title': s.title,
                     'content': s.content,
+                    'image': _absolute_section_image_url(s.image) if s.image else None,
                     'depth': depth,
                     'parent': s.parent_id,
                 }
