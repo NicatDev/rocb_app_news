@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Typography, Spin, Button, Breadcrumb, Divider, Row, Col } from 'antd';
+import { Typography, Spin, Button, Breadcrumb, Divider, Carousel } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeftOutlined, CalendarOutlined, GlobalOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -140,17 +140,30 @@ const NewsDetail = () => {
                     </div>
                 )}
 
-                {news.extra_images?.length > 0 && (
+                {news.extra_images?.length === 1 && (
                     <div className={styles.extraGallery}>
-                        <Row gutter={[16, 16]}>
+                        <figure className={styles.extraFigure}>
+                            <img src={news.extra_images[0].image} alt="" />
+                        </figure>
+                    </div>
+                )}
+                {news.extra_images?.length > 1 && (
+                    <div className={styles.extraGallery}>
+                        <Carousel
+                            className={styles.extraCarousel}
+                            dots
+                            draggable
+                            infinite={false}
+                            adaptiveHeight
+                        >
                             {news.extra_images.map((row) => (
-                                <Col xs={24} sm={12} key={row.id}>
+                                <div key={row.id}>
                                     <figure className={styles.extraFigure}>
                                         <img src={row.image} alt="" />
                                     </figure>
-                                </Col>
+                                </div>
                             ))}
-                        </Row>
+                        </Carousel>
                     </div>
                 )}
             </article>
