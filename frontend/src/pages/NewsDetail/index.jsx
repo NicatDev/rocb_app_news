@@ -1,13 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Typography, Spin, Button, Breadcrumb, Divider, Carousel } from 'antd';
+import { Typography, Spin, Button, Breadcrumb, Divider, Carousel, Image } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftOutlined, CalendarOutlined, GlobalOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, CalendarOutlined, GlobalOutlined, ZoomInOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import styles from './style.module.scss';
 import { getNewsDetail } from '../../api/dashboard';
 
 const { Title, Paragraph, Text } = Typography;
+
+const ExtraGalleryImage = ({ src, alt = '', previewLabel = 'Preview' }) => (
+    <div className={styles.extraSlideFrame}>
+        <Image
+            src={src}
+            alt={alt}
+            preview={{
+                mask: (
+                    <span className={styles.previewMask}>
+                        <ZoomInOutlined />
+                        <span>{previewLabel}</span>
+                    </span>
+                ),
+            }}
+            rootClassName={styles.extraImageRoot}
+        />
+    </div>
+);
 
 const NewsDetail = () => {
     const { slug } = useParams();
@@ -142,9 +160,11 @@ const NewsDetail = () => {
 
                 {news.extra_images?.length === 1 && (
                     <div className={styles.extraGallery}>
-                        <figure className={styles.extraFigure}>
-                            <img src={news.extra_images[0].image} alt="" />
-                        </figure>
+                        <ExtraGalleryImage
+                            src={news.extra_images[0].image}
+                            alt=""
+                            previewLabel={t('preview') || 'Preview'}
+                        />
                     </div>
                 )}
                 {news.extra_images?.length > 1 && (
@@ -154,13 +174,14 @@ const NewsDetail = () => {
                             dots
                             draggable
                             infinite={false}
-                            adaptiveHeight
                         >
                             {news.extra_images.map((row) => (
                                 <div key={row.id}>
-                                    <figure className={styles.extraFigure}>
-                                        <img src={row.image} alt="" />
-                                    </figure>
+                                    <ExtraGalleryImage
+                                        src={row.image}
+                                        alt=""
+                                        previewLabel={t('preview') || 'Preview'}
+                                    />
                                 </div>
                             ))}
                         </Carousel>
