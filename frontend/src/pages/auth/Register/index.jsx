@@ -50,7 +50,7 @@ const Register = () => {
             </div>
             <Card className={styles.authCard} style={{ width: 600 }}>
                 <div className={styles.logoContainer}>
-                    <img src="/logo.png" alt="Rocb Europe" className={styles.logo} />
+                    <img src="/logo2.png" alt="Rocb Europe" className={styles.logo} />
                     <Title level={3}>Rocb Europe</Title>
                 </div>
                 <Title level={4} style={{ textAlign: 'center', marginBottom: 20 }}>{t('register')}</Title>

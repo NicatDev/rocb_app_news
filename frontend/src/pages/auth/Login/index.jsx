@@ -45,7 +45,7 @@ const Login = () => {
             </div>
             <Card className={styles.authCard}>
                 <div className={styles.logoContainer}>
-                    <img src="/logo.png" alt="Rocb Europe" className={styles.logo} />
+                    <img src="/logo2.png" alt="Rocb Europe" className={styles.logo} />
                     <Title level={3}>Rocb Europe</Title>
                 </div>
                 <Title level={4} style={{ textAlign: 'center', marginBottom: 20 }}>{t('login')}</Title>
