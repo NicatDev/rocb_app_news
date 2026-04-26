@@ -53,7 +53,7 @@ const Header = () => {
             <div className={styles.leftSection}>
                 <div className={styles.logoArea}>
                     <Link to="/">
-                        <img src="/logo.png" alt="Rocb Europe" className={styles.logo} />
+                        <img src="/logo2.png" alt="Rocb Europe" className={styles.logo} />
                     </Link>
                 </div>
             </div>
