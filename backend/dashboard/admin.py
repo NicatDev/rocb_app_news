@@ -27,12 +27,12 @@ class NewsImageInline(admin.TabularInline):
     extra = 1
 
 
-class NewsSectionInline(admin.TabularInline):
+class NewsSectionInline(admin.StackedInline):
+    """Vertical layout (no horizontal scroll); parent is omitted — always top-level sections in admin."""
     model = NewsSection
     fk_name = 'news'
     extra = 1
-    fields = ('order', 'parent', 'title', 'content', 'image')
-    raw_id_fields = ('parent',)
+    fields = ('order', 'title', 'content', 'image')
 
 
 @admin.register(RTCProfile)
