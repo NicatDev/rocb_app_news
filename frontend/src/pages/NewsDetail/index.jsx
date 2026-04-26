@@ -1,8 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Typography, Spin, Button, Breadcrumb, Divider, Carousel, Image } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftOutlined, CalendarOutlined, GlobalOutlined, ZoomInOutlined } from '@ant-design/icons';
+import {
+    ArrowLeftOutlined,
+    CalendarOutlined,
+    GlobalOutlined,
+    LeftOutlined,
+    RightOutlined,
+    ZoomInOutlined,
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
 import styles from './style.module.scss';
 import { getNewsDetail } from '../../api/dashboard';
@@ -33,6 +40,12 @@ const NewsDetail = () => {
     const { t } = useTranslation();
     const [news, setNews] = useState(null);
     const [loading, setLoading] = useState(true);
+    const extraCarouselRef = useRef(null);
+    const [extraGalleryIndex, setExtraGalleryIndex] = useState(0);
+
+    useEffect(() => {
+        setExtraGalleryIndex(0);
+    }, [slug]);
 
     useEffect(() => {
         const fetchNewsDetail = async () => {
@@ -169,22 +182,44 @@ const NewsDetail = () => {
                 )}
                 {news.extra_images?.length > 1 && (
                     <div className={styles.extraGallery}>
-                        <Carousel
-                            className={styles.extraCarousel}
-                            dots
-                            draggable
-                            infinite={false}
-                        >
-                            {news.extra_images.map((row) => (
-                                <div key={row.id}>
-                                    <ExtraGalleryImage
-                                        src={row.image}
-                                        alt=""
-                                        previewLabel={t('preview') || 'Preview'}
-                                    />
-                                </div>
-                            ))}
-                        </Carousel>
+                        <div className={styles.extraCarouselWrap}>
+                            <Carousel
+                                ref={extraCarouselRef}
+                                className={styles.extraCarousel}
+                                dots
+                                draggable
+                                infinite={false}
+                                afterChange={setExtraGalleryIndex}
+                            >
+                                {news.extra_images.map((row) => (
+                                    <div key={row.id}>
+                                        <ExtraGalleryImage
+                                            src={row.image}
+                                            alt=""
+                                            previewLabel={t('preview') || 'Preview'}
+                                        />
+                                    </div>
+                                ))}
+                            </Carousel>
+                            <Button
+                                type="default"
+                                shape="circle"
+                                className={`${styles.extraCarouselNav} ${styles.extraCarouselNavPrev}`}
+                                icon={<LeftOutlined />}
+                                disabled={extraGalleryIndex <= 0}
+                                onClick={() => extraCarouselRef.current?.prev()}
+                                aria-label={t('previous_image') || 'Previous image'}
+                            />
+                            <Button
+                                type="default"
+                                shape="circle"
+                                className={`${styles.extraCarouselNav} ${styles.extraCarouselNavNext}`}
+                                icon={<RightOutlined />}
+                                disabled={extraGalleryIndex >= news.extra_images.length - 1}
+                                onClick={() => extraCarouselRef.current?.next()}
+                                aria-label={t('next_image') || 'Next image'}
+                            />
+                        </div>
                     </div>
                 )}
             </article>
