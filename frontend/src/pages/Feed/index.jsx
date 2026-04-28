@@ -358,26 +358,6 @@ const Feed = () => {
                     >
                         <span className={styles?.createPost}>{t('create_post') || 'Create Post'}</span>
                     </Button>
-                    <Button
-                        className={`${styles.filterBtn} ${newsType === 'all' ? styles.filterBtnActive : ''}`}
-                        onClick={() => handleFilterChange('all')}
-                    >
-                        {t('all') || 'All'}
-                    </Button>
-                    <Button
-                        className={`${styles.filterBtn} ${newsType === 'global' ? styles.filterBtnActive : ''}`}
-                        onClick={() => handleFilterChange('global')}
-                        icon={<GlobalOutlined />}
-                    >
-                        <span className={styles?.mbl}>  {t('global') || 'Global'}</span>
-                    </Button>
-                    <Button
-                        className={`${styles.filterBtn} ${newsType === 'rtc' ? styles.filterBtnActive : ''}`}
-                        onClick={() => handleFilterChange('rtc')}
-                        icon={<BankOutlined />}
-                    >
-                        <span className={styles?.mbl}> {t('rtc') || 'RTC'}</span>
-                    </Button>
                 </div>
 
                 <Search

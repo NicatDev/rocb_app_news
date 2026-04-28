@@ -111,28 +111,7 @@ const News = () => {
             </div>
 
             <div className={styles.toolbar}>
-                <div className={styles.filterGroup}>
-                    <Button
-                        className={`${styles.filterBtn} ${newsType === 'all' ? styles.filterBtnActive : ''}`}
-                        onClick={() => handleFilterChange('all')}
-                    >
-                        {t('all_news') || 'All News'}
-                    </Button>
-                    <Button
-                        className={`${styles.filterBtn} ${newsType === 'global' ? styles.filterBtnActive : ''}`}
-                        onClick={() => handleFilterChange('global')}
-                        icon={<GlobalOutlined />}
-                    >
-                        {t('global_news') || 'Global News'}
-                    </Button>
-                    <Button
-                        className={`${styles.filterBtn} ${newsType === 'rtc' ? styles.filterBtnActive : ''}`}
-                        onClick={() => handleFilterChange('rtc')}
-                        icon={<BankOutlined />}
-                    >
-                        {t('rtc_news') || 'RTC News'}
-                    </Button>
-                </div>
+                <div style={{ flex: 1 }}></div>
 
                 <Search
                     placeholder={t('search_news') || "Search news..."}
