@@ -52,9 +52,9 @@ const Header = () => {
         <AntHeader className={styles.header}>
             <div className={styles.leftSection}>
                 <div className={styles.logoArea}>
-                    <Link to="/">
+                    <a href="https://rocbeurope.org">
                         <img src="/logo2.png" alt="Rocb Europe" className={styles.logo} />
-                    </Link>
+                    </a>
                 </div>
             </div>
 

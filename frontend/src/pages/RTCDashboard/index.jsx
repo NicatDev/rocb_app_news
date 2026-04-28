@@ -30,8 +30,8 @@ const RTCDashboard = () => {
         }
     };
 
-    const handleCardClick = (id, name) => {
-        navigate(`/rtc-dashboard/${id}`, { state: { rtcName: name } });
+    const handleCardClick = (slug, name) => {
+        navigate(`/rtc-dashboard/${slug}`, { state: { rtcName: name } });
     };
 
     return (
@@ -56,7 +56,7 @@ const RTCDashboard = () => {
                             <Card
                                 hoverable
                                 className={styles.rtcCard}
-                                onClick={() => handleCardClick(rtc.id, rtc.name)}
+                                onClick={() => handleCardClick(rtc.slug || rtc.id, rtc.name)}
                             >
                                 <div className={styles.cardContent}>
                                     <div className={styles.cardHeader}>

@@ -18,7 +18,7 @@ const { Title } = Typography;
 const { TabPane } = Tabs;
 
 const RTCDetail = () => {
-    const { id } = useParams();
+    const { slug } = useParams();
     const navigate = useNavigate();
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState('overview');
@@ -29,7 +29,7 @@ const RTCDetail = () => {
     useEffect(() => {
         const fetchRTC = async () => {
             try {
-                const data = await getRTCProfile(id);
+                const data = await getRTCProfile(slug);
                 setRtc(data);
             } catch (error) {
                 console.error('Error fetching RTC details:', error);
@@ -39,10 +39,10 @@ const RTCDetail = () => {
             }
         };
 
-        if (id) {
+        if (slug) {
             fetchRTC();
         }
-    }, [id, t]);
+    }, [slug, t]);
 
     if (loading) {
         return (

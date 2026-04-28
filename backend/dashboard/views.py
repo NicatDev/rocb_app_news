@@ -34,6 +34,7 @@ class StandardResultsSetPagination(PageNumberPagination):
 class RTCProfileViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = RTCProfile.objects.all().order_by('order', 'name')
     permission_classes = [AllowAny] # Publicly accessible for the dashboard list
+    lookup_field = 'slug'
 
     def get_serializer_class(self):
         if self.action == 'list':
