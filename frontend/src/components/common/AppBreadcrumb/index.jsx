@@ -28,19 +28,8 @@ const AppBreadcrumb = () => {
         },
     ];
 
-    // Handle "Home / News" logic for the root path or '/news'
     if (pathSnippets.length === 0 || (pathSnippets.length === 1 && pathSnippets[0] === 'news')) {
-        const newsTitle = t('news') !== 'news' ? t('news') : 'News';
-        const newsItems = [{
-            key: '/news',
-            title: <Link to="/" className={styles.breadcrumbLink}>{newsTitle}</Link>,
-        }];
-        
-        return (
-            <div className={styles.breadcrumbWrapper}>
-                <Breadcrumb separator="/" items={newsItems} className={styles.breadcrumb} />
-            </div>
-        );
+        return null;
     }
 
     // Add remaining path snippets as links
