@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'ckeditor',
     
     # Third party apps
     'rest_framework',
@@ -84,6 +86,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
+                'django.template.context_processors.static',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
@@ -152,6 +155,16 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+CKEDITOR_BASEPATH = '/static/ckeditor/ckeditor/'
+SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': None,
+        'extraPlugins': 'blockquote',
+        'versionCheck': False,
+    },
+}
 
 # Custom User Model
 AUTH_USER_MODEL = 'account.CustomUser'

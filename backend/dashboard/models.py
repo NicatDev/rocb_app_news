@@ -210,6 +210,10 @@ class News(VisibilityMixin, models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        from config.sanitize_html import sanitize_rich_html
+
+        if self.content:
+            self.content = sanitize_rich_html(self.content)
         if not self.slug:
             base_slug = slugify(self.title)
             slug = base_slug
@@ -248,6 +252,13 @@ class NewsSection(models.Model):
 
     class Meta:
         ordering = ['order', 'id']
+
+    def save(self, *args, **kwargs):
+        from config.sanitize_html import sanitize_rich_html
+
+        if self.content:
+            self.content = sanitize_rich_html(self.content)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

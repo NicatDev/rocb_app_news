@@ -29,6 +29,13 @@ class RTCPost(VisibilityMixin, models.Model):
     class Meta:
         ordering = ['-created_at']
 
+    def save(self, *args, **kwargs):
+        from config.sanitize_html import sanitize_rich_html
+
+        if self.content:
+            self.content = sanitize_rich_html(self.content)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.title
 

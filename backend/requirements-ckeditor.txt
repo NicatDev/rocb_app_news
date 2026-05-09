@@ -1,0 +1,5 @@
+# Add to environment: pip install -r requirements-ckeditor.txt
+# (django-ckeditor is required for rich-text admin widgets.)
+django-ckeditor==6.7.3
+django-js-asset>=2.2.0
+bleach>=6.2.0

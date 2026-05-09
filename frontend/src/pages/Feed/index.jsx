@@ -11,6 +11,7 @@ import styles from './style.module.scss';
 import { getFeedPosts, toggleUpvote, getPostComments, createComment } from '../../api/feed';
 import useDebounce from '../../hooks/useDebounce';
 import CreatePostModal from './components/CreatePostModal';
+import { sanitizeForDisplay, stripHtmlToText } from '../../utils/richText';
 
 dayjs.extend(relativeTime);
 
@@ -151,7 +152,8 @@ const Feed = () => {
         const isExpanded = expandedPosts[post.id];
         const isCommentsOpen = showComments[post.id];
         const comments = commentsData[post.id] || [];
-        const hasLongContent = post.content && post.content.length > 200;
+        const plainLen = stripHtmlToText(post.content || '').length;
+        const hasLongContent = plainLen > 200;
 
         return (
             <div key={post.id} className={styles.postCard}>
@@ -188,9 +190,10 @@ const Feed = () => {
                     {post.description && (
                         <div className={styles.postDescription}>{post.description}</div>
                     )}
-                    <div className={`${styles.postContent} ${!isExpanded && hasLongContent ? styles.contentCollapsed : ''}`}>
-                        {post.content}
-                    </div>
+                    <div
+                        className={`${styles.postContent} ${!isExpanded && hasLongContent ? styles.contentCollapsed : ''}`}
+                        dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(post.content || '') }}
+                    />
                     {hasLongContent && (
                         <Button type="link" className={styles.readMoreBtn} onClick={() => toggleExpand(post.id)}>
                             {isExpanded ? (t('show_less') || 'Show Less') : (t('read_more') || 'Read More')}

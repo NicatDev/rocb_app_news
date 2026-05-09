@@ -1,0 +1,11 @@
+.rocbRichEditor {
+    width: 100%;
+
+    :global(.cke_chrome) {
+        width: 100% !important;
+    }
+
+    :global(.cke_contents) {
+        min-height: 220px;
+    }
+}

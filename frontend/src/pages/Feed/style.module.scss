@@ -151,7 +151,21 @@
     color: #475569;
     font-size: 14.5px;
     line-height: 1.75;
-    white-space: pre-wrap;
+    white-space: normal;
+    word-break: break-word;
+
+    :global(p) {
+        margin: 0 0 0.5rem;
+    }
+
+    :global(p:last-child) {
+        margin-bottom: 0;
+    }
+
+    :global(img) {
+        max-width: 100%;
+        height: auto;
+    }
 }
 
 .contentCollapsed {

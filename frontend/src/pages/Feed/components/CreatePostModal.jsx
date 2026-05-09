@@ -3,8 +3,8 @@ import { Modal, Form, Input, Upload, Select, message } from 'antd';
 import { UploadOutlined, PictureOutlined, PaperClipOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { createPost, getMyRTCs } from '../../../api/feed';
+import RichTextEditor from '../../../components/common/RichTextEditor';
 
-const { TextArea } = Input;
 const { Option } = Select;
 
 const CreatePostModal = ({ visible, onCancel, onSuccess }) => {
@@ -15,9 +15,11 @@ const CreatePostModal = ({ visible, onCancel, onSuccess }) => {
     const [imageList, setImageList] = useState([]);
     const [videoList, setVideoList] = useState([]);
     const [fileList, setFileList] = useState([]);
+    const [contentEditorKey, setContentEditorKey] = useState('feed-content');
 
     useEffect(() => {
         if (visible) {
+            setContentEditorKey(`feed-content-${Date.now()}`);
             fetchMyRTCs();
             form.resetFields();
             setImageList([]);
@@ -128,10 +130,7 @@ const CreatePostModal = ({ visible, onCancel, onSuccess }) => {
                     label={t('content') || 'Content'}
                     rules={[{ required: true, message: t('content_required') || 'Please enter content' }]}
                 >
-                    <TextArea
-                        rows={5}
-                        placeholder={t('post_content_placeholder') || 'Write your post content...'}
-                    />
+                    <RichTextEditor instanceKey={contentEditorKey} />
                 </Form.Item>
 
                 <Form.Item label={t('image') || 'Image'}>

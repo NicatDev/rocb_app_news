@@ -13,6 +13,7 @@ import {
 import dayjs from 'dayjs';
 import styles from './style.module.scss';
 import { getNewsDetail } from '../../api/dashboard';
+import { looksLikeHtml, sanitizeForDisplay } from '../../utils/richText';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -136,11 +137,18 @@ const NewsDetail = () => {
                 )}
 
                 <div className={styles.content}>
-                    {news.content.split('\n').map((paragraph, index) => (
-                        <Paragraph key={index} className={styles.paragraph}>
-                            {paragraph}
-                        </Paragraph>
-                    ))}
+                    {looksLikeHtml(news.content) ? (
+                        <div
+                            className={styles.richHtml}
+                            dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(news.content || '') }}
+                        />
+                    ) : (
+                        (news.content || '').split('\n').map((paragraph, index) => (
+                            <Paragraph key={index} className={styles.paragraph}>
+                                {paragraph}
+                            </Paragraph>
+                        ))
+                    )}
                 </div>
 
                 {news.sections?.length > 0 && (
@@ -164,7 +172,7 @@ const NewsDetail = () => {
                                 ) : null}
                                 <div
                                     className={styles.sectionBody}
-                                    dangerouslySetInnerHTML={{ __html: section.content || '' }}
+                                    dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(section.content || '') }}
                                 />
                             </div>
                         ))}

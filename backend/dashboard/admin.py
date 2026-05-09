@@ -1,4 +1,6 @@
 from django.contrib import admin
+
+from .forms_admin import NewsAdminForm, NewsSectionInlineForm
 from .models import RTCProfile, RTCResource, RTCEvent, RTCProject, GalleryImage, News, NewsImage, NewsSection
 
 class RTCResourceInline(admin.StackedInline):
@@ -20,6 +22,7 @@ class GalleryImageInline(admin.StackedInline):
 class NewsInline(admin.StackedInline):
     model = News
     extra = 1
+    form = NewsAdminForm
 
 
 class NewsImageInline(admin.TabularInline):
@@ -32,6 +35,7 @@ class NewsSectionInline(admin.StackedInline):
     model = NewsSection
     fk_name = 'news'
     extra = 1
+    form = NewsSectionInlineForm
     fields = ('order', 'title', 'content', 'image')
 
 
@@ -65,6 +69,7 @@ class GalleryImageAdmin(admin.ModelAdmin):
 
 @admin.register(News)
 class NewsAdmin(admin.ModelAdmin):
+    form = NewsAdminForm
     list_display = ('title', 'rtc', 'order', 'created_at', 'status')
     list_filter = ('rtc', 'status')
     search_fields = ('title', 'summary', 'content')

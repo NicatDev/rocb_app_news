@@ -3,6 +3,7 @@ import { Modal, Form, Input, Upload, Button, Image as AntImage, Alert, message, 
 import { UploadOutlined, InfoCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import RichTextEditor from '../../../../components/common/RichTextEditor';
 
 const { TextArea } = Input;
 
@@ -12,9 +13,11 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
     const [fileList, setFileList] = useState([]);
     const [extraFileList, setExtraFileList] = useState([]);
     const [hiddenExtraIds, setHiddenExtraIds] = useState([]);
+    const [contentEditorKey, setContentEditorKey] = useState('news-content');
 
     useEffect(() => {
         if (visible) {
+            setContentEditorKey(`news-content-${initialValues?.id ?? 'new'}-${Date.now()}`);
             setHiddenExtraIds([]);
             setExtraFileList([]);
             if (initialValues) {
@@ -139,7 +142,7 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
                     </Form.Item>
 
                     <Form.Item name="content" label={t('content')} rules={[{ required: true, message: t('please_enter_content') }]}>
-                        <TextArea rows={6} placeholder={t('news_content_placeholder')} />
+                        <RichTextEditor instanceKey={contentEditorKey} />
                     </Form.Item>
 
                     <Form.Item label={t('image')}>

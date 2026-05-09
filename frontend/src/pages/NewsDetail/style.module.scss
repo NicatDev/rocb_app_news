@@ -181,6 +181,34 @@
     }
 }
 
+.richHtml {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #262626;
+
+    :global(p) {
+        margin-bottom: 1rem;
+    }
+
+    :global(ul),
+    :global(ol) {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+    }
+
+    :global(h1),
+    :global(h2),
+    :global(h3) {
+        margin-top: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    :global(img) {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
 .sections {
     margin-top: 8px;
 }
