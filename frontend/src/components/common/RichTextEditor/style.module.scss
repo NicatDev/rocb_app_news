@@ -1,11 +1,11 @@
 .rocbRichEditor {
     width: 100%;
 
-    :global(.cke_chrome) {
-        width: 100% !important;
+    :global(.ck.ck-editor) {
+        width: 100%;
     }
 
-    :global(.cke_contents) {
+    :global(.ck-editor__editable) {
         min-height: 220px;
     }
 }

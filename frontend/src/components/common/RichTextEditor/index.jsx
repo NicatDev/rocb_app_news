@@ -1,35 +1,106 @@
-import { CKEditor } from 'ckeditor4-react';
+import { CKEditor } from '@ckeditor/ckeditor5-react';
+import {
+    ClassicEditor,
+    Essentials,
+    Paragraph,
+    Bold,
+    Italic,
+    Underline,
+    Strikethrough,
+    List,
+    BlockQuote,
+    Link,
+    Heading,
+    Undo,
+    RemoveFormat,
+    SourceEditing,
+    GeneralHtmlSupport,
+    Indent,
+    IndentBlock,
+} from 'ckeditor5';
+import 'ckeditor5/ckeditor5.css';
 import styles from './style.module.scss';
 
-/** CDN build avoids huge Windows node_modules trees from CKEditor 5. */
-const CKEDITOR_SCRIPT = 'https://cdn.ckeditor.com/4.22.1/standard-all/ckeditor.js';
+const editorConfig = {
+    licenseKey: 'GPL',
+    plugins: [
+        Essentials,
+        Paragraph,
+        Bold,
+        Italic,
+        Underline,
+        Strikethrough,
+        List,
+        BlockQuote,
+        Link,
+        Heading,
+        Undo,
+        RemoveFormat,
+        SourceEditing,
+        GeneralHtmlSupport,
+        Indent,
+        IndentBlock,
+    ],
+    toolbar: {
+        items: [
+            'undo',
+            'redo',
+            '|',
+            'heading',
+            '|',
+            'bold',
+            'italic',
+            'underline',
+            'strikethrough',
+            '|',
+            'link',
+            '|',
+            'bulletedList',
+            'numberedList',
+            '|',
+            'outdent',
+            'indent',
+            '|',
+            'blockQuote',
+            '|',
+            'removeFormat',
+            '|',
+            'sourceEditing',
+        ],
+    },
+    heading: {
+        options: [
+            { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+            { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+            { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+        ],
+    },
+    htmlSupport: {
+        allow: [
+            {
+                name: /^.*$/,
+                styles: true,
+                attributes: true,
+                classes: true,
+            },
+        ],
+    },
+};
 
 /**
- * Ant Design Form.Item compatible: receives value + onChange from Form.
- * `instanceKey` should change when the modal opens or the edited record changes so initData reloads.
+ * Ant Design Form.Item: value + onChange.
+ * `instanceKey` dəyişəndə redaktor yenidən yaradılır (modal açılışı / redaktə).
  */
 export default function RichTextEditor({ value, onChange, disabled, instanceKey = 'editor' }) {
     return (
         <div className={styles.rocbRichEditor}>
             <CKEditor
-                key={instanceKey}
-                scriptUrl={CKEDITOR_SCRIPT}
-                type="classic"
-                initData={value || ''}
-                readOnly={!!disabled}
-                config={{
-                    toolbar: [
-                        ['Bold', 'Italic', 'Underline', 'Strike'],
-                        ['NumberedList', 'BulletedList', 'Outdent', 'Indent', '-', 'Blockquote'],
-                        ['Link', 'Unlink'],
-                        ['Format'],
-                        ['RemoveFormat', 'Source'],
-                    ],
-                    format_tags: 'p;h2;h3;pre',
-                    removePlugins: 'elementspath',
-                    resize_enabled: true,
-                }}
-                onChange={(evt) => onChange?.(evt.editor.getData())}
+                id={instanceKey}
+                editor={ClassicEditor}
+                config={editorConfig}
+                data={value || ''}
+                disabled={!!disabled}
+                onChange={(_evt, editor) => onChange?.(editor.getData())}
             />
         </div>
     );

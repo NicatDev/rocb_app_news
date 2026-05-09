@@ -11,9 +11,10 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
-    "ckeditor4-react": "^4.3.0",
+    "@ckeditor/ckeditor5-react": "^11.1.2",
     "antd": "^6.3.0",
     "axios": "^1.13.5",
+    "ckeditor5": "^48.0.1",
     "dayjs": "^1.11.19",
     "dompurify": "^3.2.4",
     "i18next": "^25.8.5",
