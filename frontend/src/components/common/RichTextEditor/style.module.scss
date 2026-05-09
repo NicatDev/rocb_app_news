@@ -9,3 +9,9 @@
         min-height: 220px;
     }
 }
+
+/* Above Ant Design Modal mask/wrap (~1000); link balloon & dropdowns append to body */
+:global(.ck.ck-balloon-panel),
+:global(.ck.ck-dropdown__panel) {
+    z-index: 10050 !important;
+}

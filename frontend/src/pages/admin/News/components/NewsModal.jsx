@@ -117,6 +117,8 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
             onCancel={onCancel}
             confirmLoading={loading}
             width={800}
+            /* CKEditor link UI portals to body; focus trap blocks its inputs */
+            focusable={{ trap: false }}
         >
             <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '10px' }}>
                 <Form form={form} layout="vertical" name="news_form">

@@ -91,6 +91,8 @@ const CreatePostModal = ({ visible, onCancel, onSuccess }) => {
             width={600}
             destroyOnClose
             styles={{ body: { maxHeight: '65vh', overflowY: 'auto', paddingRight: 8 } }}
+            /* CKEditor link UI portals to body; focus trap blocks its inputs */
+            focusable={{ trap: false }}
         >
             <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
                 <Form.Item
