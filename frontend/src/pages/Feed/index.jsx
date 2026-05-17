@@ -11,7 +11,7 @@ import styles from './style.module.scss';
 import { getFeedPosts, toggleUpvote, getPostComments, createComment } from '../../api/feed';
 import useDebounce from '../../hooks/useDebounce';
 import CreatePostModal from './components/CreatePostModal';
-import { sanitizeForDisplay, stripHtmlToText } from '../../utils/richText';
+import { prepareRichHtmlForDisplay, stripHtmlToText } from '../../utils/richText';
 
 dayjs.extend(relativeTime);
 
@@ -191,8 +191,8 @@ const Feed = () => {
                         <div className={styles.postDescription}>{post.description}</div>
                     )}
                     <div
-                        className={`${styles.postContent} ${!isExpanded && hasLongContent ? styles.contentCollapsed : ''}`}
-                        dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(post.content || '') }}
+                        className={`rich-text-content ${styles.postContent} ${!isExpanded && hasLongContent ? styles.contentCollapsed : ''}`}
+                        dangerouslySetInnerHTML={{ __html: prepareRichHtmlForDisplay(post.content || '') }}
                     />
                     {hasLongContent && (
                         <Button type="link" className={styles.readMoreBtn} onClick={() => toggleExpand(post.id)}>

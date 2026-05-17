@@ -1,0 +1,102 @@
+/**
+ * Global rich-text display (CKEditor HTML).
+ * Class "rich-text-content" on wrapper — not CSS-module scoped so inner HTML matches.
+ */
+
+.rich-text-content {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  line-height: 1.8;
+  color: #262626;
+}
+
+.rich-text-content p,
+.rich-text-content div,
+.rich-text-content h1,
+.rich-text-content h2,
+.rich-text-content h3,
+.rich-text-content h4,
+.rich-text-content li,
+.rich-text-content blockquote,
+.rich-text-content figcaption {
+  text-align: inherit;
+}
+
+.rich-text-content .rt-align-left,
+.rich-text-content [style*='text-align: left'],
+.rich-text-content [style*='text-align:left'],
+.rich-text-content [align='left'] {
+  text-align: left !important;
+}
+
+.rich-text-content .rt-align-center,
+.rich-text-content [style*='text-align: center'],
+.rich-text-content [style*='text-align:center'],
+.rich-text-content [align='center'] {
+  text-align: center !important;
+}
+
+.rich-text-content .rt-align-right,
+.rich-text-content [style*='text-align: right'],
+.rich-text-content [style*='text-align:right'],
+.rich-text-content [align='right'] {
+  text-align: right !important;
+}
+
+.rich-text-content .rt-align-justify,
+.rich-text-content [style*='text-align: justify'],
+.rich-text-content [style*='text-align:justify'],
+.rich-text-content [align='justify'] {
+  text-align: justify !important;
+}
+
+.rich-text-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.rich-text-content figure.image {
+  display: table;
+  clear: both;
+  margin: 1rem auto;
+  max-width: 100%;
+}
+
+.rich-text-content figure.image img {
+  display: block;
+  margin: 0 auto;
+}
+
+.rich-text-content figure.image.image-style-side {
+  float: right;
+  margin-left: 1.25rem;
+  max-width: 50%;
+}
+
+.rich-text-content figure.image.image-style-block {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.rich-text-content ul,
+.rich-text-content ol {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.rich-text-content table {
+  border-collapse: collapse;
+  max-width: 100%;
+  margin-bottom: 1rem;
+}
+
+.rich-text-content td,
+.rich-text-content th {
+  border: 1px solid #e8e8e8;
+  padding: 0.5rem 0.75rem;
+}
+
+/* CKEditor indent (margin on block) */
+.rich-text-content [style*='margin-left'] {
+  /* preserve inline margin-left from editor */
+}

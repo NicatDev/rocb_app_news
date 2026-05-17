@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Typography, Spin, Button, Breadcrumb, Divider, Carousel, Image } from 'antd';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Typography, Spin, Button, Divider, Carousel, Image } from 'antd';
 import { useTranslation } from 'react-i18next';
 import {
     ArrowLeftOutlined,
@@ -13,7 +13,7 @@ import {
 import dayjs from 'dayjs';
 import styles from './style.module.scss';
 import { getPublicNewsDetail } from '../../api/dashboard';
-import { looksLikeHtml, sanitizeForDisplay } from '../../utils/richText';
+import { looksLikeHtml, prepareRichHtmlForDisplay } from '../../utils/richText';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -38,6 +38,7 @@ const ExtraGalleryImage = ({ src, alt = '', previewLabel = 'Preview' }) => (
 const NewsDetail = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { t } = useTranslation();
     const [news, setNews] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -64,6 +65,16 @@ const NewsDetail = () => {
             fetchNewsDetail();
         }
     }, [slug]);
+
+    useEffect(() => {
+        if (!news?.title || location.state?.newsTitle === news.title) {
+            return;
+        }
+        navigate(location.pathname, {
+            replace: true,
+            state: { ...(location.state || {}), newsTitle: news.title },
+        });
+    }, [news?.title, location.pathname, location.state?.newsTitle, navigate]);
 
     if (loading) {
         return (
@@ -92,17 +103,12 @@ const NewsDetail = () => {
                 <Button
                     type="link"
                     icon={<ArrowLeftOutlined />}
-                    onClick={() => navigate(-1)}
+                    onClick={() => navigate('/news')}
                     className={styles.backButton}
                 >
                     {t('back') || "Back"}
                 </Button>
 
-                <Breadcrumb className={styles.breadcrumb}>
-                    <Breadcrumb.Item onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>{t('home') || 'Home'}</Breadcrumb.Item>
-                    <Breadcrumb.Item>{t('news') || 'News'}</Breadcrumb.Item>
-                    <Breadcrumb.Item>{news.title}</Breadcrumb.Item>
-                </Breadcrumb>
             </div>
 
             <article className={styles.article}>
@@ -139,8 +145,8 @@ const NewsDetail = () => {
                 <div className={styles.content}>
                     {looksLikeHtml(news.content) ? (
                         <div
-                            className={`${styles.richHtml} ${styles.richTextDetail}`}
-                            dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(news.content || '') }}
+                            className={`rich-text-content ${styles.richHtml}`}
+                            dangerouslySetInnerHTML={{ __html: prepareRichHtmlForDisplay(news.content || '') }}
                         />
                     ) : (
                         (news.content || '').split('\n').map((paragraph, index) => (
@@ -171,8 +177,8 @@ const NewsDetail = () => {
                                     </div>
                                 ) : null}
                                 <div
-                                    className={`${styles.sectionBody} ${styles.richTextDetail}`}
-                                    dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(section.content || '') }}
+                                    className={`rich-text-content ${styles.sectionBody}`}
+                                    dangerouslySetInnerHTML={{ __html: prepareRichHtmlForDisplay(section.content || '') }}
                                 />
                             </div>
                         ))}

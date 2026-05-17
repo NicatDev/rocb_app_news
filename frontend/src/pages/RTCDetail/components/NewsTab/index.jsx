@@ -66,7 +66,7 @@ const NewsTab = ({ rtc, isActive }) => {
 
     const navigateToDetail = (item) => {
         const pathKey = item.slug || item.id;
-        navigate(`/news/${pathKey}`);
+        navigate(`/news/${pathKey}`, { state: { newsTitle: item.title } });
     };
 
     const excerptText = (item) => {

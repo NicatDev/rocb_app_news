@@ -83,7 +83,7 @@ const News = () => {
             console.warn('News item missing slug; open from admin after save.', item.id);
         }
         const pathKey = item.slug || item.id;
-        navigate(`/news/${pathKey}`);
+        navigate(`/news/${pathKey}`, { state: { newsTitle: item.title } });
     };
 
     const excerptText = (item) => {

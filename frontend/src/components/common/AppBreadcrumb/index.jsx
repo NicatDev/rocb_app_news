@@ -32,15 +32,15 @@ const AppBreadcrumb = () => {
         return null;
     }
 
-    // Add remaining path snippets as links
+    const isNewsDetail = pathSnippets[0] === 'news' && pathSnippets.length > 1;
+
     pathSnippets.forEach((snippet, index) => {
+        const isLast = index === pathSnippets.length - 1;
         const url = `/${pathSnippets.slice(0, index + 1).join('/')}`;
-        
-        // Try to translate the route name, fallback to capitalized literal
-        // Replace hyphens with spaces for better fallbacks
+
         const fallbackTitle = snippet.charAt(0).toUpperCase() + snippet.slice(1).replace(/-/g, ' ');
-        const translationKey = snippet.replace(/-/g, '_'); // sometimes keys use underscores
-        
+        const translationKey = snippet.replace(/-/g, '_');
+
         let title = fallbackTitle;
         if (t(translationKey) !== translationKey) {
             title = t(translationKey);
@@ -48,14 +48,25 @@ const AppBreadcrumb = () => {
             title = t(snippet);
         }
 
-        // Replace ID with RTC Name on RTC detail pages (second snippet after 'rtc-dashboard')
+        if (snippet === 'news' && index === 0) {
+            title = t('news') !== 'news' ? t('news') : 'News';
+        }
+
+        if (isNewsDetail && index === pathSnippets.length - 1) {
+            title = location.state?.newsTitle || fallbackTitle;
+        }
+
         if (index > 0 && pathSnippets[index - 1] === 'rtc-dashboard') {
             title = location.state?.rtcName || title;
         }
 
         items.push({
             key: url,
-            title: <Link to={url} className={styles.breadcrumbLink}>{title}</Link>,
+            title: isLast ? (
+                <span className={styles.breadcrumbCurrent}>{title}</span>
+            ) : (
+                <Link to={url} className={styles.breadcrumbLink}>{title}</Link>
+            ),
         });
     });
 

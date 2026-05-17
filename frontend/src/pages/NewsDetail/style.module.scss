@@ -15,10 +15,7 @@
 }
 
 .header {
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
+    margin-bottom: 16px;
 }
 
 .backButton {
@@ -206,80 +203,6 @@
     :global(img) {
         max-width: 100%;
         height: auto;
-    }
-}
-
-/* CKEditor alignment / layout on detail pages only */
-.richTextDetail {
-    overflow-wrap: break-word;
-    word-wrap: break-word;
-
-  :global([style*='text-align: justify']),
-  :global([style*='text-align:justify']) {
-        text-align: justify !important;
-    }
-
-    :global([style*='text-align: center']),
-    :global([style*='text-align:center']) {
-        text-align: center !important;
-    }
-
-    :global([style*='text-align: right']),
-    :global([style*='text-align:right']) {
-        text-align: right !important;
-    }
-
-    :global([style*='text-align: left']),
-    :global([style*='text-align:left']) {
-        text-align: left !important;
-    }
-
-    :global([align='justify']) {
-        text-align: justify !important;
-    }
-
-    :global([align='center']) {
-        text-align: center !important;
-    }
-
-    :global([align='right']) {
-        text-align: right !important;
-    }
-
-    :global([align='left']) {
-        text-align: left !important;
-    }
-
-    :global(.text-align-justify),
-    :global(.cke-text-align-justify) {
-        text-align: justify !important;
-    }
-
-    :global(.text-align-center),
-    :global(.cke-text-align-center) {
-        text-align: center !important;
-    }
-
-    :global(.text-align-right),
-    :global(.cke-text-align-right) {
-        text-align: right !important;
-    }
-
-    :global(.text-align-left),
-    :global(.cke-text-align-left) {
-        text-align: left !important;
-    }
-
-    :global(table) {
-        border-collapse: collapse;
-        max-width: 100%;
-        margin-bottom: 1rem;
-    }
-
-    :global(td),
-    :global(th) {
-        border: 1px solid #e8e8e8;
-        padding: 0.5rem 0.75rem;
     }
 }
 

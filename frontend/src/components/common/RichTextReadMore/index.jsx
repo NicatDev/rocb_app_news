@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { looksLikeHtml, sanitizeForDisplay, stripHtmlToText } from '../../../utils/richText';
+import { looksLikeHtml, prepareRichHtmlForDisplay, stripHtmlToText } from '../../../utils/richText';
 import styles from './style.module.scss';
 
 const DEFAULT_MAX_CHARS = 320;
@@ -55,12 +55,12 @@ export default function RichTextReadMore({
         );
     }
 
-    const html = sanitizeForDisplay(raw);
+    const html = prepareRichHtmlForDisplay(raw);
 
     return (
         <div className={`${styles.wrapper} ${className}`}>
             <div
-                className={`${styles.richBody} ${styles.richTextDetail} ${!expanded && isLong ? styles.collapsed : ''}`}
+                className={`rich-text-content ${styles.richBody} ${!expanded && isLong ? styles.collapsed : ''}`}
                 dangerouslySetInnerHTML={{ __html: html }}
             />
             {isLong && (
