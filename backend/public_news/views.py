@@ -1,6 +1,8 @@
-from rest_framework import viewsets, filters, generics
 from django.db.models import DateTimeField
 from django.db.models.functions import Cast, Coalesce
+from django.shortcuts import get_object_or_404
+from rest_framework import viewsets, filters, generics
+from rest_framework.exceptions import NotFound
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
@@ -41,6 +43,7 @@ class PublicNewsViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Public API for News. Only returns news with status=PUBLIC.
     Supports search and filtering by news_type (global/rtc).
+    Detail: GET /public/news/<slug>/ (matches app frontend /news/:slug).
     """
     serializer_class = PublicNewsSerializer
     permission_classes = [AllowAny]
@@ -50,6 +53,8 @@ class PublicNewsViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ['title', 'summary', 'content']
     ordering_fields = ['order', 'effective_published_at', 'news_date', 'created_at']
     ordering = ['order', '-effective_published_at']
+    lookup_field = 'slug'
+    lookup_value_regex = r'[^/]+'
 
     def get_queryset(self):
         return (
@@ -64,6 +69,16 @@ class PublicNewsViewSet(viewsets.ReadOnlyModelViewSet):
             )
             .order_by('order', '-effective_published_at')
         )
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup = self.kwargs.get(self.lookup_url_kwarg or self.lookup_field)
+        try:
+            return queryset.get(slug=lookup)
+        except News.DoesNotExist:
+            if lookup is not None and str(lookup).isdigit():
+                return get_object_or_404(queryset, pk=int(lookup))
+            raise NotFound()
 
 
 class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):

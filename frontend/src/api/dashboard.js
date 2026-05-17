@@ -81,9 +81,10 @@ export const getPublicNews = async (params) => {
     }
 };
 
-export const getPublicNewsDetail = async (id) => {
+export const getPublicNewsDetail = async (slugOrId) => {
     try {
-        const response = await axiosInstance.get(`/public/news/${id}/`);
+        const key = encodeURIComponent(String(slugOrId));
+        const response = await axiosInstance.get(`/public/news/${key}/`);
         return response.data;
     } catch (error) {
         throw error;

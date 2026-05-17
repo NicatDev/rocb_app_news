@@ -11,15 +11,6 @@ import useDebounce from '../../../../hooks/useDebounce';
 const { Title, Paragraph, Text } = Typography;
 const { Search } = Input;
 
-const slugifyText = (value = '') =>
-    value
-        .toString()
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-
 const NewsTab = ({ rtc, isActive }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -74,7 +65,7 @@ const NewsTab = ({ rtc, isActive }) => {
     };
 
     const navigateToDetail = (item) => {
-        const pathKey = item.slug || slugifyText(item.title) || item.id;
+        const pathKey = item.slug || item.id;
         navigate(`/news/${pathKey}`);
     };
 

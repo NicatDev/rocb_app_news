@@ -232,12 +232,18 @@ class News(VisibilityMixin, models.Model):
         if self.content:
             self.content = sanitize_rich_html(self.content)
         if not self.slug:
-            base_slug = slugify(self.title)
+            base_slug = slugify(self.title) or 'news'
             slug = base_slug
             counter = 1
-            while News.objects.filter(slug=slug).exists():
+            qs = News.objects.filter(slug=slug)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            while qs.exists():
                 slug = f"{base_slug}-{counter}"
                 counter += 1
+                qs = News.objects.filter(slug=slug)
+                if self.pk:
+                    qs = qs.exclude(pk=self.pk)
             self.slug = slug
         super().save(*args, **kwargs)
 

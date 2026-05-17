@@ -11,15 +11,6 @@ import useDebounce from '../../hooks/useDebounce';
 const { Title, Paragraph, Text } = Typography;
 const { Search } = Input;
 
-const slugifyText = (value = '') =>
-    value
-        .toString()
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-');
-
 const News = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -88,7 +79,10 @@ const News = () => {
     };
 
     const navigateToDetail = (item) => {
-        const pathKey = item.slug || slugifyText(item.title) || item.id;
+        if (!item.slug) {
+            console.warn('News item missing slug; open from admin after save.', item.id);
+        }
+        const pathKey = item.slug || item.id;
         navigate(`/news/${pathKey}`);
     };
 
