@@ -23,13 +23,24 @@ _ALLOWED_EXTENSIONS = frozenset({'.jpg', '.jpeg', '.png', '.gif', '.webp'})
 _MAX_BYTES = getattr(settings, 'RICH_TEXT_UPLOAD_MAX_BYTES', 5 * 1024 * 1024)
 
 
-def _media_absolute_url(request, relative_path: str) -> str:
-    """Build absolute URL for a file under MEDIA_ROOT (saved relative path)."""
-    media_url = settings.MEDIA_URL
-    if not media_url.endswith('/'):
-        media_url += '/'
-    path = relative_path.lstrip('/')
-    return request.build_absolute_uri(f'{media_url}{path}')
+def media_public_url(relative_path: str, request=None) -> str:
+    """Public URL for rich-text uploads (APP_PUBLIC_ORIGIN + /media/...)."""
+    media_url = (getattr(settings, 'MEDIA_URL', '/media/') or '/media/').rstrip('/')
+    rel = relative_path.lstrip('/')
+    if not rel.startswith('media/') and not rel.startswith('rich_text/'):
+        rel = f'rich_text/{rel}' if 'rich_text/' not in rel else rel
+    if rel.startswith('rich_text/'):
+        path = f'{media_url}/{rel}'
+    else:
+        path = f'{media_url}/{rel.lstrip("/")}'
+    if not path.startswith('/'):
+        path = '/' + path
+    base = (getattr(settings, 'APP_PUBLIC_ORIGIN', '') or '').rstrip('/')
+    if base:
+        return f'{base}{path}'
+    if request is not None:
+        return request.build_absolute_uri(path)
+    return path
 
 
 class RichTextUploadView(APIView):
@@ -73,6 +84,6 @@ class RichTextUploadView(APIView):
 
         filename = f'rich_text/{uuid.uuid4().hex}{ext}'
         saved_path = default_storage.save(filename, uploaded)
-        url = _media_absolute_url(request, saved_path)
+        url = media_public_url(saved_path, request=request)
 
         return Response({'urls': {'default': url}}, status=status.HTTP_201_CREATED)

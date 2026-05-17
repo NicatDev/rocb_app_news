@@ -1,7 +1,12 @@
-from django.conf import settings
 from rest_framework import serializers
+
+from config.sanitize_html import rewrite_html_media_urls
 from dashboard.models import News, RTCProfile
-from dashboard.serializers import NewsImageSerializer, serialize_news_sections_ordered
+from dashboard.serializers import (
+    NewsImageSerializer,
+    _absolute_file_field_url,
+    serialize_news_sections_ordered,
+)
 
 
 class PublicNewsSerializer(serializers.ModelSerializer):
@@ -35,6 +40,14 @@ class PublicNewsSerializer(serializers.ModelSerializer):
 
     def get_sections(self, obj):
         return serialize_news_sections_ordered(obj)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if data.get('content'):
+            data['content'] = rewrite_html_media_urls(data['content'], absolute=True)
+        if instance.image:
+            data['image'] = _absolute_file_field_url(instance.image)
+        return data
 
 
 class MainSiteRTCProfileSerializer(serializers.ModelSerializer):

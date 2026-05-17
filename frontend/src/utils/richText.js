@@ -3,9 +3,9 @@ import DOMPurify from 'dompurify';
 /** Detail pages: keep CKEditor alignment / layout inline styles. */
 const DETAIL_PURIFY_CONFIG = {
     USE_PROFILES: { html: true },
-    ADD_ATTR: ['style', 'align'],
+    ADD_ATTR: ['style', 'align', 'class', 'src', 'href', 'target', 'rel'],
     ADD_TAGS: ['img', 'figure', 'figcaption'],
-    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|\/media\/|media\/)/i,
+    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|\/|media\/)/i,
 };
 
 const ALIGN_CLASS_MAP = {
@@ -21,6 +21,19 @@ function alignmentFromStyle(style) {
     if (!style) return null;
     const m = style.match(/text-align\s*:\s*(left|right|center|justify|start|end)/i);
     return m ? m[1].toLowerCase() : null;
+}
+
+function rewriteImageSources(root) {
+    if (!root) return;
+    root.querySelectorAll('img[src]').forEach((img) => {
+        const src = (img.getAttribute('src') || '').trim();
+        if (!src || src.startsWith('data:')) return;
+        if (src.startsWith('http://') || src.startsWith('https://')) return;
+        if (src.startsWith('/media/') || src.startsWith('media/')) return;
+        if (src.startsWith('rich_text/')) {
+            img.setAttribute('src', `/media/${src}`);
+        }
+    });
 }
 
 function applyAlignmentClasses(root) {
@@ -62,6 +75,7 @@ export function prepareRichHtmlForDisplay(html) {
         return clean;
     }
     const doc = new DOMParser().parseFromString(clean, 'text/html');
+    rewriteImageSources(doc.body);
     applyAlignmentClasses(doc.body);
     return doc.body.innerHTML;
 }

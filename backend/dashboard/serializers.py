@@ -3,10 +3,13 @@ from typing import List, Optional
 
 from django.conf import settings
 from rest_framework import serializers
+
+from config.sanitize_html import rewrite_html_media_urls
+
 from .models import RTCProfile, RTCResource, RTCEvent, RTCEventFile, RTCProject, GalleryImage, News, NewsImage
 
 
-def _absolute_section_image_url(file_field) -> Optional[str]:
+def _absolute_file_field_url(file_field) -> Optional[str]:
     if not file_field:
         return None
     url = file_field.url
@@ -35,7 +38,7 @@ def serialize_news_sections_ordered(news) -> List[dict]:
                     'id': s.id,
                     'title': s.title,
                     'content': s.content,
-                    'image': _absolute_section_image_url(s.image) if s.image else None,
+                    'image': _absolute_file_field_url(s.image) if s.image else None,
                     'depth': depth,
                     'parent': s.parent_id,
                 }
@@ -43,6 +46,9 @@ def serialize_news_sections_ordered(news) -> List[dict]:
             walk(s.id, depth + 1)
 
     walk(None, 0)
+    for row in out:
+        if row.get('content'):
+            row['content'] = rewrite_html_media_urls(row['content'], absolute=True)
     return out
 
 
@@ -101,9 +107,14 @@ class GalleryImageSerializer(serializers.ModelSerializer):
 
 
 class NewsImageSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = NewsImage
         fields = ['id', 'image', 'order']
+
+    def get_image(self, obj):
+        return _absolute_file_field_url(obj.image) if obj.image else None
 
 
 class NewsSerializer(serializers.ModelSerializer):
@@ -134,6 +145,15 @@ class NewsSerializer(serializers.ModelSerializer):
 
     def get_sections(self, obj):
         return serialize_news_sections_ordered(obj)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if data.get('content'):
+            data['content'] = rewrite_html_media_urls(data['content'], absolute=True)
+        if instance.image:
+            data['image'] = _absolute_file_field_url(instance.image)
+        return data
+
 
 class RTCProfileListSerializer(serializers.ModelSerializer):
     owner_username = serializers.CharField(source='owner.username', read_only=True)

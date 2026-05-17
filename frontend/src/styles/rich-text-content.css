@@ -1,6 +1,6 @@
 /**
  * Global rich-text display (CKEditor HTML).
- * Class "rich-text-content" on wrapper — not CSS-module scoped so inner HTML matches.
+ * Class "rich-text-content" on wrapper — not CSS-module scoped.
  */
 
 .rich-text-content {
@@ -51,31 +51,37 @@
 }
 
 .rich-text-content img {
-  max-width: 100%;
-  height: auto;
+  max-width: 100% !important;
+  height: auto !important;
+  display: block;
 }
 
 .rich-text-content figure.image {
   display: table;
   clear: both;
-  margin: 1rem auto;
+  margin: 1.25rem auto;
   max-width: 100%;
 }
 
 .rich-text-content figure.image img {
-  display: block;
   margin: 0 auto;
 }
 
 .rich-text-content figure.image.image-style-side {
   float: right;
-  margin-left: 1.25rem;
+  margin: 0.5rem 0 1rem 1.25rem;
   max-width: 50%;
 }
 
-.rich-text-content figure.image.image-style-block {
+.rich-text-content figure.image.image-style-block,
+.rich-text-content figure.image.image-style-align-center {
   margin-left: auto;
   margin-right: auto;
+}
+
+.rich-text-content p > img:only-child,
+.rich-text-content img {
+  margin: 1rem auto;
 }
 
 .rich-text-content ul,
@@ -96,7 +102,13 @@
   padding: 0.5rem 0.75rem;
 }
 
-/* CKEditor indent (margin on block) */
 .rich-text-content [style*='margin-left'] {
-  /* preserve inline margin-left from editor */
+  /* preserve CKEditor indent */
+}
+
+.rich-text-content blockquote {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #12579e;
+  background: #f8fafc;
 }

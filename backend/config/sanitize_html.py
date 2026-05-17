@@ -81,26 +81,71 @@ def _is_allowed_img_src(value: str) -> bool:
     if not value:
         return False
     src = value.strip()
+    if src.startswith('data:'):
+        return False
     if src.startswith(('http://', 'https://')):
         return bool(_MEDIA_HOST_PATTERN.match(src)) or '/media/' in src.lower()
     if src.startswith(_MEDIA_PREFIX + '/') or src.startswith('/media/'):
         return True
     if src.startswith('media/'):
         return True
+    if src.startswith('rich_text/'):
+        return True
     return False
-
-
-def _img_attr_filter(tag, name, value):
-    if name == 'src':
-        return _is_allowed_img_src(value)
-    return name in ('alt', 'title', 'width', 'height')
 
 
 _ALLOWED_ATTRIBUTES = {
     'a': ['href', 'title', 'rel', 'target'],
-    'img': _img_attr_filter,
+    'img': ['src', 'alt', 'title', 'width', 'height'],
     '*': ['class', 'style', 'align'],
 }
+
+_IMG_SRC_RE = re.compile(
+    r'(<img\b[^>]*\ssrc=)(["\'])([^"\']+)\2',
+    re.IGNORECASE,
+)
+
+
+def canonical_media_path(url: str) -> str | None:
+    """Normalize upload URLs to /media/... for storage and API output."""
+    if not url or not str(url).strip():
+        return None
+    u = str(url).strip()
+    if u.startswith('data:'):
+        return None
+    if u.startswith('rich_text/'):
+        return f'{_MEDIA_PREFIX}/{u}'
+    lower = u.lower()
+    media_idx = lower.find('/media/')
+    if media_idx >= 0:
+        return u[media_idx:]
+    if u.startswith(_MEDIA_PREFIX + '/'):
+        return u
+    if u.startswith('/media/'):
+        return u
+    if u.startswith('media/'):
+        return '/' + u
+    return None
+
+
+def rewrite_html_media_urls(html: str, *, absolute: bool = False) -> str:
+    """Rewrite <img src> to canonical /media/... or absolute APP_PUBLIC_ORIGIN URLs."""
+    if not html:
+        return ''
+
+    origin = (getattr(settings, 'APP_PUBLIC_ORIGIN', '') or '').rstrip('/')
+
+    def repl(match):
+        prefix, quote, src = match.group(1), match.group(2), match.group(3)
+        if not _is_allowed_img_src(src):
+            return match.group(0)
+        canon = canonical_media_path(src)
+        if not canon:
+            return match.group(0)
+        new_src = f'{origin}{canon}' if absolute and origin else canon
+        return f'{prefix}{quote}{new_src}{quote}'
+
+    return _IMG_SRC_RE.sub(repl, str(html))
 
 
 def sanitize_rich_html(value: str) -> str:
@@ -114,4 +159,5 @@ def sanitize_rich_html(value: str) -> str:
     css = _rich_text_css_sanitizer()
     if css is not None:
         kwargs['css_sanitizer'] = css
-    return bleach.clean(str(value), **kwargs)
+    cleaned = bleach.clean(str(value), **kwargs)
+    return rewrite_html_media_urls(cleaned, absolute=False)
