@@ -94,6 +94,21 @@
             flex-shrink: 0;
         }
     }
+
+    .editFormRich {
+        flex-direction: column;
+        align-items: stretch;
+
+        .inputWrapper {
+            width: 100%;
+            min-height: 220px;
+        }
+
+        .actionButtons {
+            justify-content: flex-end;
+            padding-top: 8px;
+        }
+    }
 }
 
 .logoContainer {

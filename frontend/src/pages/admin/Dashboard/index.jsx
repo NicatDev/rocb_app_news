@@ -3,6 +3,8 @@ import { Button, Card, Row, Col, Typography, message, Skeleton, Upload, Tooltip,
 import { EditOutlined, SaveOutlined, CloseOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import axiosInstance from '../../../api/axios';
+import RichTextEditor from '../../../components/common/RichTextEditor';
+import { looksLikeHtml, stripHtmlToText } from '../../../utils/richText';
 import styles from './style.module.scss';
 
 const { Title } = Typography;
@@ -12,12 +14,23 @@ const { TextArea } = Input;
 const EditableField = ({ name, label, value, onSave, type = 'text', rows = 1 }) => {
     const { t } = useTranslation();
     const [isEditing, setIsEditing] = useState(false);
-    const [currentValue, setCurrentValue] = useState(value);
+    const [currentValue, setCurrentValue] = useState(value ?? '');
+    const [editorKey, setEditorKey] = useState(`${name}-0`);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        setCurrentValue(value);
+        setCurrentValue(value ?? '');
     }, [value]);
+
+    const displayText = () => {
+        if (!value) {
+            return null;
+        }
+        if (type === 'richtext' && looksLikeHtml(value)) {
+            return stripHtmlToText(value).slice(0, 280) + (stripHtmlToText(value).length > 280 ? '…' : '');
+        }
+        return value;
+    };
 
     const handleSave = async () => {
         setLoading(true);
@@ -34,14 +47,30 @@ const EditableField = ({ name, label, value, onSave, type = 'text', rows = 1 }) 
     };
 
     const handleCancel = () => {
-        setCurrentValue(value);
+        setCurrentValue(value ?? '');
         setIsEditing(false);
     };
 
+    const startEditing = () => {
+        setEditorKey(`${name}-${Date.now()}`);
+        setCurrentValue(value ?? '');
+        setIsEditing(true);
+    };
+
     const renderInput = () => {
+        if (type === 'richtext') {
+            return (
+                <RichTextEditor
+                    instanceKey={editorKey}
+                    value={currentValue}
+                    onChange={setCurrentValue}
+                />
+            );
+        }
         if (type === 'textarea') {
             return <TextArea rows={rows} value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} />;
-        } else if (type === 'number') {
+        }
+        if (type === 'number') {
             return <Input type="number" value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} />;
         }
         return <Input value={currentValue} onChange={(e) => setCurrentValue(e.target.value)} />;
@@ -54,14 +83,14 @@ const EditableField = ({ name, label, value, onSave, type = 'text', rows = 1 }) 
             {!isEditing ? (
                 <div className={styles.valueDisplay}>
                     <div className={styles.value}>
-                        {value ? value : <span className={styles.emptyValue}>{t('empty') || 'Empty'}</span>}
+                        {value ? displayText() : <span className={styles.emptyValue}>{t('empty') || 'Empty'}</span>}
                     </div>
                     <Tooltip title={t('edit')}>
-                        <EditOutlined className={styles.editIcon} onClick={() => setIsEditing(true)} />
+                        <EditOutlined className={styles.editIcon} onClick={startEditing} />
                     </Tooltip>
                 </div>
             ) : (
-                <div className={styles.editForm}>
+                <div className={`${styles.editForm} ${type === 'richtext' ? styles.editFormRich : ''}`}>
                     <div className={styles.inputWrapper}>
                         {renderInput()}
                     </div>
@@ -272,7 +301,7 @@ const AdminDashboard = () => {
                                 <EditableField name="director_email" label={t('director_email')} value={rtcData.director_email} onSave={handleFieldSave} />
                             </Col>
                             <Col xs={24}>
-                                <EditableField name="director_bio" label={t('director_bio')} value={rtcData.director_bio} onSave={handleFieldSave} type="textarea" rows={4} />
+                                <EditableField name="director_bio" label={t('director_bio')} value={rtcData.director_bio} onSave={handleFieldSave} type="richtext" />
                             </Col>
                             <Col xs={24} md={12}>
                                 <EditableField name="contact_person_name" label={t('contact_person_name')} value={rtcData.contact_person_name} onSave={handleFieldSave} />
@@ -297,9 +326,9 @@ const AdminDashboard = () => {
                     </Card>
 
                     <Card title={t('details') || 'Details'} className={styles.card}>
-                        <EditableField name="mission_statement" label={t('mission_statement')} value={rtcData.mission_statement} onSave={handleFieldSave} type="textarea" rows={3} />
-                        <EditableField name="overview_text" label={t('overview_text')} value={rtcData.overview_text} onSave={handleFieldSave} type="textarea" rows={3} />
-                        <EditableField name="specialization_areas" label={t('specialization_areas')} value={rtcData.specialization_areas} onSave={handleFieldSave} type="textarea" rows={2} />
+                        <EditableField name="mission_statement" label={t('mission_statement')} value={rtcData.mission_statement} onSave={handleFieldSave} type="richtext" />
+                        <EditableField name="overview_text" label={t('overview_text')} value={rtcData.overview_text} onSave={handleFieldSave} type="richtext" />
+                        <EditableField name="specialization_areas" label={t('specialization_areas')} value={rtcData.specialization_areas} onSave={handleFieldSave} type="richtext" />
                     </Card>
                 </Col>
             </Row>

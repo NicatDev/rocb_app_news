@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import styles from './style.module.scss';
-import { getNewsDetail } from '../../api/dashboard';
+import { getPublicNewsDetail } from '../../api/dashboard';
 import { looksLikeHtml, sanitizeForDisplay } from '../../utils/richText';
 
 const { Title, Paragraph, Text } = Typography;
@@ -51,7 +51,7 @@ const NewsDetail = () => {
     useEffect(() => {
         const fetchNewsDetail = async () => {
             try {
-                const data = await getNewsDetail(slug);
+                const data = await getPublicNewsDetail(slug);
                 setNews(data);
             } catch (error) {
                 console.error("Failed to fetch news detail", error);
@@ -139,7 +139,7 @@ const NewsDetail = () => {
                 <div className={styles.content}>
                     {looksLikeHtml(news.content) ? (
                         <div
-                            className={styles.richHtml}
+                            className={`${styles.richHtml} ${styles.richTextDetail}`}
                             dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(news.content || '') }}
                         />
                     ) : (
@@ -171,7 +171,7 @@ const NewsDetail = () => {
                                     </div>
                                 ) : null}
                                 <div
-                                    className={styles.sectionBody}
+                                    className={`${styles.sectionBody} ${styles.richTextDetail}`}
                                     dangerouslySetInnerHTML={{ __html: sanitizeForDisplay(section.content || '') }}
                                 />
                             </div>

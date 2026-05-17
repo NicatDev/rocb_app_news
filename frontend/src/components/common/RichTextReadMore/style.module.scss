@@ -1,0 +1,87 @@
+.wrapper {
+    width: 100%;
+}
+
+.plainPara {
+    margin: 0 0 0.75rem;
+    font-size: 15px;
+    line-height: 1.75;
+    color: #475569;
+    white-space: pre-wrap;
+
+    &:last-of-type {
+        margin-bottom: 0;
+    }
+}
+
+.richBody {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #475569;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+
+    &.collapsed {
+        max-height: 9.5em;
+        overflow: hidden;
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 3rem;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), #fff);
+            pointer-events: none;
+        }
+    }
+
+    :global(p) {
+        margin: 0 0 0.75rem;
+    }
+
+    :global(p:last-child) {
+        margin-bottom: 0;
+    }
+
+    :global(ul),
+    :global(ol) {
+        margin: 0 0 0.75rem 1.25rem;
+        padding: 0;
+    }
+
+    :global(img) {
+        max-width: 100%;
+        height: auto;
+    }
+
+    :global(a) {
+        text-decoration: underline;
+    }
+}
+
+.richTextDetail {
+    :global([style*='text-align: justify']),
+    :global([style*='text-align:justify']) {
+        text-align: justify !important;
+    }
+
+    :global([style*='text-align: center']),
+    :global([style*='text-align:center']) {
+        text-align: center !important;
+    }
+
+    :global([style*='text-align: right']),
+    :global([style*='text-align:right']) {
+        text-align: right !important;
+    }
+}
+
+.toggleBtn {
+    padding: 0 !important;
+    margin-top: 8px;
+    height: auto;
+    font-weight: 600;
+}

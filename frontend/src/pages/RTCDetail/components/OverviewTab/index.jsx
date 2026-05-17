@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { Row, Col, Card, Typography, Descriptions, Tag, Space, Avatar } from 'antd';
-import { EnvironmentOutlined, GlobalOutlined, PhoneOutlined, MailOutlined, TeamOutlined, TrophyOutlined, HistoryOutlined, UserOutlined, RocketOutlined, BulbOutlined, ReadOutlined } from '@ant-design/icons';
+import React from 'react';
+import { Row, Col, Card, Typography } from 'antd';
+import { EnvironmentOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import RichTextReadMore from '../../../../components/common/RichTextReadMore';
+import SpecializationDisplay from '../../../../components/common/SpecializationDisplay';
 import styles from './style.module.scss';
-const { Title, Paragraph, Text } = Typography;
+
+const { Title, Text, Paragraph } = Typography;
 
 const OverviewTab = ({ rtc }) => {
     const { t } = useTranslation();
-
-    // Color palette for specialization tags
-    const tagColors = ['#6366f1', '#8b5cf6', '#06b6d4', '#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#ec4899'];
 
     return (
         <div className={styles.overviewContainer}>
@@ -55,9 +55,10 @@ const OverviewTab = ({ rtc }) => {
                                         {t('our_purpose') || 'Our purpose and goals'}
                                     </Text>
                                 </div>
-                                <Paragraph className={styles.sectionText}>
-                                    {rtc.mission_statement}
-                                </Paragraph>
+                                <RichTextReadMore
+                                    content={rtc.mission_statement}
+                                    className={styles.sectionText}
+                                />
                             </div>
                         </div>
 
@@ -73,9 +74,10 @@ const OverviewTab = ({ rtc }) => {
                                         {t('our_story') || 'Our story and background'}
                                     </Text>
                                 </div>
-                                <Paragraph className={styles.sectionText}>
-                                    {rtc.overview_text}
-                                </Paragraph>
+                                <RichTextReadMore
+                                    content={rtc.overview_text}
+                                    className={styles.sectionText}
+                                />
                             </div>
                         </div>
 
@@ -91,9 +93,11 @@ const OverviewTab = ({ rtc }) => {
                                         {rtc.director_name}
                                     </Text>
                                 </div>
-                                <Paragraph className={styles.sectionText}>
-                                    {rtc.director_bio || t('no_bio_available')}
-                                </Paragraph>
+                                <RichTextReadMore
+                                    content={rtc.director_bio}
+                                    emptyFallback={t('no_bio_available')}
+                                    className={styles.sectionText}
+                                />
                             </div>
                         </div>
 
@@ -109,20 +113,10 @@ const OverviewTab = ({ rtc }) => {
                                         {t('expertise_areas') || 'Our core expertise'}
                                     </Text>
                                 </div>
-                                <div className={styles.specializationGrid}>
-                                    {rtc.specialization_areas && rtc.specialization_areas.split(',').map((area, index) => (
-                                        <div
-                                            key={index}
-                                            className={styles.specializationChip}
-                                            style={{
-                                                '--chip-color': tagColors[index % tagColors.length],
-                                            }}
-                                        >
-                                            <span className={styles.chipDot} />
-                                            <span className={styles.chipText}>{area.trim()}</span>
-                                        </div>
-                                    ))}
-                                </div>
+                                <SpecializationDisplay
+                                    content={rtc.specialization_areas}
+                                    className={styles.sectionText}
+                                />
                             </div>
                         </div>
                     </div>

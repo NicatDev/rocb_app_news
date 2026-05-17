@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'ckeditor',
+    'ckeditor_uploader',
     
     # Third party apps
     'rest_framework',
@@ -157,14 +158,21 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 CKEDITOR_BASEPATH = '/static/ckeditor/ckeditor/'
+CKEDITOR_UPLOAD_PATH = 'rich_text_uploads/'
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
+CKEDITOR_RESTRICT_BY_USER = True
 SILENCED_SYSTEM_CHECKS = ['ckeditor.W001']
 CKEDITOR_CONFIGS = {
     'default': {
-        'toolbar': None,
-        'extraPlugins': 'blockquote',
+        'toolbar': 'full',
+        'extraPlugins': 'blockquote,uploadimage',
         'versionCheck': False,
+        'filebrowserUploadUrl': '/ckeditor/upload/',
+        'filebrowserImageUploadUrl': '/ckeditor/upload/',
     },
 }
+
+RICH_TEXT_UPLOAD_MAX_BYTES = 5 * 1024 * 1024
 
 # Custom User Model
 AUTH_USER_MODEL = 'account.CustomUser'

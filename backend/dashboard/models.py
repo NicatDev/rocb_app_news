@@ -74,6 +74,18 @@ class RTCProfile(VisibilityMixin, models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        from config.sanitize_html import sanitize_rich_html
+
+        for field in (
+            'mission_statement',
+            'overview_text',
+            'director_bio',
+            'specialization_areas',
+        ):
+            value = getattr(self, field, None)
+            if value:
+                setattr(self, field, sanitize_rich_html(value))
+
         # Slug-ın avtomatik yaradılması
         if not self.slug:
             base_slug = slugify(self.name)

@@ -7,11 +7,13 @@ admin.site.index_title = 'Rocb Europe Admin'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
     path('api/v1/', include('account.urls')),
     path('api/v1/dashboard/', include('dashboard.urls')),
     path('api/v1/admin/', include('rtc_admin.urls')),
     path('api/v1/public/', include('public_news.urls')),
     path('api/v1/feed/', include('feed.urls')),
+    path('api/v1/rich-text/', include('config.urls_rich_text')),
 ]
 
 from django.conf import settings

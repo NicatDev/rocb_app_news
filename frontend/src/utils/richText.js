@@ -1,11 +1,15 @@
 import DOMPurify from 'dompurify';
 
-const PURIFY_CONFIG = {
+/** Detail pages: keep CKEditor alignment / layout inline styles. */
+const DETAIL_PURIFY_CONFIG = {
     USE_PROFILES: { html: true },
+    ADD_ATTR: ['style', 'align'],
+    ADD_TAGS: ['img', 'figure', 'figcaption'],
+    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto):|\/media\/|media\/)/i,
 };
 
 export function sanitizeForDisplay(html) {
-    return DOMPurify.sanitize(html || '', PURIFY_CONFIG);
+    return DOMPurify.sanitize(html || '', DETAIL_PURIFY_CONFIG);
 }
 
 /** Plain-text length for excerpts / expand heuristics (browser). */

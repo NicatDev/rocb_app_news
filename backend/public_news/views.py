@@ -32,9 +32,9 @@ class PublicNewsFilter(django_filters.FilterSet):
     def filter_news_type(self, queryset, name, value):
         if value == 'global':
             return queryset.filter(rtc__isnull=True)
-        elif value == 'rtc':
+        if value == 'rtc':
             return queryset.filter(rtc__isnull=False)
-        return queryset.filter(status='PUBLIC')
+        return queryset
 
 
 class PublicNewsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -68,8 +68,8 @@ class PublicNewsViewSet(viewsets.ReadOnlyModelViewSet):
 
 class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    News for the main ROCB website (rocbeurope.org): only global, public items.
-    Global = rtc is null; status must be PUBLIC.
+    News for the main ROCB website (rocbeurope.org): all items with status=PUBLIC
+    (global and RTC-linked).
     """
     serializer_class = PublicNewsSerializer
     permission_classes = [AllowAny]
@@ -83,7 +83,7 @@ class MainSiteGlobalNewsViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return (
-            News.objects.filter(status='PUBLIC', rtc__isnull=True)
+            News.objects.filter(status='PUBLIC')
             .select_related('rtc')
             .prefetch_related('extra_images', 'sections')
             .annotate(

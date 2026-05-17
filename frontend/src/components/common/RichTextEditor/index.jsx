@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import {
     ClassicEditor,
@@ -17,11 +18,17 @@ import {
     GeneralHtmlSupport,
     Indent,
     IndentBlock,
+    Image,
+    ImageCaption,
+    ImageStyle,
+    ImageToolbar,
+    ImageUpload,
 } from 'ckeditor5';
 import 'ckeditor5/ckeditor5.css';
+import { RichTextUploadAdapterPlugin } from './uploadAdapter';
 import styles from './style.module.scss';
 
-const editorConfig = {
+const baseEditorConfig = {
     licenseKey: 'GPL',
     plugins: [
         Essentials,
@@ -40,6 +47,12 @@ const editorConfig = {
         GeneralHtmlSupport,
         Indent,
         IndentBlock,
+        Image,
+        ImageCaption,
+        ImageStyle,
+        ImageToolbar,
+        ImageUpload,
+        RichTextUploadAdapterPlugin,
     ],
     toolbar: {
         items: [
@@ -54,6 +67,7 @@ const editorConfig = {
             'strikethrough',
             '|',
             'link',
+            'uploadImage',
             '|',
             'bulletedList',
             'numberedList',
@@ -66,6 +80,15 @@ const editorConfig = {
             'removeFormat',
             '|',
             'sourceEditing',
+        ],
+    },
+    image: {
+        toolbar: [
+            'imageStyle:inline',
+            'imageStyle:block',
+            'imageStyle:side',
+            '|',
+            'toggleImageCaption',
         ],
     },
     heading: {
@@ -92,6 +115,8 @@ const editorConfig = {
  * `instanceKey` dəyişəndə redaktor yenidən yaradılır (modal açılışı / redaktə).
  */
 export default function RichTextEditor({ value, onChange, disabled, instanceKey = 'editor' }) {
+    const editorConfig = useMemo(() => baseEditorConfig, []);
+
     return (
         <div className={styles.rocbRichEditor}>
             <CKEditor
