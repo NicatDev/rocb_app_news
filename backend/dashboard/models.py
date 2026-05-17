@@ -86,15 +86,20 @@ class RTCProfile(VisibilityMixin, models.Model):
             if value:
                 setattr(self, field, sanitize_rich_html(value))
 
-        # Slug-ın avtomatik yaradılması
+        # Slug-ın avtomatik yaradılması (boş slug və ya yeni qeyd)
         if not self.slug:
-            base_slug = slugify(self.name)
+            base_slug = slugify(self.name) or 'rtc'
             slug = base_slug
             counter = 1
-            # Unikallığı təmin etmək üçün yoxlama
-            while RTCProfile.objects.filter(slug=slug).exists():
+            qs = RTCProfile.objects.filter(slug=slug)
+            if self.pk:
+                qs = qs.exclude(pk=self.pk)
+            while qs.exists():
                 slug = f"{base_slug}-{counter}"
                 counter += 1
+                qs = RTCProfile.objects.filter(slug=slug)
+                if self.pk:
+                    qs = qs.exclude(pk=self.pk)
             self.slug = slug
         super().save(*args, **kwargs)
 

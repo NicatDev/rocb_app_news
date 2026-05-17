@@ -3,3 +3,4 @@
 django-ckeditor==6.7.3
 django-js-asset>=2.2.0
 bleach>=6.2.0
+tinycss2>=1.4.0
