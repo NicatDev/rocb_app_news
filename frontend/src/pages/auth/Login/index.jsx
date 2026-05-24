@@ -4,6 +4,7 @@ import { UserOutlined, LockOutlined, LeftOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import GoogleTranslate from '../../../components/common/GoogleTranslate';
 import styles from './style.module.scss';
 
 const { Title } = Typography;
@@ -42,6 +43,7 @@ const Login = () => {
             <div className={styles.langSwitch}>
                 <Button type="text" onClick={() => changeLanguage('en')}>EN</Button>
                 <Button type="text" onClick={() => changeLanguage('ru')}>RU</Button>
+                <GoogleTranslate id="google_translate_element" compact />
             </div>
             <Card className={styles.authCard}>
                 <div className={styles.logoContainer}>

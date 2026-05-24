@@ -9,6 +9,7 @@ const { Title, Paragraph, Text } = Typography;
 const { Search } = Input;
 
 import useDebounce from '../../../../hooks/useDebounce';
+import { canPreviewInline, getResourcePreviewUrl, openResource } from '../../../../utils/openResource';
 
 const ResourcesTab = ({ rtc, isActive }) => {
     const { t } = useTranslation();
@@ -24,6 +25,7 @@ const ResourcesTab = ({ rtc, isActive }) => {
     });
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedResource, setSelectedResource] = useState(null);
+    const [filePreview, setFilePreview] = useState({ open: false, url: '', title: '' });
 
     const fetchResources = useCallback(async (page = 1, search = '') => {
         setLoading(true);
@@ -70,6 +72,25 @@ const ResourcesTab = ({ rtc, isActive }) => {
     const handleCloseModal = () => {
         setIsModalVisible(false);
         setSelectedResource(null);
+    };
+
+    const handleViewResource = (resource) => {
+        if (resource.external_link) {
+            openResource(resource);
+            return;
+        }
+        if (!resource.file) return;
+
+        const previewUrl = getResourcePreviewUrl(resource);
+        if (canPreviewInline(resource)) {
+            setFilePreview({ open: true, url: previewUrl, title: resource.title });
+            return;
+        }
+        openResource(resource);
+    };
+
+    const handleCloseFilePreview = () => {
+        setFilePreview({ open: false, url: '', title: '' });
     };
 
     const getIconForResource = (resource) => {
@@ -155,11 +176,22 @@ const ResourcesTab = ({ rtc, isActive }) => {
 
                             <div className={styles.cardFooter}>
                                 {item.file ? (
-                                    <Button type="primary" ghost icon={<EyeOutlined />} href={item.file} target="_blank" block>
+                                    <Button
+                                        type="primary"
+                                        ghost
+                                        icon={<EyeOutlined />}
+                                        block
+                                        onClick={() => handleViewResource(item)}
+                                    >
                                         {t('view_file') || "View File"}
                                     </Button>
                                 ) : item.external_link ? (
-                                    <Button type="default" icon={<LinkOutlined />} href={item.external_link} target="_blank" block>
+                                    <Button
+                                        type="default"
+                                        icon={<LinkOutlined />}
+                                        block
+                                        onClick={() => handleViewResource(item)}
+                                    >
                                         {t('open_link') || "Open Link"}
                                     </Button>
                                 ) : (
@@ -179,13 +211,16 @@ const ResourcesTab = ({ rtc, isActive }) => {
                     <Button key="close" onClick={handleCloseModal}>
                         {t('close') || "Close"}
                     </Button>,
-                    selectedResource?.file ? (
-                        <Button key="view" type="primary" icon={<EyeOutlined />} href={selectedResource.file} target="_blank">
-                            {t('view_file') || "View File"}
-                        </Button>
-                    ) : selectedResource?.external_link ? (
-                        <Button key="link" type="primary" icon={<LinkOutlined />} href={selectedResource.external_link} target="_blank">
-                            {t('open_link') || "Open Link"}
+                    selectedResource?.file || selectedResource?.external_link ? (
+                        <Button
+                            key="view"
+                            type="primary"
+                            icon={selectedResource?.external_link ? <LinkOutlined /> : <EyeOutlined />}
+                            onClick={() => handleViewResource(selectedResource)}
+                        >
+                            {selectedResource?.external_link
+                                ? (t('open_link') || 'Open Link')
+                                : (t('view_file') || 'View File')}
                         </Button>
                     ) : null
                 ]}
@@ -197,6 +232,31 @@ const ResourcesTab = ({ rtc, isActive }) => {
                             {selectedResource.description}
                         </Paragraph>
                     </div>
+                )}
+            </Modal>
+
+            <Modal
+                title={filePreview.title}
+                open={filePreview.open}
+                onCancel={handleCloseFilePreview}
+                width="min(960px, 96vw)"
+                centered
+                destroyOnClose
+                footer={[
+                    <Button key="newtab" onClick={() => window.open(filePreview.url, '_blank', 'noopener,noreferrer')}>
+                        {t('open_in_new_tab') || 'Open in new tab'}
+                    </Button>,
+                    <Button key="close" type="primary" onClick={handleCloseFilePreview}>
+                        {t('close') || 'Close'}
+                    </Button>,
+                ]}
+            >
+                {filePreview.url && (
+                    <iframe
+                        src={filePreview.url}
+                        title={filePreview.title}
+                        className={styles.filePreviewFrame}
+                    />
                 )}
             </Modal>
         </div>

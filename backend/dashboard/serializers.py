@@ -74,10 +74,28 @@ class RTCProfileBulkImportSerializer(serializers.Serializer):
     rtc_profiles = RTCProfileImportItemSerializer(many=True)
 
 class RTCResourceSerializer(serializers.ModelSerializer):
+    preview_url = serializers.SerializerMethodField()
+
     class Meta:
         model = RTCResource
         fields = '__all__'
         read_only_fields = ['rtc']
+
+    def get_preview_url(self, obj):
+        if not obj.file:
+            return None
+        request = self.context.get('request')
+        if not request:
+            return None
+        return request.build_absolute_uri(
+            f'/api/v1/rtc-resources/{obj.pk}/preview/'
+        )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.file:
+            data['file'] = _absolute_file_field_url(instance.file)
+        return data
 
 class RTCEventFileSerializer(serializers.ModelSerializer):
     class Meta:

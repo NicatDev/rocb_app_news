@@ -3,6 +3,7 @@ import { Row, Col, Card, Typography, Tag, Button, Spin, Avatar, Space, message }
 import { GlobalOutlined, EnvironmentOutlined, ArrowRightOutlined, TeamOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { getRTCProfiles } from '../../api/dashboard';
+import { stripHtmlToText } from '../../utils/richText';
 import styles from './style.module.scss';
 import { useNavigate } from 'react-router-dom';
 
@@ -81,7 +82,7 @@ const RTCDashboard = () => {
 
                                     <div className={styles.cardDescription}>
                                         <Paragraph ellipsis={{ rows: 3, expandable: false, symbol: '...' }}>
-                                            {rtc.overview_text || rtc.mission_statement}
+                                            {stripHtmlToText(rtc.overview_text || rtc.mission_statement)}
                                         </Paragraph>
                                     </div>
 

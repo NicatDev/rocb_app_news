@@ -1,9 +1,13 @@
+import mimetypes
+
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import DateTimeField
 from django.db.models.functions import Cast, Coalesce
+from django.http import FileResponse, Http404
 from django.utils.text import slugify
 from rest_framework import viewsets, filters, status
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -49,6 +53,20 @@ class RTCResourceViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['rtc', 'resource_type']
     search_fields = ['title', 'description']
+
+    @action(detail=True, methods=['get'], url_path='preview')
+    def preview(self, request, pk=None):
+        """Serve file inline so browsers open PDF/docs instead of forcing download."""
+        resource = self.get_object()
+        if not resource.file:
+            raise Http404
+        content_type, _ = mimetypes.guess_type(resource.file.name)
+        if not content_type:
+            content_type = 'application/octet-stream'
+        filename = resource.file.name.rsplit('/', 1)[-1]
+        response = FileResponse(resource.file.open('rb'), content_type=content_type)
+        response['Content-Disposition'] = f'inline; filename="{filename}"'
+        return response
 
 class RTCEventViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = RTCEvent.objects.all().order_by('-event_date')
