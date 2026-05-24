@@ -2,37 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import { TranslationOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { GT_LANG_CODES, GT_LANG_LABELS, GT_LANGS_CSV } from './gtLanguages';
+import { translatePageTo } from './gtTranslate';
 import './googleTranslateFab.css';
 
 const GT_SCRIPT_ID = 'rocb-google-translate-script';
 const GT_MOUNT_ID = 'google_translate_element';
 const GT_SELECT_ID = 'rocbGtLangSelect';
 
-function getGtCombo() {
-  return document.querySelector(`#${GT_MOUNT_ID} .goog-te-combo`);
-}
-
-function applyGtLanguage(lang) {
-  const combo = getGtCombo();
-  if (!combo) return false;
-  combo.value = lang;
-  combo.dispatchEvent(new Event('change', { bubbles: true }));
-  return true;
-}
-
-function retryApplyLanguage(lang) {
-  if (applyGtLanguage(lang)) return;
-  let tries = 0;
-  const timer = setInterval(() => {
-    tries += 1;
-    if (applyGtLanguage(lang) || tries >= 30) clearInterval(timer);
-  }, 200);
-}
-
 function initGoogleTranslate() {
-  if (window.__rocbGtInited || !window.google?.translate?.TranslateElement) return;
+  if (!window.google?.translate?.TranslateElement) return;
   const mount = document.getElementById(GT_MOUNT_ID);
   if (!mount) return;
+  if (window.__rocbGtInited && mount.querySelector('.goog-te-combo')) return;
   window.__rocbGtInited = true;
   const pageLang = (document.documentElement.lang || 'en').split('-')[0];
   new window.google.translate.TranslateElement(
@@ -123,6 +104,7 @@ export default function FloatingGoogleTranslate() {
 
   useEffect(() => {
     watchGtTopChrome();
+    loadGoogleTranslateScript();
     return () => {
       window.__rocbGtChromeObserver?.disconnect();
       window.__rocbGtChromeObserver = null;
@@ -153,21 +135,24 @@ export default function FloatingGoogleTranslate() {
   }, [open]);
 
   useEffect(() => {
-    if (!open) return undefined;
-    loadGoogleTranslateScript();
     const sel = document.getElementById(GT_SELECT_ID);
     if (!sel) return undefined;
 
     const onChange = () => {
       if (!sel.value) return;
-      retryApplyLanguage(sel.value);
+      translatePageTo(sel.value, GT_MOUNT_ID);
     };
     sel.addEventListener('change', onChange);
-    const focusTimer = setTimeout(() => sel.focus(), 150);
-    return () => {
-      sel.removeEventListener('change', onChange);
-      clearTimeout(focusTimer);
-    };
+    return () => sel.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    loadGoogleTranslateScript();
+    const focusTimer = setTimeout(() => {
+      document.getElementById(GT_SELECT_ID)?.focus();
+    }, 150);
+    return () => clearTimeout(focusTimer);
   }, [open]);
 
   const handleToggle = (e) => {
