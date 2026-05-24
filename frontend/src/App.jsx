@@ -26,10 +26,12 @@ import AdminEvents from './pages/admin/Events';
 import AdminResources from './pages/admin/Resources';
 import AdminProjects from './pages/admin/Projects';
 import AdminGallery from './pages/admin/Gallery';
+import FloatingGoogleTranslate from './components/common/GoogleTranslate';
 
 function App() {
   return (
     <Router>
+      <FloatingGoogleTranslate />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

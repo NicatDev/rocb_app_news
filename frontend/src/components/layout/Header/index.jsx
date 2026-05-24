@@ -4,7 +4,6 @@ import { UserOutlined, LogoutOutlined, DownOutlined, GlobalOutlined, MenuOutline
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../context/AuthContext';
-import GoogleTranslate from '../../common/GoogleTranslate';
 import styles from './style.module.scss';
 
 const { Header: AntHeader } = Layout;
@@ -87,8 +86,6 @@ const Header = () => {
                             {i18n.language === 'ru' ? 'RU' : 'EN'}
                         </Button>
                     </Dropdown>
-
-                    <GoogleTranslate id="google_translate_element" compact />
 
                     {user ? (
                         <>

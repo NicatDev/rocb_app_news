@@ -80,15 +80,48 @@ export function prepareRichHtmlForDisplay(html) {
     return doc.body.innerHTML;
 }
 
-/** Plain-text length for excerpts / expand heuristics (browser). */
+/** Decode entities and strip tags — for card excerpts, tags, titles. */
 export function stripHtmlToText(html) {
-    if (!html) return '';
-    if (typeof document === 'undefined') {
-        return String(html).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (html == null || html === '') return '';
+    let value = String(html).trim();
+    if (!value) return '';
+
+    value = value
+        .replace(/&lt;/gi, '<')
+        .replace(/&gt;/gi, '>')
+        .replace(/&amp;/gi, '&')
+        .replace(/&quot;/gi, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&nbsp;/gi, ' ')
+        .replace(/&#160;/g, ' ');
+
+    if (typeof document !== 'undefined') {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = value;
+        value = tmp.textContent || tmp.innerText || '';
+    } else {
+        value = value.replace(/<[^>]+>/g, ' ');
     }
-    const tmp = document.createElement('div');
-    tmp.innerHTML = html;
-    return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+
+    return value.replace(/\s+/g, ' ').trim();
+}
+
+/** Comma/semicolon list after stripping CKEditor HTML (e.g. specialization_areas on RTC cards). */
+export function plainTextToTagList(raw) {
+    const plain = stripHtmlToText(raw);
+    if (!plain) return [];
+    return plain
+        .split(/[,;|]/)
+        .map((part) => part.trim())
+        .filter(Boolean);
+}
+
+/** Best plain excerpt for RTC dashboard cards. */
+export function rtcCardExcerpt(rtc) {
+    if (!rtc) return '';
+    const overview = stripHtmlToText(rtc.overview_text);
+    const mission = stripHtmlToText(rtc.mission_statement);
+    return overview || mission;
 }
 
 export function looksLikeHtml(value) {

@@ -9,7 +9,7 @@ const { Title, Paragraph, Text } = Typography;
 const { Search } = Input;
 
 import useDebounce from '../../../../hooks/useDebounce';
-import { canPreviewInline, getResourcePreviewUrl, openResource } from '../../../../utils/openResource';
+import { openResource } from '../../../../utils/openResource';
 
 const ResourcesTab = ({ rtc, isActive }) => {
     const { t } = useTranslation();
@@ -25,8 +25,6 @@ const ResourcesTab = ({ rtc, isActive }) => {
     });
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedResource, setSelectedResource] = useState(null);
-    const [filePreview, setFilePreview] = useState({ open: false, url: '', title: '' });
-
     const fetchResources = useCallback(async (page = 1, search = '') => {
         setLoading(true);
         try {
@@ -75,22 +73,7 @@ const ResourcesTab = ({ rtc, isActive }) => {
     };
 
     const handleViewResource = (resource) => {
-        if (resource.external_link) {
-            openResource(resource);
-            return;
-        }
-        if (!resource.file) return;
-
-        const previewUrl = getResourcePreviewUrl(resource);
-        if (canPreviewInline(resource)) {
-            setFilePreview({ open: true, url: previewUrl, title: resource.title });
-            return;
-        }
         openResource(resource);
-    };
-
-    const handleCloseFilePreview = () => {
-        setFilePreview({ open: false, url: '', title: '' });
     };
 
     const getIconForResource = (resource) => {
@@ -232,31 +215,6 @@ const ResourcesTab = ({ rtc, isActive }) => {
                             {selectedResource.description}
                         </Paragraph>
                     </div>
-                )}
-            </Modal>
-
-            <Modal
-                title={filePreview.title}
-                open={filePreview.open}
-                onCancel={handleCloseFilePreview}
-                width="min(960px, 96vw)"
-                centered
-                destroyOnClose
-                footer={[
-                    <Button key="newtab" onClick={() => window.open(filePreview.url, '_blank', 'noopener,noreferrer')}>
-                        {t('open_in_new_tab') || 'Open in new tab'}
-                    </Button>,
-                    <Button key="close" type="primary" onClick={handleCloseFilePreview}>
-                        {t('close') || 'Close'}
-                    </Button>,
-                ]}
-            >
-                {filePreview.url && (
-                    <iframe
-                        src={filePreview.url}
-                        title={filePreview.title}
-                        className={styles.filePreviewFrame}
-                    />
                 )}
             </Modal>
         </div>

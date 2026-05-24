@@ -1,0 +1,126 @@
+/* Floating Google Translate — shared global classes (rocb_app_news) */
+
+.rocb-gt-fab {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10030;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  font-family: inherit;
+}
+
+.rocb-gt-fab__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  margin-right: 10px;
+  padding: 0;
+  border: none;
+  border-radius: 12px 0 0 12px;
+  background: #12579e;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: -2px 2px 14px rgba(18, 87, 158, 0.35);
+  transition: background 0.2s;
+}
+
+.rocb-gt-fab__btn:hover {
+  background: #0d4378;
+}
+
+.rocb-gt-fab.is-open .rocb-gt-fab__btn {
+  background: #0d4378;
+}
+
+.rocb-gt-fab__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-right: none;
+  border-radius: 12px 0 0 12px;
+  box-shadow: -4px 4px 20px rgba(15, 23, 42, 0.12);
+  pointer-events: none;
+  transition: max-width 0.25s ease, opacity 0.2s ease, padding 0.25s ease;
+}
+
+.rocb-gt-fab.is-open .rocb-gt-fab__panel {
+  max-width: min(220px, calc(100vw - 70px));
+  max-height: 120px;
+  opacity: 1;
+  padding: 12px 14px;
+  pointer-events: auto;
+}
+
+.rocb-gt-fab__hint {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.rocb-gt-fab #google_translate_element {
+  min-height: 32px;
+}
+
+.rocb-gt-fab #google_translate_element .goog-te-gadget {
+  font-family: inherit !important;
+  font-size: 14px !important;
+  color: #0f172a !important;
+}
+
+.rocb-gt-fab #google_translate_element .goog-te-gadget .goog-te-combo {
+  display: block !important;
+  visibility: visible !important;
+  width: 100% !important;
+  min-width: 160px !important;
+  margin: 0 !important;
+  padding: 8px 10px !important;
+  font-size: 14px !important;
+  color: #0f172a !important;
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+}
+
+.rocb-gt-fab #google_translate_element .goog-te-gadget > span,
+.rocb-gt-fab #google_translate_element .goog-te-gadget a {
+  display: none !important;
+}
+
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+@media (max-width: 575px) {
+  .rocb-gt-fab__btn {
+    width: 42px;
+    height: 42px;
+    margin-right: 6px;
+  }
+
+  .rocb-gt-fab.is-open .rocb-gt-fab__panel {
+    max-width: calc(100vw - 58px);
+    padding: 10px 12px;
+  }
+}

@@ -54,10 +54,7 @@ class RTCResourceViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_fields = ['rtc', 'resource_type']
     search_fields = ['title', 'description']
 
-    @action(detail=True, methods=['get'], url_path='preview')
-    def preview(self, request, pk=None):
-        """Serve file inline so browsers open PDF/docs instead of forcing download."""
-        resource = self.get_object()
+    def _file_response(self, resource, *, as_attachment: bool):
         if not resource.file:
             raise Http404
         content_type, _ = mimetypes.guess_type(resource.file.name)
@@ -65,8 +62,19 @@ class RTCResourceViewSet(viewsets.ReadOnlyModelViewSet):
             content_type = 'application/octet-stream'
         filename = resource.file.name.rsplit('/', 1)[-1]
         response = FileResponse(resource.file.open('rb'), content_type=content_type)
-        response['Content-Disposition'] = f'inline; filename="{filename}"'
+        disposition = 'attachment' if as_attachment else 'inline'
+        response['Content-Disposition'] = f'{disposition}; filename="{filename}"'
         return response
+
+    @action(detail=True, methods=['get'], url_path='preview')
+    def preview(self, request, pk=None):
+        """Serve file inline (PDF, images) for opening in a browser tab."""
+        return self._file_response(self.get_object(), as_attachment=False)
+
+    @action(detail=True, methods=['get'], url_path='download')
+    def download(self, request, pk=None):
+        """Force download for Office and other non-browser types."""
+        return self._file_response(self.get_object(), as_attachment=True)
 
 class RTCEventViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = RTCEvent.objects.all().order_by('-event_date')

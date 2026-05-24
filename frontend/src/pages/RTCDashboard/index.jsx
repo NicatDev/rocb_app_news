@@ -3,7 +3,7 @@ import { Row, Col, Card, Typography, Tag, Button, Spin, Avatar, Space, message }
 import { GlobalOutlined, EnvironmentOutlined, ArrowRightOutlined, TeamOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { getRTCProfiles } from '../../api/dashboard';
-import { stripHtmlToText } from '../../utils/richText';
+import { plainTextToTagList, rtcCardExcerpt, stripHtmlToText } from '../../utils/richText';
 import styles from './style.module.scss';
 import { useNavigate } from 'react-router-dom';
 
@@ -52,12 +52,20 @@ const RTCDashboard = () => {
                 </div>
             ) : (
                 <Row gutter={[24, 24]}>
-                    {rtcs.map((rtc) => (
+                    {rtcs.map((rtc) => {
+                        const rtcName = stripHtmlToText(rtc.name);
+                        const rtcCountry = stripHtmlToText(rtc.host_country);
+                        const excerpt = rtcCardExcerpt(rtc);
+                        const specializationTags = plainTextToTagList(rtc.specialization_areas);
+                        const visibleTags = specializationTags.slice(0, 3);
+                        const extraTagCount = specializationTags.length - visibleTags.length;
+
+                        return (
                         <Col xs={24} sm={12} md={8} lg={6} key={rtc.id}>
                             <Card
                                 hoverable
                                 className={styles.rtcCard}
-                                onClick={() => handleCardClick(rtc.slug || rtc.id, rtc.name)}
+                                onClick={() => handleCardClick(rtc.slug || rtc.id, rtcName || rtc.name)}
                             >
                                 <div className={styles.cardContent}>
                                     <div className={styles.cardHeader}>
@@ -67,33 +75,39 @@ const RTCDashboard = () => {
                                             className={styles.rtcAvatar}
                                             src={rtc.logo}
                                         >
-                                            {rtc.name.charAt(0)}
+                                            {(rtcName || rtc.name || '?').charAt(0)}
                                         </Avatar>
                                         <div className={styles.headerInfo}>
-                                            <Text className={styles.rtcName} ellipsis={{ tooltip: rtc.name }}>
-                                                {rtc.name}
+                                            <Text className={styles.rtcName} ellipsis={{ tooltip: rtcName || rtc.name }}>
+                                                {rtcName || rtc.name}
                                             </Text>
-                                            <Space size={4}>
-                                                <EnvironmentOutlined style={{ fontSize: '12px', color: '#8c8c8c' }} />
-                                                <Text className={styles.rtcCountry}>{rtc.host_country}</Text>
-                                            </Space>
+                                            {rtcCountry ? (
+                                                <Space size={4}>
+                                                    <EnvironmentOutlined style={{ fontSize: '12px', color: '#8c8c8c' }} />
+                                                    <Text className={styles.rtcCountry}>{rtcCountry}</Text>
+                                                </Space>
+                                            ) : null}
                                         </div>
                                     </div>
 
-                                    <div className={styles.cardDescription}>
-                                        <Paragraph ellipsis={{ rows: 3, expandable: false, symbol: '...' }}>
-                                            {stripHtmlToText(rtc.overview_text || rtc.mission_statement)}
-                                        </Paragraph>
-                                    </div>
+                                    {excerpt ? (
+                                        <div className={styles.cardDescription}>
+                                            <Paragraph ellipsis={{ rows: 3, expandable: false, symbol: '...' }}>
+                                                {excerpt}
+                                            </Paragraph>
+                                        </div>
+                                    ) : null}
 
-                                    <div className={styles.tagsContainer}>
-                                        {rtc.specialization_areas && rtc.specialization_areas.split(',').slice(0, 3).map((area, index) => (
-                                            <Tag className={styles.tag} color="blue" key={index}>{area.trim()}</Tag>
-                                        ))}
-                                        {rtc.specialization_areas && rtc.specialization_areas.split(',').length > 3 && (
-                                            <Tag className={styles.tag} >+{rtc.specialization_areas.split(',').length - 3}</Tag>
-                                        )}
-                                    </div>
+                                    {visibleTags.length > 0 ? (
+                                        <div className={styles.tagsContainer}>
+                                            {visibleTags.map((area, index) => (
+                                                <Tag className={styles.tag} color="blue" key={`${area}-${index}`}>{area}</Tag>
+                                            ))}
+                                            {extraTagCount > 0 ? (
+                                                <Tag className={styles.tag}>+{extraTagCount}</Tag>
+                                            ) : null}
+                                        </div>
+                                    ) : null}
 
                                     <div className={styles.cardFooter}>
                                         <Button type="primary" ghost size="small" className={styles.viewBtn}>
@@ -103,7 +117,8 @@ const RTCDashboard = () => {
                                 </div>
                             </Card>
                         </Col>
-                    ))}
+                        );
+                    })}
                 </Row>
             )}
         </div>
