@@ -103,10 +103,19 @@
   display: none !important;
 }
 
-/* Google-in yuxarı banneri — bizim FAB deyil */
+/* Google-in yuxarı div.skiptranslate wrapper + iframe */
+body > div.skiptranslate:has(iframe.VIpgJd-ZVi9od-ORHb-OEVmcd),
+body > div.skiptranslate:has(iframe.goog-te-banner-frame),
+body > div.skiptranslate:has(iframe.skiptranslate[src="#"]),
+body > div.skiptranslate:has(iframe[id$=".container"]),
 .goog-te-banner-frame,
 .goog-te-banner-frame.skiptranslate,
 iframe.goog-te-banner-frame,
+body > iframe.skiptranslate,
+iframe.skiptranslate[src="#"],
+iframe.VIpgJd-ZVi9od-ORHb-OEVmcd,
+iframe[class*="VIpgJd-"][class*="ORHb"],
+iframe[id$=".container"].skiptranslate,
 #goog-gt-tt,
 .goog-te-balloon-frame,
 .goog-tooltip,
@@ -114,8 +123,14 @@ iframe.goog-te-banner-frame,
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
+  width: 0 !important;
   max-height: 0 !important;
+  border: none !important;
   overflow: hidden !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  pointer-events: none !important;
 }
 
 body {

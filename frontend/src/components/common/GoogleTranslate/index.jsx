@@ -23,12 +23,68 @@ function initGoogleTranslate() {
     },
     GT_MOUNT_ID
   );
+  [0, 300, 1000].forEach((ms) => setTimeout(hideGtTopChrome, ms));
+}
+
+function isInsideGtFab(el) {
+  const fab = document.getElementById('rocbGtFab');
+  return fab?.contains(el);
+}
+
+function isGtBannerIframe(el) {
+  if (!el || el.tagName !== 'IFRAME') return false;
+  if (el.classList.contains('goog-te-banner-frame')) return true;
+  if (el.className && String(el.className).includes('VIpgJd-')) return true;
+  if (el.id && String(el.id).includes('container')) return true;
+  if (el.classList.contains('skiptranslate') && el.getAttribute('src') === '#') return true;
+  return false;
+}
+
+function isGtTopChrome(el) {
+  if (!el || isInsideGtFab(el)) return false;
+  if (el.tagName === 'IFRAME') return isGtBannerIframe(el);
+  if (el.tagName === 'DIV' && el.classList.contains('skiptranslate') && el.parentElement === document.body) {
+    return !!el.querySelector(
+      'iframe.goog-te-banner-frame, iframe[class*="VIpgJd-"], iframe[id*="container"], iframe.skiptranslate[src="#"]'
+    );
+  }
+  return false;
+}
+
+function applyGtChromeHide(el) {
+  el.style.setProperty('display', 'none', 'important');
+  el.style.setProperty('visibility', 'hidden', 'important');
+  el.style.setProperty('height', '0', 'important');
+  el.style.setProperty('width', '0', 'important');
+  el.style.setProperty('overflow', 'hidden', 'important');
+}
+
+function hideGtTopChrome() {
+  document.querySelectorAll('body > div.skiptranslate, body > iframe.skiptranslate, iframe').forEach((el) => {
+    if (!isGtTopChrome(el)) return;
+    applyGtChromeHide(el);
+  });
+  document.body.style.setProperty('top', '0', 'important');
+  document.body.style.setProperty('margin-top', '0', 'important');
+}
+
+function watchGtTopChrome() {
+  hideGtTopChrome();
+  if (window.__rocbGtChromeObserver) return;
+  window.__rocbGtChromeObserver = new MutationObserver(hideGtTopChrome);
+  window.__rocbGtChromeObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['style', 'class'],
+  });
 }
 
 function loadGoogleTranslateScript() {
   window.googleTranslateElementInit = initGoogleTranslate;
   if (document.getElementById(GT_SCRIPT_ID)) {
     initGoogleTranslate();
+    hideGtTopChrome();
     return;
   }
   const script = document.createElement('script');
@@ -42,6 +98,14 @@ export default function FloatingGoogleTranslate() {
   const { t } = useTranslation();
   const fabRef = useRef(null);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    watchGtTopChrome();
+    return () => {
+      window.__rocbGtChromeObserver?.disconnect();
+      window.__rocbGtChromeObserver = null;
+    };
+  }, []);
 
   useEffect(() => {
     const onDocClick = (e) => {
