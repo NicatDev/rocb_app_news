@@ -8,7 +8,7 @@ const PREVIEWABLE_EXT = /\.(pdf|png|jpe?g|gif|webp|svg|bmp)$/i;
 export function getResourcePreviewUrl(resource) {
   if (!resource?.file) return null;
   if (resource.preview_url) return resource.preview_url;
-  if (resource.id) return `${API_BASE}rtc-resources/${resource.id}/preview/`;
+  if (resource.id) return `${API_BASE}dashboard/rtc-resources/${resource.id}/preview/`;
   return resource.file;
 }
 

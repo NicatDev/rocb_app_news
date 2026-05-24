@@ -88,7 +88,7 @@ class RTCResourceSerializer(serializers.ModelSerializer):
         if not request:
             return None
         return request.build_absolute_uri(
-            f'/api/v1/rtc-resources/{obj.pk}/preview/'
+            f'/api/v1/dashboard/rtc-resources/{obj.pk}/preview/'
         )
 
     def to_representation(self, instance):
