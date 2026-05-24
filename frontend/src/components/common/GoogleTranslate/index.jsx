@@ -1,12 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { TranslationOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import { GT_LANG_CODES, GT_LANG_LABELS, GT_LANGS_CSV } from './gtLanguages';
 import './googleTranslateFab.css';
 
 const GT_SCRIPT_ID = 'rocb-google-translate-script';
 const GT_MOUNT_ID = 'google_translate_element';
-const GT_LANGS =
-  'en,ru,az,fr,de,es,it,tr,uk,pl,ro,ka,kk,uz,tg,hy,be,bs,sq,mk,sr,hr,bg,lt,lv,et,fi,sv,no,da,nl,cs,sk,sl,hu,el,he,pt,mt,is,me,md,ky';
+const GT_SELECT_ID = 'rocbGtLangSelect';
+
+function getGtCombo() {
+  return document.querySelector(`#${GT_MOUNT_ID} .goog-te-combo`);
+}
+
+function applyGtLanguage(lang) {
+  const combo = getGtCombo();
+  if (!combo) return false;
+  combo.value = lang;
+  combo.dispatchEvent(new Event('change', { bubbles: true }));
+  return true;
+}
 
 function initGoogleTranslate() {
   if (window.__rocbGtInited || !window.google?.translate?.TranslateElement) return;
@@ -17,7 +29,7 @@ function initGoogleTranslate() {
   new window.google.translate.TranslateElement(
     {
       pageLanguage: pageLang,
-      includedLanguages: GT_LANGS,
+      includedLanguages: GT_LANGS_CSV,
       autoDisplay: false,
       layout: window.google.translate.TranslateElement.InlineLayout.SIMPLE,
     },
@@ -94,10 +106,20 @@ function loadGoogleTranslateScript() {
   document.body.appendChild(script);
 }
 
+function retryApplyLanguage(lang) {
+  if (applyGtLanguage(lang)) return;
+  let tries = 0;
+  const timer = setInterval(() => {
+    tries += 1;
+    if (applyGtLanguage(lang) || tries >= 25) clearInterval(timer);
+  }, 200);
+}
+
 export default function FloatingGoogleTranslate() {
   const { t } = useTranslation();
   const fabRef = useRef(null);
   const [open, setOpen] = useState(false);
+  const chooseLabel = t('choose_language') || 'Choose language';
 
   useEffect(() => {
     watchGtTopChrome();
@@ -130,13 +152,27 @@ export default function FloatingGoogleTranslate() {
     el.classList.toggle('is-open', open);
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return undefined;
+    loadGoogleTranslateScript();
+    const sel = document.getElementById(GT_SELECT_ID);
+    if (!sel) return undefined;
+
+    const onChange = () => {
+      if (!sel.value) return;
+      retryApplyLanguage(sel.value);
+    };
+    sel.addEventListener('change', onChange);
+    const focusTimer = setTimeout(() => sel.focus(), 120);
+    return () => {
+      sel.removeEventListener('change', onChange);
+      clearTimeout(focusTimer);
+    };
+  }, [open]);
+
   const handleToggle = (e) => {
     e.stopPropagation();
-    const next = !open;
-    setOpen(next);
-    if (next) {
-      loadGoogleTranslateScript();
-    }
+    setOpen((prev) => !prev);
   };
 
   return (
@@ -150,8 +186,23 @@ export default function FloatingGoogleTranslate() {
         id="rocbGtPanel"
         aria-hidden={open ? 'false' : 'true'}
       >
-        <p className="rocb-gt-fab__hint">{t('choose_language') || 'Choose language'}</p>
-        <div id={GT_MOUNT_ID} />
+        <label className="rocb-gt-fab__label" htmlFor={GT_SELECT_ID}>
+          {chooseLabel}
+        </label>
+        <select
+          id={GT_SELECT_ID}
+          className="rocb-gt-fab__select"
+          defaultValue=""
+          aria-label={chooseLabel}
+        >
+          <option value="">{chooseLabel}…</option>
+          {GT_LANG_CODES.map((code) => (
+            <option key={code} value={code}>
+              {GT_LANG_LABELS[code] || code}
+            </option>
+          ))}
+        </select>
+        <div id={GT_MOUNT_ID} className="rocb-gt-fab__gt-mount" aria-hidden="true" />
       </div>
       <button
         type="button"
