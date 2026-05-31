@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { List, Card, Input, Typography, Pagination, Empty, Spin, Button, Tag } from 'antd';
-import { SearchOutlined, CalendarOutlined, ArrowRightOutlined, PictureOutlined, GlobalOutlined, BankOutlined } from '@ant-design/icons';
+import { SearchOutlined, CalendarOutlined, ArrowRightOutlined, PictureOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -18,28 +18,24 @@ const News = () => {
     const debouncedSearchText = useDebounce(searchText, 500);
     const [news, setNews] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [newsType, setNewsType] = useState('all'); // 'all', 'global', 'rtc'
     const [pagination, setPagination] = useState({
         current: 1,
         pageSize: 12,
         total: 0
     });
 
-    const fetchNews = useCallback(async (page = 1, search = '', type = 'all') => {
+    const fetchNews = useCallback(async (page = 1, search = '') => {
         setLoading(true);
         try {
             const params = {
                 page: page,
                 page_size: pagination.pageSize,
                 ordering: 'order,-effective_published_at',
+                news_type: 'rtc',
             };
 
             if (search) {
                 params.search = search;
-            }
-
-            if (type !== 'all') {
-                params.news_type = type;
             }
 
             const data = await getPublicNews(params);
@@ -62,20 +58,15 @@ const News = () => {
     }, [pagination.pageSize]);
 
     useEffect(() => {
-        fetchNews(1, debouncedSearchText, newsType);
-    }, [debouncedSearchText, newsType, fetchNews]);
+        fetchNews(1, debouncedSearchText);
+    }, [debouncedSearchText, fetchNews]);
 
     const handleSearch = (value) => {
         setSearchText(value);
     };
 
     const handlePageChange = (page) => {
-        fetchNews(page, debouncedSearchText, newsType);
-    };
-
-    const handleFilterChange = (type) => {
-        setNewsType(type);
-        setPagination(prev => ({ ...prev, current: 1 }));
+        fetchNews(page, debouncedSearchText);
     };
 
     const navigateToDetail = (item) => {
@@ -100,7 +91,7 @@ const News = () => {
             <div className={styles.pageHeader}>
                 <Title level={2}>{t('latest_news') || 'Latest News'}</Title>
                 <Text className={styles.subtitle}>
-                    {t('news_page_subtitle') || 'Stay updated with the latest news and announcements'}
+                    {t('news_page_rtc_subtitle') || 'News from Regional Training Centres across the WCO Europe region'}
                 </Text>
             </div>
 
@@ -152,11 +143,8 @@ const News = () => {
                                             </div>
                                         )}
                                         <div className={styles.sourceBadge}>
-                                            <Tag color={item.is_global ? '#6366f1' : '#0ea5e9'}>
-                                                {item.is_global
-                                                    ? (t('global') || 'Global')
-                                                    : (item.rtc_name || t('rtc') || 'RTC')
-                                                }
+                                            <Tag color="#0ea5e9">
+                                                {item.rtc_name || t('rtc') || 'RTC'}
                                             </Tag>
                                         </div>
                                     </div>

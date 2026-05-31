@@ -12,5 +12,6 @@ router.register(r'main-site/news', MainSiteGlobalNewsViewSet, basename='main-sit
 
 urlpatterns = [
     path('main-site/rtc-profiles/', MainSiteRTCProfileListView.as_view(), name='main-site-rtc-profiles'),
+    path('main-site/integration/', include('public_news.integration.urls')),
     path('', include(router.urls)),
 ]

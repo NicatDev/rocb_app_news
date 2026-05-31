@@ -92,13 +92,24 @@ const News = () => {
     };
 
     const handleCreate = () => {
+        setServerErrors(null);
         setEditingNews(null);
         setModalVisible(true);
     };
 
-    const handleEdit = (record) => {
-        setEditingNews(record);
-        setModalVisible(true);
+    const handleEdit = async (record) => {
+        setServerErrors(null);
+        setModalLoading(true);
+        try {
+            const response = await adminService.getNewsDetail(record.id);
+            setEditingNews(response.data);
+            setModalVisible(true);
+        } catch (error) {
+            console.error('Failed to load news detail:', error);
+            message.error(t('failed_to_fetch_news'));
+        } finally {
+            setModalLoading(false);
+        }
     };
 
     const handleDelete = (id) => {
@@ -133,21 +144,29 @@ const News = () => {
                 newsId = res.data?.id;
                 message.success(t('news_created_success'));
             }
-            if (newsId && removedExtraImageIds?.length) {
+
+            if (!newsId) {
+                throw new Error('Missing news id after save');
+            }
+
+            if (removedExtraImageIds?.length) {
                 for (const imgId of removedExtraImageIds) {
                     await adminService.deleteNewsExtraImage(newsId, imgId);
                 }
             }
-            if (newsId && newExtraFiles?.length) {
+
+            if (newExtraFiles?.length) {
                 const fd = new FormData();
                 newExtraFiles.forEach((f) => fd.append('images', f));
                 await adminService.appendNewsExtraImages(newsId, fd);
             }
+
             setModalVisible(false);
+            setEditingNews(null);
             fetchNews();
         } catch (error) {
             console.error('Operation failed:', error);
-            if (error.response && error.response.data) {
+            if (error.response?.data) {
                 setServerErrors(error.response.data);
             } else {
                 message.error(t('operation_failed'));

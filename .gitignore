@@ -5,6 +5,10 @@ __pycache__/
 venv/
 env/
 .env
+app_user_credentials.txt
+app_user_credentials_full.txt
+backend/app_user_credentials.txt
+backend/app_user_credentials_full.txt
 db.sqlite3
 db.sqlite3-journal
 *.log

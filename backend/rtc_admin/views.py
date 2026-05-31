@@ -6,7 +6,7 @@ from rest_framework import viewsets, permissions, status, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from dashboard.models import RTCProfile, RTCResource, RTCEvent, RTCEventFile, RTCProject, GalleryImage, News, NewsImage
 from dashboard.serializers import (
     RTCProfileDetailSerializer,
@@ -73,6 +73,7 @@ class NewsAdminViewSet(BaseRTCRelatedViewSet):
     model = News
     search_fields = ['title', 'summary', 'content']
     filterset_fields = ['status']
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     def get_queryset(self):
         qs = super().get_queryset()

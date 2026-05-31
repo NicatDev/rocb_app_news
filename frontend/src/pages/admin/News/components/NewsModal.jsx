@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Upload, Button, Image as AntImage, Alert, message, DatePicker } from 'antd';
-import { UploadOutlined, InfoCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { Modal, Form, Input, Upload, Alert, message, DatePicker } from 'antd';
+import { UploadOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import RichTextEditor from '../../../../components/common/RichTextEditor';
@@ -11,39 +11,48 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
     const [form] = Form.useForm();
     const { t } = useTranslation();
     const [fileList, setFileList] = useState([]);
-    const [extraFileList, setExtraFileList] = useState([]);
-    const [hiddenExtraIds, setHiddenExtraIds] = useState([]);
+    const [galleryList, setGalleryList] = useState([]);
+    const [removedExtraIds, setRemovedExtraIds] = useState([]);
     const [contentEditorKey, setContentEditorKey] = useState('news-content');
 
     useEffect(() => {
-        if (visible) {
-            setContentEditorKey(`news-content-${initialValues?.id ?? 'new'}-${Date.now()}`);
-            setHiddenExtraIds([]);
-            setExtraFileList([]);
-            if (initialValues) {
-                form.setFieldsValue({
-                    title: initialValues.title,
-                    summary: initialValues.summary,
-                    content: initialValues.content,
-                    status: initialValues.status,
-                    news_date: initialValues.news_date ? dayjs(initialValues.news_date) : null,
-                });
-                if (initialValues.image) {
-                    setFileList([
-                        {
-                            uid: '-1',
-                            name: 'image.png',
-                            status: 'done',
-                            url: initialValues.image,
-                        },
-                    ]);
-                } else {
-                    setFileList([]);
-                }
+        if (!visible) return;
+
+        setContentEditorKey(`news-content-${initialValues?.id ?? 'new'}-${Date.now()}`);
+        setRemovedExtraIds([]);
+
+        if (initialValues) {
+            form.setFieldsValue({
+                title: initialValues.title,
+                summary: initialValues.summary,
+                content: initialValues.content,
+                status: initialValues.status,
+                news_date: initialValues.news_date ? dayjs(initialValues.news_date) : null,
+            });
+            if (initialValues.image) {
+                setFileList([
+                    {
+                        uid: 'cover',
+                        name: 'cover.jpg',
+                        status: 'done',
+                        url: initialValues.image,
+                    },
+                ]);
             } else {
-                form.resetFields();
                 setFileList([]);
             }
+            const existingGallery = (initialValues.extra_images || []).map((img) => ({
+                uid: `extra-${img.id}`,
+                extraImageId: img.id,
+                name: `gallery-${img.id}.jpg`,
+                status: 'done',
+                url: img.image,
+            }));
+            setGalleryList(existingGallery);
+        } else {
+            form.resetFields();
+            setFileList([]);
+            setGalleryList([]);
         }
     }, [visible, initialValues, form]);
 
@@ -73,8 +82,19 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
         }
     }, [serverErrors, form]);
 
-    const visibleExtraImages =
-        initialValues?.extra_images?.filter((img) => img?.id && !hiddenExtraIds.includes(img.id)) || [];
+    const handleGalleryChange = ({ fileList: nextList }) => {
+        const prevExistingIds = galleryList
+            .filter((f) => f.extraImageId)
+            .map((f) => f.extraImageId);
+        const nextExistingIds = nextList
+            .filter((f) => f.extraImageId)
+            .map((f) => f.extraImageId);
+        const newlyRemoved = prevExistingIds.filter((id) => !nextExistingIds.includes(id));
+        if (newlyRemoved.length > 0) {
+            setRemovedExtraIds((prev) => [...new Set([...prev, ...newlyRemoved])]);
+        }
+        setGalleryList(nextList);
+    };
 
     const handleOk = () => {
         form.validateFields()
@@ -93,12 +113,14 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
                     formData.append('image', fileList[0].originFileObj);
                 }
 
-                const newExtraFiles = extraFileList.filter((f) => f.originFileObj).map((f) => f.originFileObj);
+                const newExtraFiles = galleryList
+                    .filter((f) => f.originFileObj)
+                    .map((f) => f.originFileObj);
 
                 onOk({
                     formData,
                     newExtraFiles,
-                    removedExtraImageIds: [...hiddenExtraIds],
+                    removedExtraImageIds: [...removedExtraIds],
                 });
             })
             .catch((info) => {
@@ -106,8 +128,17 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
             });
     };
 
-    const handleMainImageChange = ({ fileList: newFileList }) => setFileList(newFileList);
-    const handleExtraChange = ({ fileList: newFileList }) => setExtraFileList(newFileList);
+    const previewFile = async (file) => {
+        let src = file.url;
+        if (!src && file.originFileObj) {
+            src = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file.originFileObj);
+                reader.onload = () => resolve(reader.result);
+            });
+        }
+        if (src) window.open(src);
+    };
 
     return (
         <Modal
@@ -117,7 +148,6 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
             onCancel={onCancel}
             confirmLoading={loading}
             width={800}
-            /* CKEditor link UI portals to body; focus trap blocks its inputs */
             focusable={{ trap: false }}
         >
             <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '10px' }}>
@@ -147,27 +177,14 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
                         <RichTextEditor instanceKey={contentEditorKey} />
                     </Form.Item>
 
-                    <Form.Item label={t('image')}>
+                    <Form.Item label={t('cover_image') || t('image')}>
                         <Upload
                             listType="picture-card"
                             fileList={fileList}
-                            onChange={handleMainImageChange}
+                            onChange={({ fileList: next }) => setFileList(next)}
                             beforeUpload={() => false}
                             maxCount={1}
-                            onPreview={async (file) => {
-                                let src = file.url;
-                                if (!src) {
-                                    src = await new Promise((resolve) => {
-                                        const reader = new FileReader();
-                                        reader.readAsDataURL(file.originFileObj);
-                                        reader.onload = () => resolve(reader.result);
-                                    });
-                                }
-                                const imgEl = new window.Image();
-                                imgEl.src = src;
-                                const imgWindow = window.open(src);
-                                imgWindow?.document.write(imgEl.outerHTML);
-                            }}
+                            onPreview={previewFile}
                         >
                             {fileList.length < 1 && (
                                 <div>
@@ -178,48 +195,21 @@ const NewsModal = ({ visible, onCancel, onOk, initialValues, loading, serverErro
                         </Upload>
                     </Form.Item>
 
-                    {visibleExtraImages.length > 0 && (
-                        <Form.Item label={t('existing_extra_images') || 'Existing gallery images'}>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
-                                {visibleExtraImages.map((img) => (
-                                    <div key={img.id} style={{ position: 'relative', width: 96, height: 96 }}>
-                                        <AntImage src={img.image} alt="" width={96} height={96} style={{ objectFit: 'cover', borderRadius: 8 }} />
-                                        <Button
-                                            type="text"
-                                            danger
-                                            size="small"
-                                            icon={<CloseCircleOutlined />}
-                                            style={{ position: 'absolute', top: -8, right: -8 }}
-                                            onClick={() => setHiddenExtraIds((prev) => [...prev, img.id])}
-                                            aria-label={t('remove') || 'Remove'}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </Form.Item>
-                    )}
-
-                    <Form.Item label={t('extra_images') || 'Additional images'}>
+                    <Form.Item
+                        label={t('extra_images') || 'Gallery images'}
+                        extra={t('extra_images_hint') || 'Add multiple images. Click the X on a thumbnail to remove it.'}
+                    >
                         <Upload
                             listType="picture-card"
-                            fileList={extraFileList}
-                            onChange={handleExtraChange}
+                            fileList={galleryList}
+                            onChange={handleGalleryChange}
                             beforeUpload={() => false}
                             multiple
-                            onPreview={async (file) => {
-                                let src = file.url;
-                                if (!src && file.originFileObj) {
-                                    src = await new Promise((resolve) => {
-                                        const reader = new FileReader();
-                                        reader.readAsDataURL(file.originFileObj);
-                                        reader.onload = () => resolve(reader.result);
-                                    });
-                                }
-                                if (src) window.open(src);
-                            }}
+                            accept="image/*"
+                            onPreview={previewFile}
                         >
                             <div>
-                                <UploadOutlined />
+                                <PlusOutlined />
                                 <div style={{ marginTop: 8 }}>{t('upload')}</div>
                             </div>
                         </Upload>
