@@ -163,7 +163,7 @@ const NewsTab = ({ rtc, isActive }) => {
                     </div>
                 </>
             ) : (
-                <Empty description={t('no_news_found') || "No news found"} />
+                <Empty description={t('no_news_found', { defaultValue: 'No news found' })} />
             )}
         </div>
     );
