@@ -296,7 +296,20 @@ const resources = {
             "profile_updated": "Profile updated",
             "profile_update_error": "Failed to update",
             "avatar_updated": "Avatar updated",
-            "avatar_update_error": "Failed to update avatar"
+            "avatar_update_error": "Failed to update avatar",
+            "security": "Security",
+            "change_password": "Change password",
+            "cancel_change_password": "Cancel",
+            "old_password": "Current password",
+            "new_password": "New password",
+            "confirm_password": "Confirm new password",
+            "enter_old_password": "Enter your current password",
+            "enter_new_password": "Enter a new password",
+            "enter_confirm_password": "Confirm your new password",
+            "passwords_do_not_match": "Passwords do not match",
+            "password_changed_success": "Password updated successfully",
+            "password_change_error": "Failed to change password",
+            "save_password": "Update password"
         }
     },
     ru: {
@@ -596,7 +609,20 @@ const resources = {
             "profile_updated": "Профиль обновлён",
             "profile_update_error": "Не удалось обновить",
             "avatar_updated": "Аватар обновлён",
-            "avatar_update_error": "Не удалось обновить аватар"
+            "avatar_update_error": "Не удалось обновить аватар",
+            "security": "Безопасность",
+            "change_password": "Сменить пароль",
+            "cancel_change_password": "Отмена",
+            "old_password": "Текущий пароль",
+            "new_password": "Новый пароль",
+            "confirm_password": "Подтвердите новый пароль",
+            "enter_old_password": "Введите текущий пароль",
+            "enter_new_password": "Введите новый пароль",
+            "enter_confirm_password": "Подтвердите новый пароль",
+            "passwords_do_not_match": "Пароли не совпадают",
+            "password_changed_success": "Пароль успешно обновлён",
+            "password_change_error": "Не удалось сменить пароль",
+            "save_password": "Обновить пароль"
         }
     },
     az: {
@@ -894,7 +920,20 @@ const resources = {
             "profile_updated": "Profil yeniləndi",
             "profile_update_error": "Yeniləmək mümkün olmadı",
             "avatar_updated": "Avatar yeniləndi",
-            "avatar_update_error": "Avatarı yeniləmək mümkün olmadı"
+            "avatar_update_error": "Avatarı yeniləmək mümkün olmadı",
+            "security": "Təhlükəsizlik",
+            "change_password": "Şifrəni dəyiş",
+            "cancel_change_password": "Ləğv et",
+            "old_password": "Cari şifrə",
+            "new_password": "Yeni şifrə",
+            "confirm_password": "Yeni şifrəni təsdiqlə",
+            "enter_old_password": "Cari şifrənizi daxil edin",
+            "enter_new_password": "Yeni şifrə daxil edin",
+            "enter_confirm_password": "Yeni şifrəni təkrar daxil edin",
+            "passwords_do_not_match": "Şifrələr uyğun gəlmir",
+            "password_changed_success": "Şifrə uğurla yeniləndi",
+            "password_change_error": "Şifrəni dəyişmək mümkün olmadı",
+            "save_password": "Şifrəni yenilə"
         }
     }
 };

@@ -294,6 +294,59 @@
 }
 
 // =====================
+// Change password
+// =====================
+.changePasswordToggle {
+    height: 44px;
+    border-radius: 10px !important;
+    font-weight: 600;
+    border-color: #e2e8f0 !important;
+    color: #1e293b !important;
+
+    &:hover {
+        border-color: #1890ff !important;
+        color: #1890ff !important;
+        background: #f0f9ff !important;
+    }
+}
+
+.passwordForm {
+    :global(.ant-form-item-label > label) {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #64748b;
+    }
+}
+
+.passwordInput {
+    border-radius: 10px !important;
+
+    :global(.ant-input) {
+        font-size: 15px;
+    }
+}
+
+.passwordIcon {
+    color: #94a3b8 !important;
+}
+
+.passwordActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+
+.passwordSubmitBtn {
+    border-radius: 10px !important;
+    font-weight: 600;
+    min-width: 140px;
+}
+
+// =====================
 // Responsive
 // =====================
 @media (max-width: 768px) {
@@ -367,5 +420,13 @@
     .cancelBtn {
         width: 32px;
         height: 32px;
+    }
+
+    .passwordActions {
+        flex-direction: column;
+
+        :global(.ant-btn) {
+            width: 100%;
+        }
     }
 }

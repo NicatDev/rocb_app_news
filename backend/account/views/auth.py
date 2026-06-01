@@ -5,7 +5,12 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 
-from account.serializers.auth import RegisterSerializer, CustomTokenObtainPairSerializer, ProfileSerializer
+from account.serializers.auth import (
+    RegisterSerializer,
+    CustomTokenObtainPairSerializer,
+    ProfileSerializer,
+    ChangePasswordSerializer,
+)
 
 User = get_user_model()
 
@@ -27,3 +32,18 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+
+
+class ChangePasswordView(generics.GenericAPIView):
+    """Change password for the authenticated user."""
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(
+            {'detail': 'Password updated successfully.'},
+            status=status.HTTP_200_OK,
+        )

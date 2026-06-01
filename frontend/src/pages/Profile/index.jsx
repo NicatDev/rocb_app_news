@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Typography, Avatar, Upload, Spin, Tag, message, Input, Button } from 'antd';
+import { Typography, Avatar, Upload, Spin, Tag, message, Input, Button, Form } from 'antd';
 import {
     UserOutlined, MailOutlined, PhoneOutlined, BankOutlined,
     EditOutlined, CheckOutlined, CloseOutlined, CameraOutlined,
-    CalendarOutlined, TeamOutlined, FieldStringOutlined
+    CalendarOutlined, TeamOutlined, FieldStringOutlined, LockOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import styles from './style.module.scss';
-import { getProfile, updateProfile } from '../../api/profile';
+import { getProfile, updateProfile, changePassword } from '../../api/profile';
 import { useAuth } from '../../context/AuthContext';
 
 const { Title, Text } = Typography;
+const { Password } = Input;
 
 const Profile = () => {
     const { t } = useTranslation();
@@ -22,6 +23,9 @@ const Profile = () => {
     const [editingField, setEditingField] = useState(null);
     const [editValue, setEditValue] = useState('');
     const [saving, setSaving] = useState(false);
+    const [changePasswordOpen, setChangePasswordOpen] = useState(false);
+    const [passwordSaving, setPasswordSaving] = useState(false);
+    const [passwordForm] = Form.useForm();
 
     useEffect(() => {
         if (!user) {
@@ -81,6 +85,48 @@ const Profile = () => {
             setSaving(false);
         }
         return false; // Prevent default upload
+    };
+
+    const handleTogglePasswordForm = () => {
+        if (changePasswordOpen) {
+            passwordForm.resetFields();
+        }
+        setChangePasswordOpen((open) => !open);
+    };
+
+    const applyPasswordServerErrors = (data) => {
+        if (!data || typeof data !== 'object') {
+            message.error(t('password_change_error', { defaultValue: 'Failed to change password' }));
+            return;
+        }
+        if (data.detail) {
+            message.error(data.detail);
+        }
+        const fieldEntries = Object.entries(data).filter(([key]) => key !== 'detail');
+        if (fieldEntries.length) {
+            passwordForm.setFields(
+                fieldEntries.map(([name, errors]) => ({
+                    name,
+                    errors: Array.isArray(errors) ? errors.map(String) : [String(errors)],
+                }))
+            );
+        } else if (!data.detail) {
+            message.error(t('password_change_error', { defaultValue: 'Failed to change password' }));
+        }
+    };
+
+    const handlePasswordSubmit = async (values) => {
+        try {
+            setPasswordSaving(true);
+            await changePassword(values);
+            passwordForm.resetFields();
+            setChangePasswordOpen(false);
+            message.success(t('password_changed_success', { defaultValue: 'Password updated successfully' }));
+        } catch (error) {
+            applyPasswordServerErrors(error.response?.data);
+        } finally {
+            setPasswordSaving(false);
+        }
     };
 
     const editableFields = [
@@ -238,6 +284,118 @@ const Profile = () => {
                         </div>
                     ))}
                 </div>
+            </div>
+
+            {/* Change password */}
+            <div className={styles.sectionCard}>
+                <div className={styles.sectionTitle}>
+                    <LockOutlined />
+                    <span>{t('security', { defaultValue: 'Security' })}</span>
+                </div>
+                {!changePasswordOpen ? (
+                    <Button
+                        type="default"
+                        icon={<LockOutlined />}
+                        className={styles.changePasswordToggle}
+                        onClick={handleTogglePasswordForm}
+                    >
+                        {t('change_password', { defaultValue: 'Change password' })}
+                    </Button>
+                ) : (
+                    <Form
+                        form={passwordForm}
+                        layout="vertical"
+                        className={styles.passwordForm}
+                        onFinish={handlePasswordSubmit}
+                        requiredMark={false}
+                    >
+                        <Form.Item
+                            name="old_password"
+                            label={t('old_password', { defaultValue: 'Current password' })}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: t('enter_old_password', { defaultValue: 'Enter your current password' }),
+                                },
+                            ]}
+                        >
+                            <Password
+                                prefix={<LockOutlined className={styles.passwordIcon} />}
+                                placeholder={t('enter_old_password', { defaultValue: 'Enter your current password' })}
+                                autoComplete="current-password"
+                                size="large"
+                                className={styles.passwordInput}
+                            />
+                        </Form.Item>
+                        <Form.Item
+                            name="new_password"
+                            label={t('new_password', { defaultValue: 'New password' })}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: t('enter_new_password', { defaultValue: 'Enter a new password' }),
+                                },
+                                { min: 8, message: t('enter_new_password', { defaultValue: 'Enter a new password' }) },
+                            ]}
+                        >
+                            <Password
+                                prefix={<LockOutlined className={styles.passwordIcon} />}
+                                placeholder={t('enter_new_password', { defaultValue: 'Enter a new password' })}
+                                autoComplete="new-password"
+                                size="large"
+                                className={styles.passwordInput}
+                            />
+                        </Form.Item>
+                        <Form.Item
+                            name="confirm_password"
+                            label={t('confirm_password', { defaultValue: 'Confirm new password' })}
+                            dependencies={['new_password']}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: t('enter_confirm_password', { defaultValue: 'Confirm your new password' }),
+                                },
+                                ({ getFieldValue }) => ({
+                                    validator(_, value) {
+                                        if (!value || getFieldValue('new_password') === value) {
+                                            return Promise.resolve();
+                                        }
+                                        return Promise.reject(
+                                            new Error(
+                                                t('passwords_do_not_match', { defaultValue: 'Passwords do not match' })
+                                            )
+                                        );
+                                    },
+                                }),
+                            ]}
+                        >
+                            <Password
+                                prefix={<LockOutlined className={styles.passwordIcon} />}
+                                placeholder={t('enter_confirm_password', { defaultValue: 'Confirm your new password' })}
+                                autoComplete="new-password"
+                                size="large"
+                                className={styles.passwordInput}
+                            />
+                        </Form.Item>
+                        <div className={styles.passwordActions}>
+                            <Button
+                                type="default"
+                                onClick={handleTogglePasswordForm}
+                                disabled={passwordSaving}
+                            >
+                                {t('cancel_change_password', { defaultValue: 'Cancel' })}
+                            </Button>
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                loading={passwordSaving}
+                                className={styles.passwordSubmitBtn}
+                            >
+                                {t('save_password', { defaultValue: 'Update password' })}
+                            </Button>
+                        </div>
+                    </Form>
+                )}
             </div>
         </div>
     );

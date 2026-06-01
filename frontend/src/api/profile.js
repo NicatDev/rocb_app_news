@@ -23,3 +23,8 @@ export const updateProfile = async (data) => {
         throw error;
     }
 };
+
+export const changePassword = async (data) => {
+    const response = await axiosInstance.post('/auth/change-password/', data);
+    return response.data;
+};
