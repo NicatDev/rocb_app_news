@@ -60,9 +60,8 @@ const CreatePostModal = ({ visible, onCancel, onSuccess }) => {
             }
 
             await createPost(formData);
-            message.success(t('post_created') || 'Post created successfully!');
-            onSuccess();
             onCancel();
+            onSuccess?.();
         } catch (error) {
             if (error.response?.data) {
                 const errors = error.response.data;

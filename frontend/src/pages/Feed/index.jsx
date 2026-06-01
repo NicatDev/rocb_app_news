@@ -11,6 +11,7 @@ import styles from './style.module.scss';
 import { getFeedPosts, toggleUpvote, getPostComments, createComment } from '../../api/feed';
 import useDebounce from '../../hooks/useDebounce';
 import CreatePostModal from './components/CreatePostModal';
+import PostPendingApprovalModal from './components/PostPendingApprovalModal';
 import { prepareRichHtmlForDisplay, stripHtmlToText } from '../../utils/richText';
 
 dayjs.extend(relativeTime);
@@ -30,6 +31,7 @@ const Feed = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [createModalVisible, setCreateModalVisible] = useState(false);
+    const [approvalModalVisible, setApprovalModalVisible] = useState(false);
 
     // Expanded states
     const [expandedPosts, setExpandedPosts] = useState({});
@@ -400,7 +402,12 @@ const Feed = () => {
             <CreatePostModal
                 visible={createModalVisible}
                 onCancel={() => setCreateModalVisible(false)}
-                onSuccess={() => fetchPosts(1, false)}
+                onSuccess={() => setApprovalModalVisible(true)}
+            />
+
+            <PostPendingApprovalModal
+                visible={approvalModalVisible}
+                onClose={() => setApprovalModalVisible(false)}
             />
         </div>
     );
