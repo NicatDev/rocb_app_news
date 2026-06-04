@@ -10,16 +10,7 @@ import debounce from 'lodash.debounce';
 const { Option } = Select;
 const { confirm } = Modal;
 
-const RESOURCE_TYPE_LABELS = {
-    TOR: 'Mandate / Terms of Reference',
-    MOU: 'Founding Memorandum',
-    STRATEGY: 'Strategic Plan',
-    PLAN: 'Annual Training Plan',
-    CATALOGUE: 'Training Catalogue',
-    REPORT: 'Annual Report / Newsletter',
-    PUB: 'Publication / Handbook',
-    ELEARN: 'E-Learning Link',
-};
+import { RESOURCE_TYPE_LABELS, getResourceTypeLabel } from '../../../constants/resourceTypes';
 
 const Resources = () => {
     const { t } = useTranslation();
@@ -182,7 +173,7 @@ const Resources = () => {
             key: 'resource_type',
             width: 200,
             render: (type) => (
-                <Tag color="purple">{RESOURCE_TYPE_LABELS[type] || type}</Tag>
+                <Tag color="purple">{getResourceTypeLabel(type, t)}</Tag>
             )
         },
         {
@@ -282,8 +273,8 @@ const Resources = () => {
                         allowClear
                         onChange={handleTypeFilter}
                     >
-                        {Object.entries(RESOURCE_TYPE_LABELS).map(([value, label]) => (
-                            <Option key={value} value={value}>{label}</Option>
+                        {Object.entries(RESOURCE_TYPE_LABELS).map(([value]) => (
+                            <Option key={value} value={value}>{getResourceTypeLabel(value, t)}</Option>
                         ))}
                     </Select>
                     <Button type="primary" icon={<PlusOutlined />} onClick={handleCreate}>

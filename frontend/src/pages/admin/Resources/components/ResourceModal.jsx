@@ -6,16 +6,7 @@ import { useTranslation } from 'react-i18next';
 const { TextArea } = Input;
 const { Option } = Select;
 
-const RESOURCE_TYPE_CHOICES = [
-    { value: 'TOR', label: 'Mandate / Terms of Reference' },
-    { value: 'MOU', label: 'Founding Memorandum' },
-    { value: 'STRATEGY', label: 'Strategic Plan' },
-    { value: 'PLAN', label: 'Annual Training Plan' },
-    { value: 'CATALOGUE', label: 'Training Catalogue' },
-    { value: 'REPORT', label: 'Annual Report / Newsletter' },
-    { value: 'PUB', label: 'Publication / Handbook' },
-    { value: 'ELEARN', label: 'E-Learning Link' },
-];
+import { RESOURCE_TYPE_CHOICES } from '../../../../constants/resourceTypes';
 
 const ResourceModal = ({ visible, onCancel, onOk, initialValues, loading, serverErrors }) => {
     const [form] = Form.useForm();
@@ -140,7 +131,9 @@ const ResourceModal = ({ visible, onCancel, onOk, initialValues, loading, server
                     >
                         <Select placeholder={t('select_resource_type') || 'Select resource type'}>
                             {RESOURCE_TYPE_CHOICES.map(type => (
-                                <Option key={type.value} value={type.value}>{type.label}</Option>
+                                <Option key={type.value} value={type.value}>
+                                    {t(`resource_type_${type.value}`, { defaultValue: type.label })}
+                                </Option>
                             ))}
                         </Select>
                     </Form.Item>

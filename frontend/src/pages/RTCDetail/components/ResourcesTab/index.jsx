@@ -10,6 +10,7 @@ const { Search } = Input;
 
 import useDebounce from '../../../../hooks/useDebounce';
 import { openResource } from '../../../../utils/openResource';
+import { getResourceTypeLabel } from '../../../../constants/resourceTypes';
 
 const ResourcesTab = ({ rtc, isActive }) => {
     const { t } = useTranslation();
@@ -85,10 +86,7 @@ const ResourcesTab = ({ rtc, isActive }) => {
         return <FileTextOutlined style={{ fontSize: '24px', color: '#8c8c8c' }} />;
     };
 
-    const getTypeLabel = (type) => {
-        // Can add more robust mapping/translation here
-        return type.replace('_', ' ');
-    };
+    const getTypeLabel = (type) => getResourceTypeLabel(type, t);
 
     const renderDescription = (resource) => {
         const text = resource.description || '';

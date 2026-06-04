@@ -129,6 +129,7 @@ class RTCResource(VisibilityMixin, models.Model):
         REPORT = 'REPORT', _('Annual Report / Newsletter') # [12]
         PUBLICATION = 'PUB', _('Publication / Handbook') # [4]
         E_LEARNING = 'ELEARN', _('E-Learning Link') # [4]
+        PRESENTATION = 'PRESENTATION', _('RTC Presentation')
 
     rtc = models.ForeignKey(RTCProfile, on_delete=models.CASCADE, related_name='resources')
     title = models.CharField(max_length=255)
