@@ -33,7 +33,7 @@ if load_dotenv:
 SECRET_KEY = 'django-insecure-cxop+2b-#ife0iopvgb(2@=o$&k2)46!ncy@sz#aic2sh!2oq^'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
