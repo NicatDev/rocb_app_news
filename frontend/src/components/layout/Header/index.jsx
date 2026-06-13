@@ -4,6 +4,7 @@ import { UserOutlined, LogoutOutlined, DownOutlined, GlobalOutlined, MenuOutline
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../context/AuthContext';
+import { switchOpenAILanguage, getStoredOpenAILanguage } from '../../../utils/openaiTranslate';
 import styles from './style.module.scss';
 
 const { Header: AntHeader } = Layout;
@@ -17,9 +18,18 @@ const Header = () => {
     const location = useLocation();
     const screens = useBreakpoint();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [langSwitching, setLangSwitching] = useState(false);
 
-    const changeLanguage = ({ key }) => {
-        i18n.changeLanguage(key);
+    const changeLanguage = async ({ key }) => {
+        if (langSwitching) return;
+        setLangSwitching(true);
+        try {
+            // i18next: UI labels (nav, buttons). Page body uses OpenAI below.
+            i18n.changeLanguage(key);
+            await switchOpenAILanguage(key);
+        } finally {
+            setLangSwitching(false);
+        }
     };
 
     const handleMenuClick = ({ key }) => {
@@ -82,8 +92,8 @@ const Header = () => {
                             { key: 'ru', label: 'Russian', onClick: () => changeLanguage({ key: 'ru' }) },
                         ]
                     }} trigger={['click']}>
-                        <Button type="text" icon={<GlobalOutlined />} className={styles.langBtn}>
-                            {i18n.language === 'ru' ? 'RU' : 'EN'}
+                        <Button type="text" icon={<GlobalOutlined />} className={styles.langBtn} loading={langSwitching}>
+                            {(getStoredOpenAILanguage() === 'ru' || i18n.language === 'ru') ? 'RU' : 'EN'}
                         </Button>
                     </Dropdown>
 
@@ -162,6 +172,19 @@ const Header = () => {
                     ]}
                     items={[
                         ...navItems,
+                        { type: 'divider' },
+                        {
+                            key: 'lang-en',
+                            label: 'English',
+                            icon: <GlobalOutlined />,
+                            onClick: () => { changeLanguage({ key: 'en' }); closeMobileMenu(); }
+                        },
+                        {
+                            key: 'lang-ru',
+                            label: 'Russian',
+                            icon: <GlobalOutlined />,
+                            onClick: () => { changeLanguage({ key: 'ru' }); closeMobileMenu(); }
+                        },
                         { type: 'divider' },
                         ...(user ? [
                             ...(user.is_rtc_owner ? [{

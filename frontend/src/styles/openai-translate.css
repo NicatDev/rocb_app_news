@@ -1,0 +1,41 @@
+.openai-translate-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.openai-translate-loading__panel {
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px 32px;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+  min-width: 220px;
+}
+
+.openai-translate-loading__panel p {
+  margin: 14px 0 0;
+  color: #475569;
+  font-weight: 600;
+}
+
+.openai-translate-loading__spinner {
+  width: 42px;
+  height: 42px;
+  margin: 0 auto;
+  border: 3px solid #e2e8f0;
+  border-top-color: #1890ff;
+  border-radius: 50%;
+  animation: openai-translate-spin 0.8s linear infinite;
+}
+
+@keyframes openai-translate-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
