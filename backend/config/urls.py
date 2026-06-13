@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 
-from config.views_translate import TranslateHtmlView
+# OpenAI translate API (disabled — see OPENAI_TRANSLATION_NOTES.md):
+# from config.views_translate import TranslateHtmlView
 
 admin.site.site_header = 'Rocb Europe Admin'
 admin.site.site_title = 'Rocb Europe Admin'
@@ -16,7 +17,7 @@ urlpatterns = [
     path('api/v1/public/', include('public_news.urls')),
     path('api/v1/feed/', include('feed.urls')),
     path('api/v1/rich-text/', include('config.urls_rich_text')),
-    path('api/v1/translate/', TranslateHtmlView.as_view(), name='openai_translate'),
+    # path('api/v1/translate/', TranslateHtmlView.as_view(), name='openai_translate'),
 ]
 
 from django.conf import settings

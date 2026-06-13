@@ -1,14 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Layout, Menu, Dropdown, Avatar, Button, Space, Typography, Drawer, Grid } from 'antd';
 import { UserOutlined, LogoutOutlined, DownOutlined, GlobalOutlined, MenuOutlined } from '@ant-design/icons';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../context/AuthContext';
-import {
-    switchOpenAILanguage,
-    getStoredOpenAILanguage,
-    waitForDomStable,
-} from '../../../utils/openaiTranslate';
+// OpenAI page translation (disabled — see OPENAI_TRANSLATION_NOTES.md):
+// import { switchOpenAILanguage, getStoredOpenAILanguage, waitForDomStable } from '../../../utils/openaiTranslate';
 import styles from './style.module.scss';
 
 const { Header: AntHeader } = Layout;
@@ -22,24 +19,13 @@ const Header = () => {
     const location = useLocation();
     const screens = useBreakpoint();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [langSwitching, setLangSwitching] = useState(false);
-    const [displayLang, setDisplayLang] = useState(() => getStoredOpenAILanguage());
+    const langLabel = i18n.language?.startsWith('ru') ? 'RU' : 'EN';
 
-    useEffect(() => {
-        setDisplayLang(getStoredOpenAILanguage());
-    }, [location.pathname]);
-
-    const changeLanguage = async ({ key }) => {
-        if (langSwitching) return;
-        setLangSwitching(true);
-        try {
-            i18n.changeLanguage(key);
-            await waitForDomStable();
-            await switchOpenAILanguage(key, { sourceLang: 'en' });
-            setDisplayLang(key);
-        } finally {
-            setLangSwitching(false);
-        }
+    const changeLanguage = ({ key }) => {
+        i18n.changeLanguage(key);
+        // OpenAI DOM translation (disabled):
+        // await waitForDomStable();
+        // await switchOpenAILanguage(key, { sourceLang: 'en' });
     };
 
     const handleMenuClick = ({ key }) => {
@@ -66,8 +52,6 @@ const Header = () => {
     const closeMobileMenu = () => {
         setMobileMenuOpen(false);
     };
-
-    const langLabel = displayLang === 'ru' ? 'RU' : 'EN';
 
     return (
         <AntHeader className={styles.header}>
@@ -102,7 +86,7 @@ const Header = () => {
                             { key: 'ru', label: 'Russian', onClick: () => changeLanguage({ key: 'ru' }) },
                         ]
                     }} trigger={['click']}>
-                        <Button type="text" icon={<GlobalOutlined />} className={styles.langBtn} loading={langSwitching}>
+                        <Button type="text" icon={<GlobalOutlined />} className={styles.langBtn}>
                             {langLabel}
                         </Button>
                     </Dropdown>

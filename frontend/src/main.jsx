@@ -6,7 +6,8 @@ import './i18n';
 // import 'antd/dist/reset.css'; // Not strictly needed for Antd v5 but good for resets if using
 import './index.css';
 import './styles/rich-text-content.css';
-import './styles/openai-translate.css';
+// OpenAI loading overlay (disabled — see OPENAI_TRANSLATION_NOTES.md):
+// import './styles/openai-translate.css';
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(

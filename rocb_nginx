@@ -12,7 +12,16 @@ server {
         alias /rocb_app_news/backend/media/;
     }
 
+    location /api/v1/translate/ {
+        proxy_read_timeout 120s;
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 120s;
+        include proxy_params;
+        proxy_pass http://unix:/run/gunicorn.sock;
+    }
+
     location / {
+        proxy_read_timeout 120s;
         include proxy_params;
         proxy_pass http://unix:/run/gunicorn.sock;
     }

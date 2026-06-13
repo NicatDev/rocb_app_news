@@ -6,7 +6,8 @@ After=network.target
 User=root
 Group=www-data
 WorkingDirectory=/rocb_app_news/backend
-ExecStart=/rocb_app_news/backend/venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/run/gunicorn.sock config.wsgi:application
+EnvironmentFile=-/rocb_app_news/backend/.env
+ExecStart=/rocb_app_news/backend/venv/bin/gunicorn --access-logfile - --workers 3 --timeout 120 --bind unix:/run/gunicorn.sock config.wsgi:application
 
 [Install]
 WantedBy=multi-user.target

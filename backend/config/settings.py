@@ -22,9 +22,32 @@ except ImportError:
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+def _load_env_file(path: Path) -> None:
+    """Load KEY=VALUE lines into os.environ (stdlib fallback when python-dotenv is missing)."""
+    if not path.is_file():
+        return
+    try:
+        for line in path.read_text(encoding='utf-8').splitlines():
+            line = line.strip()
+            if not line or line.startswith('#') or '=' not in line:
+                continue
+            key, _, value = line.partition('=')
+            key = key.strip()
+            if not key:
+                continue
+            value = value.strip().strip('"').strip("'")
+            os.environ.setdefault(key, value)
+    except OSError:
+        pass
+
+
+for _env_path in (BASE_DIR / '.env', BASE_DIR.parent / '.env'):
+    _load_env_file(_env_path)
+
 if load_dotenv:
-    load_dotenv(BASE_DIR / ".env")
-    load_dotenv(BASE_DIR.parent / ".env")
+    load_dotenv(BASE_DIR / '.env')
+    load_dotenv(BASE_DIR.parent / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -244,5 +267,5 @@ OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 OPENAI_TRANSLATE_MODEL = os.environ.get('OPENAI_TRANSLATE_MODEL', 'gpt-4o-mini')
 OPENAI_TRANSLATE_MAX_HTML_LENGTH = int(os.environ.get('OPENAI_TRANSLATE_MAX_HTML_LENGTH', '48000'))
 OPENAI_TRANSLATE_CHUNK_SIZE = int(os.environ.get('OPENAI_TRANSLATE_CHUNK_SIZE', '6000'))
-OPENAI_TRANSLATE_TIMEOUT = int(os.environ.get('OPENAI_TRANSLATE_TIMEOUT', '90'))
+OPENAI_TRANSLATE_TIMEOUT = int(os.environ.get('OPENAI_TRANSLATE_TIMEOUT', '45'))
 

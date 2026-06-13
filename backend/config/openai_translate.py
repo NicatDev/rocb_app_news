@@ -3,6 +3,9 @@ from __future__ import annotations
 
 import json
 import re
+import ssl
+import urllib.error
+import urllib.request
 from typing import List
 
 from django.conf import settings
@@ -15,7 +18,8 @@ LANG_NAMES = {
 
 MAX_HTML_LENGTH = getattr(settings, 'OPENAI_TRANSLATE_MAX_HTML_LENGTH', 48000)
 CHUNK_SIZE = getattr(settings, 'OPENAI_TRANSLATE_CHUNK_SIZE', 6000)
-REQUEST_TIMEOUT = getattr(settings, 'OPENAI_TRANSLATE_TIMEOUT', 90)
+REQUEST_TIMEOUT = getattr(settings, 'OPENAI_TRANSLATE_TIMEOUT', 45)
+OPENAI_CHAT_URL = 'https://api.openai.com/v1/chat/completions'
 
 
 class OpenAITranslateError(Exception):
@@ -44,12 +48,62 @@ def _split_html(html: str, max_len: int = CHUNK_SIZE) -> List[str]:
     return chunks
 
 
-def _call_openai(html: str, source_lang: str, target_lang: str) -> str:
-    try:
-        import requests
-    except ImportError as exc:
-        raise OpenAITranslateError('requests package is not installed. Run: pip install requests') from exc
+def _openai_chat(payload: dict, api_key: str, timeout: int = REQUEST_TIMEOUT) -> dict:
+    """Call OpenAI chat/completions using stdlib urllib (same SSL stack as curl)."""
+    body = json.dumps(payload).encode('utf-8')
+    request = urllib.request.Request(
+        OPENAI_CHAT_URL,
+        data=body,
+        headers={
+            'Authorization': f'Bearer {api_key}',
+            'Content-Type': 'application/json',
+        },
+        method='POST',
+    )
+    context = ssl.create_default_context()
 
+    try:
+        with urllib.request.urlopen(request, timeout=timeout, context=context) as response:
+            raw = response.read().decode('utf-8')
+    except urllib.error.HTTPError as exc:
+        raw = exc.read().decode('utf-8', errors='replace')
+        try:
+            data = json.loads(raw)
+            err_msg = data.get('error', {}).get('message') if isinstance(data, dict) else ''
+        except (json.JSONDecodeError, ValueError):
+            err_msg = raw[:500]
+        if not err_msg:
+            err_msg = raw[:500] or str(exc)
+        if exc.code == 429:
+            raise OpenAITranslateError(
+                'OpenAI quota exceeded. Add billing/credits at platform.openai.com and try again.'
+            ) from exc
+        raise OpenAITranslateError(f'OpenAI request failed ({exc.code}): {err_msg}') from exc
+    except urllib.error.URLError as exc:
+        raise OpenAITranslateError(f'Could not reach OpenAI: {exc.reason}') from exc
+    except TimeoutError as exc:
+        raise OpenAITranslateError('OpenAI request timed out. Try again or reduce page size.') from exc
+
+    try:
+        return json.loads(raw)
+    except (json.JSONDecodeError, ValueError) as exc:
+        raise OpenAITranslateError(f'Invalid OpenAI response: {raw[:500]}') from exc
+
+
+def _extract_content(data: dict) -> str:
+    try:
+        content = data['choices'][0]['message']['content']
+    except (KeyError, IndexError, TypeError) as exc:
+        raise OpenAITranslateError('Unexpected OpenAI response format.') from exc
+
+    content = (content or '').strip()
+    if content.startswith('```'):
+        content = re.sub(r'^```(?:html)?\s*', '', content)
+        content = re.sub(r'\s*```$', '', content)
+    return content.strip()
+
+
+def _call_openai(html: str, source_lang: str, target_lang: str) -> str:
     api_key = getattr(settings, 'OPENAI_API_KEY', '') or ''
     if not api_key:
         raise OpenAITranslateError('OpenAI API key is not configured.')
@@ -78,42 +132,23 @@ def _call_openai(html: str, source_lang: str, target_lang: str) -> str:
         ],
     }
 
-    try:
-        response = requests.post(
-            'https://api.openai.com/v1/chat/completions',
-            headers={
-                'Authorization': f'Bearer {api_key}',
-                'Content-Type': 'application/json',
-            },
-            json=payload,
-            timeout=REQUEST_TIMEOUT,
-        )
-    except requests.exceptions.Timeout as exc:
-        raise OpenAITranslateError(
-            'OpenAI request timed out. Try again or reduce page size.'
-        ) from exc
-    except requests.exceptions.RequestException as exc:
-        raise OpenAITranslateError(f'Could not reach OpenAI: {exc}') from exc
+    data = _openai_chat(payload, api_key)
+    return _extract_content(data)
 
-    if response.status_code >= 400:
-        try:
-            err_body = response.json()
-            err_msg = err_body.get('error', {}).get('message') or response.text[:500]
-        except (json.JSONDecodeError, ValueError, AttributeError):
-            err_msg = response.text[:500]
-        raise OpenAITranslateError(f'OpenAI request failed ({response.status_code}): {err_msg}')
 
-    data = response.json()
-    try:
-        content = data['choices'][0]['message']['content']
-    except (KeyError, IndexError, TypeError) as exc:
-        raise OpenAITranslateError('Unexpected OpenAI response format.') from exc
+def probe_openai() -> None:
+    """Minimal OpenAI call to verify key and outbound HTTPS from the server."""
+    api_key = getattr(settings, 'OPENAI_API_KEY', '') or ''
+    if not api_key:
+        raise OpenAITranslateError('OpenAI API key is not configured.')
 
-    content = content.strip()
-    if content.startswith('```'):
-        content = re.sub(r'^```(?:html)?\s*', '', content)
-        content = re.sub(r'\s*```$', '', content)
-    return content.strip()
+    model = getattr(settings, 'OPENAI_TRANSLATE_MODEL', 'gpt-4o-mini')
+    payload = {
+        'model': model,
+        'max_tokens': 5,
+        'messages': [{'role': 'user', 'content': 'Reply with ok'}],
+    }
+    _openai_chat(payload, api_key, timeout=30)
 
 
 def translate_html(html: str, source_lang: str, target_lang: str) -> str:
