@@ -78,19 +78,30 @@ def _call_openai(html: str, source_lang: str, target_lang: str) -> str:
         ],
     }
 
-    response = requests.post(
-        'https://api.openai.com/v1/chat/completions',
-        headers={
-            'Authorization': f'Bearer {api_key}',
-            'Content-Type': 'application/json',
-        },
-        json=payload,
-        timeout=REQUEST_TIMEOUT,
-    )
+    try:
+        response = requests.post(
+            'https://api.openai.com/v1/chat/completions',
+            headers={
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json',
+            },
+            json=payload,
+            timeout=REQUEST_TIMEOUT,
+        )
+    except requests.exceptions.Timeout as exc:
+        raise OpenAITranslateError(
+            'OpenAI request timed out. Try again or reduce page size.'
+        ) from exc
+    except requests.exceptions.RequestException as exc:
+        raise OpenAITranslateError(f'Could not reach OpenAI: {exc}') from exc
 
     if response.status_code >= 400:
-        detail = response.text[:500]
-        raise OpenAITranslateError(f'OpenAI request failed ({response.status_code}): {detail}')
+        try:
+            err_body = response.json()
+            err_msg = err_body.get('error', {}).get('message') or response.text[:500]
+        except (json.JSONDecodeError, ValueError, AttributeError):
+            err_msg = response.text[:500]
+        raise OpenAITranslateError(f'OpenAI request failed ({response.status_code}): {err_msg}')
 
     data = response.json()
     try:

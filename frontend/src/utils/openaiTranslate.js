@@ -3,14 +3,27 @@ import { translateHtmlApi } from '../api/translate';
 const STORAGE_KEY = 'openai_page_lang';
 const ORIGINAL_ATTR = 'data-openai-original-html';
 const CONTENT_SELECTOR = '[data-openai-translate="main"]';
+/** Keep each API call small to avoid nginx/gunicorn 502 timeouts. */
+const CLIENT_CHUNK_SIZE = 3500;
 
 let loadingCount = 0;
 
-const getPageSourceLanguage = () => {
-    const lang = (document.documentElement.lang || 'en').toLowerCase();
-    if (lang.startsWith('ru')) return 'ru';
-    if (lang.startsWith('az')) return 'az';
-    return 'en';
+const splitHtmlChunks = (html, maxLen = CLIENT_CHUNK_SIZE) => {
+    if (!html || html.length <= maxLen) return [html];
+    const chunks = [];
+    let start = 0;
+    while (start < html.length) {
+        let end = Math.min(start + maxLen, html.length);
+        if (end < html.length) {
+            const splitAt = html.lastIndexOf('</', start, end);
+            if (splitAt > start + maxLen / 3) {
+                end = splitAt + html.slice(splitAt).indexOf('>') + 1;
+            }
+        }
+        chunks.push(html.slice(start, end));
+        start = end;
+    }
+    return chunks;
 };
 
 /** Wait for React/i18n re-render to finish before reading DOM for translation. */
@@ -52,6 +65,18 @@ const hideLoading = () => {
     document.getElementById('openai-translate-loading')?.remove();
 };
 
+const translateHtmlInChunks = async (html, targetLang, sourceLang) => {
+    const chunks = splitHtmlChunks(html);
+    if (chunks.length === 1) {
+        return translateHtmlApi(html, targetLang, sourceLang);
+    }
+    const parts = [];
+    for (let i = 0; i < chunks.length; i += 1) {
+        parts.push(await translateHtmlApi(chunks[i], targetLang, sourceLang));
+    }
+    return parts.join('');
+};
+
 export const restoreOpenAIOriginal = () => {
     getContentElements().forEach((el) => {
         const original = el.getAttribute(ORIGINAL_ATTR);
@@ -65,7 +90,7 @@ export const restoreOpenAIOriginal = () => {
 
 export const switchOpenAILanguage = async (targetLang, { sourceLang } = {}) => {
     const langCode = (targetLang || 'en').toLowerCase();
-    const fromLang = sourceLang || getPageSourceLanguage();
+    const fromLang = sourceLang || 'en';
 
     if (langCode === 'en') {
         restoreOpenAIOriginal();
@@ -84,15 +109,14 @@ export const switchOpenAILanguage = async (targetLang, { sourceLang } = {}) => {
     try {
         for (const el of elements) {
             const original = ensureOriginalHtml(el);
-            const translated = await translateHtmlApi(original, langCode, fromLang);
+            const translated = await translateHtmlInChunks(original, langCode, fromLang);
             el.innerHTML = translated;
         }
         document.documentElement.lang = langCode;
     } catch (error) {
         console.error('OpenAI translate error:', error);
-        const detail = error.response?.data?.detail || error.message || 'Could not translate this page.';
+        const detail = error.message || error.response?.data?.detail || 'Could not translate this page.';
         window.alert(detail);
-        throw error;
     } finally {
         hideLoading();
     }
