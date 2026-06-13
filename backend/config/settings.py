@@ -24,6 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 if load_dotenv:
     load_dotenv(BASE_DIR / ".env")
+    load_dotenv(BASE_DIR.parent / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -238,7 +239,7 @@ ROCB_NOTIFY_STAFF_EMAILS = [
     "nicat254memmedov@gmail.com",
 ]
 
-# OpenAI page translation (key must be set in environment — never commit secrets)
+# OpenAI page translation — set OPENAI_API_KEY in backend/.env (see .env.example)
 OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
 OPENAI_TRANSLATE_MODEL = os.environ.get('OPENAI_TRANSLATE_MODEL', 'gpt-4o-mini')
 OPENAI_TRANSLATE_MAX_HTML_LENGTH = int(os.environ.get('OPENAI_TRANSLATE_MAX_HTML_LENGTH', '48000'))

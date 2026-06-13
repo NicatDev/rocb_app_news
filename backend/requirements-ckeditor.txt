@@ -2,6 +2,7 @@
 # (django-ckeditor is required for rich-text admin widgets.)
 django-ckeditor==6.7.3
 django-js-asset>=2.2.0
+python-dotenv>=1.0.0
 bleach>=6.2.0
 requests>=2.32.0
 tinycss2>=1.4.0
