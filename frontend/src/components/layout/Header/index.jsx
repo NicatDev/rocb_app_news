@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Dropdown, Avatar, Button, Space, Typography, Drawer, Grid } from 'antd';
 import { UserOutlined, LogoutOutlined, DownOutlined, GlobalOutlined, MenuOutlined } from '@ant-design/icons';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../../context/AuthContext';
-import { switchOpenAILanguage, getStoredOpenAILanguage } from '../../../utils/openaiTranslate';
+import {
+    switchOpenAILanguage,
+    getStoredOpenAILanguage,
+    waitForDomStable,
+} from '../../../utils/openaiTranslate';
 import styles from './style.module.scss';
 
 const { Header: AntHeader } = Layout;
@@ -19,14 +23,20 @@ const Header = () => {
     const screens = useBreakpoint();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [langSwitching, setLangSwitching] = useState(false);
+    const [displayLang, setDisplayLang] = useState(() => getStoredOpenAILanguage());
+
+    useEffect(() => {
+        setDisplayLang(getStoredOpenAILanguage());
+    }, [location.pathname]);
 
     const changeLanguage = async ({ key }) => {
         if (langSwitching) return;
         setLangSwitching(true);
         try {
-            // i18next: UI labels (nav, buttons). Page body uses OpenAI below.
             i18n.changeLanguage(key);
-            await switchOpenAILanguage(key);
+            await waitForDomStable();
+            await switchOpenAILanguage(key, { sourceLang: 'en' });
+            setDisplayLang(key);
         } finally {
             setLangSwitching(false);
         }
@@ -57,6 +67,7 @@ const Header = () => {
         setMobileMenuOpen(false);
     };
 
+    const langLabel = displayLang === 'ru' ? 'RU' : 'EN';
 
     return (
         <AntHeader className={styles.header}>
@@ -68,7 +79,6 @@ const Header = () => {
                 </div>
             </div>
 
-            {/* Desktop Navigation */}
             <div className={styles.navArea}>
                 <Menu
                     theme="light"
@@ -93,7 +103,7 @@ const Header = () => {
                         ]
                     }} trigger={['click']}>
                         <Button type="text" icon={<GlobalOutlined />} className={styles.langBtn} loading={langSwitching}>
-                            {(getStoredOpenAILanguage() === 'ru' || i18n.language === 'ru') ? 'RU' : 'EN'}
+                            {langLabel}
                         </Button>
                     </Dropdown>
 
@@ -143,7 +153,6 @@ const Header = () => {
                         </Button>
                     )}
 
-                    {/* Burger Menu Button (Mobile Only) */}
                     <Button
                         className={styles.burgerBtn}
                         type="text"
@@ -153,7 +162,6 @@ const Header = () => {
                 </Space>
             </div>
 
-            {/* Mobile Drawer */}
             <Drawer
                 title="Rocb Europe"
                 placement="right"

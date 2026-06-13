@@ -6,12 +6,22 @@ const CONTENT_SELECTOR = '[data-openai-translate="main"]';
 
 let loadingCount = 0;
 
-const getSourceLanguage = () => {
+const getPageSourceLanguage = () => {
     const lang = (document.documentElement.lang || 'en').toLowerCase();
     if (lang.startsWith('ru')) return 'ru';
     if (lang.startsWith('az')) return 'az';
     return 'en';
 };
+
+/** Wait for React/i18n re-render to finish before reading DOM for translation. */
+export const waitForDomStable = () =>
+    new Promise((resolve) => {
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                setTimeout(resolve, 80);
+            });
+        });
+    });
 
 const getContentElements = () => Array.from(document.querySelectorAll(CONTENT_SELECTOR));
 
@@ -53,30 +63,36 @@ export const restoreOpenAIOriginal = () => {
     document.documentElement.lang = 'en';
 };
 
-export const switchOpenAILanguage = async (targetLang) => {
+export const switchOpenAILanguage = async (targetLang, { sourceLang } = {}) => {
     const langCode = (targetLang || 'en').toLowerCase();
-    localStorage.setItem(STORAGE_KEY, langCode);
-    document.documentElement.lang = langCode;
+    const fromLang = sourceLang || getPageSourceLanguage();
 
     if (langCode === 'en') {
         restoreOpenAIOriginal();
         return;
     }
 
+    localStorage.setItem(STORAGE_KEY, langCode);
+
     const elements = getContentElements();
-    if (!elements.length) return;
+    if (!elements.length) {
+        console.warn('OpenAI translate: no [data-openai-translate="main"] element found.');
+        return;
+    }
 
     showLoading();
     try {
         for (const el of elements) {
             const original = ensureOriginalHtml(el);
-            const translated = await translateHtmlApi(original, langCode, getSourceLanguage());
+            const translated = await translateHtmlApi(original, langCode, fromLang);
             el.innerHTML = translated;
         }
+        document.documentElement.lang = langCode;
     } catch (error) {
         console.error('OpenAI translate error:', error);
         const detail = error.response?.data?.detail || error.message || 'Could not translate this page.';
         window.alert(detail);
+        throw error;
     } finally {
         hideLoading();
     }
@@ -84,10 +100,14 @@ export const switchOpenAILanguage = async (targetLang) => {
 
 export const applyStoredOpenAILanguage = async () => {
     const saved = (localStorage.getItem(STORAGE_KEY) || 'en').toLowerCase();
-    if (saved !== 'en') {
-        await switchOpenAILanguage(saved);
-    }
+    if (saved === 'en') return;
+    await waitForDomStable();
+    await switchOpenAILanguage(saved, { sourceLang: 'en' });
 };
 
 export const getStoredOpenAILanguage = () =>
     (localStorage.getItem(STORAGE_KEY) || 'en').toLowerCase();
+
+export const setStoredOpenAILanguage = (lang) => {
+    localStorage.setItem(STORAGE_KEY, (lang || 'en').toLowerCase());
+};

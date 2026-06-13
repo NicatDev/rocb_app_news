@@ -14,7 +14,7 @@ const MainLayout = ({ children }) => {
     useEffect(() => {
         const timer = window.setTimeout(() => {
             applyStoredOpenAILanguage();
-        }, 350);
+        }, 500);
         return () => window.clearTimeout(timer);
     }, [location.pathname]);
 
