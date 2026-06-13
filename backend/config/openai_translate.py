@@ -5,7 +5,6 @@ import json
 import re
 from typing import List
 
-import requests
 from django.conf import settings
 
 LANG_NAMES = {
@@ -46,6 +45,11 @@ def _split_html(html: str, max_len: int = CHUNK_SIZE) -> List[str]:
 
 
 def _call_openai(html: str, source_lang: str, target_lang: str) -> str:
+    try:
+        import requests
+    except ImportError as exc:
+        raise OpenAITranslateError('requests package is not installed. Run: pip install requests') from exc
+
     api_key = getattr(settings, 'OPENAI_API_KEY', '') or ''
     if not api_key:
         raise OpenAITranslateError('OpenAI API key is not configured.')
